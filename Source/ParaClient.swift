@@ -57,11 +57,6 @@ public class ParaClient {
 	
 	public func setEndpoint(endpoint: String) {
 		self.endpoint = endpoint
-		self.signIn("facebook", providerToken: "fb_access_token", callback: { user in
-			if user != nil {
-				// success! user is authenticated, JWT token is saved on the device
-			}
-		})
 	}
 	
 	/// Returns the endpoint URL

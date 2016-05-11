@@ -1,6 +1,6 @@
 ![Logo](https://s3-eu-west-1.amazonaws.com/org.paraio/para.png)
 
-# Swift Client for Para
+# iOS Client for Para
 
 [![CocoaPods Compatible](https://img.shields.io/cocoapods/v/ParaClient.svg)](https://img.shields.io/cocoapods/v/ParaClient.svg)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
@@ -41,7 +41,7 @@ Initialize the client in your code like so:
 ```js
 import ParaClient
 // avoid using the secret key on mobile devices
-let client = ParaClient('ACCESS_KEY', '')
+let client = ParaClient(accessKey: "ACCESS_KEY", secretKey: "")
 client.signIn("facebook", providerToken: "fb_access_token", callback: { user in
     if user != nil {
         // success! user is authenticated, JWT token is saved on the device
@@ -56,7 +56,7 @@ client.signIn("facebook", providerToken: "fb_access_token", callback: { user in
 
 ## Thanks
 
-Special thanks to Christopher Sexton for porting the 
+Special thanks to [Christopher Sexton](https://github.com/csexton) for porting the 
 [AWS Signature 4 algorithm to Swift](http://www.codeography.com/2016/03/20/signing-aws-api-requests-in-swift.html).
 His code was used in this project and is also licensed under Apache 2.0.
 
