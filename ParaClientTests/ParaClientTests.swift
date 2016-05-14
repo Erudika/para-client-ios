@@ -18,6 +18,7 @@ class ParaClientTests: XCTestCase {
 	private let catsType = "cat"
 	private let dogsType = "dog"
 	private let APP_ID = "app:para"
+	private let ALLOW_ALL = "*"
 	
 	private var _u: ParaObject?
 	private var _u1: ParaObject?
@@ -283,974 +284,581 @@ class ParaClientTests: XCTestCase {
 	}
 	
 	
-//	func testBatchCRUD() {
-//		var dogs = [ParaObject]()
-//		for _ in 0...2 {
-//			var s =  ParaObject()
-//			s.type = dogsType
-//			s.properties["foo"] = "bark!"
-//			dogs.append(s)
-//		}
-//		
-//		pc().createAll(nil,  {
-//		 {
-//		XCTAssertTrue(res.isEmpty())
-//		}
-//		})
-//		
-//		pc().createAll(dogs,  {
-//		 {
-//		List<ParaObject> l1 = res
-//		XCTAssertEqual(3, l1.size())
-//		XCTAssertNotNil(l1.get(0).id)
-//		
-//		ArrayList<String> nl =  ArrayList<String>(3)
-//		nl.add(l1.get(0).id)
-//		nl.add(l1.get(1).id)
-//		nl.add(l1.get(2).id)
-//		pc().readAll(nl,  {
-//		 {
-//		List<ParaObject> l2 = res
-//		XCTAssertEqual(3, l2.size())
-//		XCTAssertEqual(l1.get(0).id, l2.get(0).id)
-//		XCTAssertEqual(l1.get(1).id, l2.get(1).id)
-//		XCTAssertTrue((l2.get(0)).hasProperty("foo"))
-//		XCTAssertEqual("bark!", (l2.get(0)).getProperty("foo"))
-//		}
-//		})
-//		
-//		ParaObject part1 =  ParaObject(l1.get(0).id)
-//		ParaObject part2 =  ParaObject(l1.get(1).id)
-//		ParaObject part3 =  ParaObject(l1.get(2).id)
-//		part1.setType(dogsType)
-//		part2.setType(dogsType)
-//		part3.setType(dogsType)
-//		
-//		(part1).properties["custom", "prop")
-//		part1.setName("NewName1")
-//		part2.setName("NewName2")
-//		part3.setName("NewName3")
-//		
-//		pc().updateAll(Arrays.asList(part1, part2, part3),  {
-//		 {
-//		List<ParaObject> l3 = res
-//		
-//		XCTAssertTrue((l3.get(0)).hasProperty("custom"))
-//		XCTAssertEqual(dogsType, l3.get(0).getType())
-//		XCTAssertEqual(dogsType, l3.get(1).getType())
-//		XCTAssertEqual(dogsType, l3.get(2).getType())
-//		
-//		XCTAssertEqual(part1.getName(), l3.get(0).getName())
-//		XCTAssertEqual(part2.getName(), l3.get(1).getName())
-//		XCTAssertEqual(part3.getName(), l3.get(2).getName())
-//		
-//		pc().deleteAll(nl,  {
-//		 {
-//		sleep(1)
-//		pc().list(dogsType, nil,  {
-//		 {
-//		XCTAssertTrue(res.isEmpty())
-//		}
-//		})
-//		
-//		pc().me( {
-//		 {
-//		Map<String, String> datatypes = (Map<String, String>)
-//		((ParaObject)res).getProperty("datatypes")
-//		XCTAssertTrue(datatypes.containsValue(dogsType))
-//		}
-//		})
-//		}
-//		})
-//		}
-//		})
-//		}
-//		})
-//		
-//		pc().readAll(nil,  {
-//		 {
-//		XCTAssertTrue(res.isEmpty())
-//		}
-//		})
-//		pc().readAll(ArrayList<String>(0),  {
-//		 {
-//		XCTAssertTrue(res.isEmpty())
-//		}
-//		})
-//		pc().updateAll(nil,  {
-//			XCTAssertTrue(res.isEmpty())
-//		})
-//		pc().updateAll(ArrayList<ParaObject>(0),  {
-//			XCTAssertTrue(res.isEmpty())
-//		})
-//	}
+	func testBatchCRUD() {
+		var dogs = [ParaObject]()
+		for _ in 0...2 {
+			let s =  ParaObject()
+			s.type = dogsType
+			s.properties["foo"] = "bark!"
+			dogs.append(s)
+		}
+		
+		pc().createAll([], callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		
+		pc().createAll(dogs, callback: { l1 in
+			XCTAssertEqual(3, l1?.count)
+			XCTAssertNotNil(l1?[0].id)
+			
+			let nl = [l1![0].id, l1![1].id, l1![2].id]
+			self.pc().readAll(nl, callback: { l2 in
+				XCTAssertEqual(3, l2?.count)
+				XCTAssertEqual(l1?[0].id, l2?[0].id)
+				XCTAssertEqual(l1?[1].id, l2?[1].id)
+				XCTAssertTrue((l2?[0].properties.keys.contains("foo"))!)
+				XCTAssertEqual("bark!", (l2?[0].properties["foo"])! as? String)
+			})
+		
+			let part1 = ParaObject(id: l1![0].id)
+			let part2 = ParaObject(id: l1![1].id)
+			let part3 = ParaObject(id: l1![2].id)
+			part1.type = self.dogsType
+			part2.type = self.dogsType
+			part3.type = self.dogsType
+			
+			part1.properties["custom"] = "prop"
+			part1.name = "NewName1"
+			part2.name = "NewName2"
+			part3.name = "NewName3"
+			
+			self.pc().updateAll([part1, part2, part3], callback: { l3 in
+				XCTAssertTrue(l3![0].properties.keys.contains("custom"))
+				XCTAssertEqual(self.dogsType, l3![0].type)
+				XCTAssertEqual(self.dogsType, l3![1].type)
+				XCTAssertEqual(self.dogsType, l3![2].type)
+				
+				XCTAssertEqual(part1.name, l3![0].name)
+				XCTAssertEqual(part2.name, l3![1].name)
+				XCTAssertEqual(part3.name, l3![2].name)
+				
+				self.pc().deleteAll(nl, callback: { _ in
+					sleep(1)
+					self.pc().list(self.dogsType, pager: nil, callback: { res in
+						XCTAssertTrue(res!.count == 0)
+					})
+					
+					self.pc().me({ res in
+						let datatypes = res!.properties["datatypes"] as? [String: String]
+						XCTAssertTrue(datatypes!.values.contains(self.dogsType))
+					})
+				})
+			})
+		})
+		
+		pc().readAll([], callback: { res in
+			XCTAssertTrue(res!.count == 0)
+		})
+		
+		pc().updateAll([], callback: { res in
+			XCTAssertTrue(res!.count == 0)
+		})
+	}
 
-//
-//	func testList() {
-//	var cats =  ArrayList<ParaObject>()
-//	for (int i = 0 i < 3 i++) {
-//	ParaObject s =  ParaObject(catsType + i)
-//	s.setType(catsType)
-//	cats.add(s)
-//	}
-//	
-//	pc().list(nil, nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().list("", nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	
-//	pc().createAll(cats,  {
-//	 {
-//	
-//	sleep(1)
-//	
-//	pc().list(catsType, nil,  {
-//	 {
-//	List<ParaObject> list1 = res
-//	XCTAssertFalse(list1.isEmpty())
-//	XCTAssertEqual(3, list1.size())
-//	XCTAssertEqual(ParaObject.class, list1.get(0).getClass())
-//	}
-//	})
-//	
-//	pc().list(catsType, Pager(2),  {
-//	 {
-//	List<ParaObject> list2 = res
-//	XCTAssertFalse(list2.isEmpty())
-//	XCTAssertEqual(2, list2.size())
-//	
-//	ArrayList<String> nl =  ArrayList<String>(3)
-//	nl.add(cats.get(0).id)
-//	nl.add(cats.get(1).id)
-//	nl.add(cats.get(2).id)
-//	
-//	pc().deleteAll(nl,  {
-//	 {
-//	pc().me( {
-//	 {
-//	Map<String, String> datatypes = (Map<String, String>)
-//	((ParaObject)res).getProperty("datatypes")
-//	XCTAssertTrue(datatypes.containsValue(catsType))
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	
-//	
-//	func testSearch() {
-//	pc().findById(nil,  {
-//	 {
-//	XCTAssertNil(res)
-//	}
-//	})
-//	pc().findById("",  {
-//	 {
-//	XCTAssertNil(res)
-//	}
-//	})
-//	pc().findById(u().id,  {
-//	 {
-//	XCTAssertNotNil(res)
-//	}
-//	})
-//	pc().findById(t().id,  {
-//	 {
-//	XCTAssertNotNil(res)
-//	}
-//	})
-//	
-//	pc().findByIds(nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findByIds(Arrays.asList(u().id, u1().id, u2().id),
-//	 {
-//	 {
-//	XCTAssertEqual(3, res.size())
-//	}
-//	})
-//	pc().findNearby(nil, nil, 100, 1, 1, nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findNearby(u().getType(), "*", 10, 40.60, -73.90, nil,
-//	 {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	pc().findNearby(t().getType(), "*", 20, 40.62, -73.91, nil,
-//	 {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	
-//	pc().findPrefix(nil, nil, "", nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	
-//	pc().findPrefix("", "nil", "xx", nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	
-//	pc().findPrefix(u().getType(), "name", "ann", nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	
-//	pc().findQuery(nil, nil, nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	pc().findQuery("", "*", nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	pc().findQuery(a1().getType(), "country:US", nil,  {
-//	 {
-//	XCTAssertEqual(2, res.size())
-//	}
-//	})
-//	pc().findQuery(u().getType(), "ann", nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	pc().findQuery(u().getType(), "Ann", nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	pc().findQuery(nil, "*", nil,  {
-//	 {
-//	XCTAssertTrue(res.size() > 4)
-//	}
-//	})
-//	
-//	Pager p =  Pager()
-//	XCTAssertEqual(0, p.getCount())
-//	pc().findQuery(u().getType(), "*", p,  {
-//	 {
-//	XCTAssertEqual(res.size(), p.getCount())
-//	XCTAssertTrue(p.getCount() > 0)
-//	}
-//	})
-//	
-//	pc().findSimilar(t().getType(), "", nil, nil, nil,
-//	 {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findSimilar(t().getType(), "", String[0], "", nil,
-//	 {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findSimilar(s1().getType(), s1().id, {"name"}, s1().getName(), nil,
-//	 {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	XCTAssertEqual(s2(), res.get(0))
-//	}
-//	})
-//	
-//	pc().findTagged(u().getType(), nil, nil,  {
-//	 {
-//	XCTAssertEqual(0, res.size())
-//	}
-//	})
-//	pc().findTagged(u().getType(), {"two"}, nil,  {
-//	 {
-//	XCTAssertEqual(2, res.size())
-//	}
-//	})
-//	pc().findTagged(u().getType(), {"one", "two"}, nil,  {
-//	 {
-//	XCTAssertEqual(1, res.size())
-//	}
-//	})
-//	pc().findTagged(u().getType(), {"three"}, nil,  {
-//	 {
-//	XCTAssertEqual(3, res.size())
-//	}
-//	})
-//	pc().findTagged(u().getType(), {"four", "three"}, nil,  {
-//	 {
-//	XCTAssertEqual(2, res.size())
-//	}
-//	})
-//	pc().findTagged(u().getType(), {"five", "three"}, nil,  {
-//	 {
-//	XCTAssertEqual(1, res.size())
-//	}
-//	})
-//	pc().findTagged(t().getType(), {"four", "three"}, nil,  {
-//	 {
-//	XCTAssertEqual(0, res.size())
-//	}
-//	})
-//	
-//	pc().findTags(nil, nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	pc().findTags("", nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	pc().findTags("unknown", nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findTags(t().getProperty("tag").description, nil,  {
-//	 {
-//	XCTAssertTrue(res.size() >= 1)
-//	}
-//	})
-//	
-//	pc().findTermInList(u().getType(), "id", Arrays.asList(u().id,
-//	u1().id, u2().id, "xxx", "yyy"), nil,  {
-//	 {
-//	XCTAssertEqual(3, res.size())
-//	}
-//	})
-//	
-//	// many terms
-//	Map<String, Object> terms =  [String: AnyObject]()
-//	//		terms.put("type", u.getType())
-//	terms.put("id", u().id)
-//	
-//	Map<String, Object> terms1 =  [String: AnyObject]()
-//	terms1.put("type", nil)
-//	terms1.put("id", " ")
-//	
-//	Map<String, Object> terms2 =  [String: AnyObject]()
-//	terms2.put(" ", "bad")
-//	terms2.put("", "")
-//	
-//	pc().findTerms(u().getType(), terms, true, nil,  {
-//	 {
-//	XCTAssertEqual(1, res.size())
-//	}
-//	})
-//	pc().findTerms(u().getType(), terms1, true, nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findTerms(u().getType(), terms2, true, nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	
-//	// single term
-//	pc().findTerms(nil, nil, true, nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findTerms(u().getType(), Collections.singletonMap("", nil), true, nil,
-//	 {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findTerms(u().getType(), Collections.singletonMap("", ""), true, nil,
-//	 {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findTerms(u().getType(), Collections.singletonMap("term", nil), true, nil,
-//	 {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findTerms(u().getType(), Collections.singletonMap("type", u().getType()), true, nil,
-//	 {
-//	 {
-//	XCTAssertTrue(res.size() >= 2)
-//	}
-//	})
-//	
-//	pc().findWildcard(u().getType(), nil, nil, nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findWildcard(u().getType(), "", "", nil,  {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().findWildcard(u().getType(), "name", "an*", nil,  {
-//	 {
-//	XCTAssertFalse(res.isEmpty())
-//	}
-//	})
-//	
-//	pc().getCount(nil, Listener<Long>() {
-//	 {
-//	XCTAssertTrue(res.intValue() > 4)
-//	}
-//	})
-//	pc().getCount("", Listener<Long>() {
-//	 {
-//	XCTAssertNotEqual(0, res.intValue())
-//	}
-//	})
-//	pc().getCount("test", Listener<Long>() {
-//	 {
-//	XCTAssertEqual(0, res.intValue())
-//	}
-//	})
-//	pc().getCount(u().getType(), Listener<Long>() {
-//	 {
-//	XCTAssertTrue(res.intValue() >= 3)
-//	}
-//	})
-//	
-//	pc().getCount(nil, nil, Listener<Long>() {
-//	 {
-//	XCTAssertEqual(0, res.intValue())
-//	}
-//	})
-//	pc().getCount(u().getType(), Collections.singletonMap("id", " "), Listener<Long>() {
-//	 {
-//	XCTAssertEqual(0, res.intValue())
-//	}
-//	})
-//	pc().getCount(u().getType(), Collections.singletonMap("id", u().id), Listener<Long>() {
-//	 {
-//	XCTAssertEqual(1, res.intValue())
-//	}
-//	})
-//	pc().getCount(nil, Collections.singletonMap("type", u().getType()), Listener<Long>() {
-//	 {
-//	XCTAssertTrue(res.intValue() > 1)
-//	}
-//	})
-//	}
-//	
-//	
-//	public void testLinks() {
-//	pc().link(u(), t().id,  {
-//	public void onResponse(String res) {
-//	XCTAssertNotNil(res)
-//	pc().link(u(), u2().id,  {
-//	public void onResponse(String res) {
-//	XCTAssertNotNil(res)
-//	
-//	pc().isLinked(u(), nil,  {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().isLinked(u(), t(),  {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isLinked(u(), u2(),  {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	
-//	pc().getLinkedObjects(u(), "tag", nil,  {
-//	 {
-//	XCTAssertEqual(1, res.size())
-//	}
-//	})
-//	pc().getLinkedObjects(u(), "ParaObject", nil,  {
-//	 {
-//	XCTAssertEqual(1, res.size())
-//	}
-//	})
-//	
-//	pc().countLinks(u(), nil, Listener<Long>() {
-//	 {
-//	XCTAssertEqual(0, res.intValue())
-//	}
-//	})
-//	pc().countLinks(u(), "tag", Listener<Long>() {
-//	 {
-//	XCTAssertEqual(1, res.intValue())
-//	}
-//	})
-//	pc().countLinks(u(), "ParaObject", Listener<Long>() {
-//	 {
-//	XCTAssertEqual(1, res.intValue())
-//	}
-//	})
-//	
-//	pc().unlinkAll(u(), Listener<Map>() {
-//	 {
-//	pc().isLinked(u(), t(),  {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().isLinked(u(), u2(),  {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	}, ErrorListener() {
-//	public void onErrorResponse(VolleyError volleyError) {
-//	fail("Link test failed.")
-//	}
-//	})
-//	}
-//	
-//	
-//	public void testUtils() {
-//	pc().newId( {
-//	 {
-//	pc().newId( {
-//	 {
-//	XCTAssertNotNil(id1)
-//	XCTAssertFalse(id1.isEmpty())
-//	XCTAssertNotEqual(id1, id2)
-//	}
-//	})
-//	}
-//	})
-//	
-//	pc().getTimestamp( {
-//	 {
-//	XCTAssertNotNil(ts)
-//	XCTAssertNotEqual(0, ts.intValue())
-//	}
-//	})
-//	
-//	pc().formatDate("MM dd yyyy", Locale.US,  {
-//	 {
-//	String date2 =  SimpleDateFormat("MM dd yyyy").format(Date())
-//	XCTAssertEqual(date1, date2)
-//	}
-//	})
-//	
-//	pc().noSpaces(" test  123		test ", "",  {
-//	 {
-//	String ns2 = "test123test"
-//	XCTAssertEqual(ns1, ns2)
-//	}
-//	})
-//	
-//	pc().stripAndTrim(" %^&*( cool )		@!",  {
-//	 {
-//	String st2 = "cool"
-//	XCTAssertEqual(st1, st2)
-//	}
-//	})
-//	
-//	pc().markdownToHtml("### hello **test**",  {
-//	 {
-//	String md2 = "<h3>hello <strong>test</strong></h3>"
-//	XCTAssertEqual(md1.trim(), md2)
-//	}
-//	})
-//	
-//	pc().approximately(15000,  {
-//	 {
-//	String ht2 = "15s"
-//	XCTAssertEqual(ht1, ht2)
-//	}
-//	})
-//	}
-//	
-//	
-//	public void testMisc() {
-//	pc().types( {
-//	 {
-//	XCTAssertNotNil(types)
-//	XCTAssertFalse(types.isEmpty())
-//	XCTAssertTrue(types.containsKey("users"))
-//	}
-//	})
-//	
-//	pc().me( {
-//	 {
-//	XCTAssertEqual(APP_ID, app.id)
-//	}
-//	})
-//	}
-//	
-//	
-//	public void testValidationConstraints() {
-//	// Validations
-//	String kittenType = "kitten"
-//	pc().validationConstraints(
-//	 {
-//	 {
-//	XCTAssertNotNil(constraints)
-//	XCTAssertFalse(constraints.isEmpty())
-//	XCTAssertTrue(constraints.containsKey("app"))
-//	XCTAssertTrue(constraints.containsKey("user"))
-//	}
-//	})
-//	
-//	pc().validationConstraints("app",
-//	 {
-//	 {
-//	XCTAssertFalse(constraint.isEmpty())
-//	XCTAssertTrue(constraint.containsKey("app"))
-//	XCTAssertEqual(1, constraint.size())
-//	}
-//	})
-//	
-//	pc().addValidationConstraint(kittenType, "paws", required(),
-//	 {
-//	 {
-//	pc().validationConstraints(kittenType,
-//	 {
-//	 {
-//	XCTAssertTrue(constraint.get(kittenType).containsKey("paws"))
-//	
-//	ParaObject ct =  ParaObject("felix")
-//	ct.setType(kittenType)
-//	// validation fails
-//	pc().create(ct,  {
-//	 {
-//	XCTAssertNil(res)
-//	// fix
-//	ct.properties["paws", "4")
-//	pc().create(ct,  {
-//	 {
-//	XCTAssertNotNil(res)
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	
-//	
-//	pc().removeValidationConstraint(kittenType, "paws", "required",
-//	 {
-//	 {
-//	pc().validationConstraints(kittenType,
-//	 {
-//	 {
-//	XCTAssertFalse(constraint.containsKey(kittenType))
-//	}
-//	})
-//	}
-//	})
-//	}
-//	
-//	
-//	public void testResourcePermissions() {
-//	// Permissions
-//	pc().resourcePermissions( {
-//	 {
-//	XCTAssertNotNil(res)
-//	}
-//	})
-//	pc().grantResourcePermission(nil, dogsType, String[0],
-//	 {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	pc().grantResourcePermission(" ", "", String[0],
-//	 {
-//	 {
-//	XCTAssertTrue(res.isEmpty())
-//	}
-//	})
-//	
-//	pc().grantResourcePermission(u1().id, dogsType, {"GET"},
-//	 {
-//	 {
-//	pc().resourcePermissions(u1().id,  {
-//	 {
-//	XCTAssertTrue(permits.containsKey(u1().id))
-//	XCTAssertTrue(permits.get(u1().id).containsKey(dogsType))
-//	pc().isAllowedTo(u1().id, dogsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, dogsType, "POST",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	}
-//	})
-//	
-//	// anonymous permissions
-//	pc().isAllowedTo(ALLOW_ALL, "utils/timestamp", "GET",  {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().grantResourcePermission(ALLOW_ALL, "utils/timestamp", {"GET"}, true,
-//	 {
-//	 {
-//	XCTAssertNotNil(res)
-//	pc2().getTimestamp(Listener<Long>() {
-//	 {
-//	XCTAssertTrue(res > 0)
-//	}
-//	})
-//	
-//	pc().isAllowedTo("*", "utils/timestamp", "DELETE",  {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	}
-//	})
-//	
-//	pc().resourcePermissions( {
-//	 {
-//	XCTAssertTrue(permits.containsKey(u1().id))
-//	XCTAssertTrue(permits.get(u1().id).containsKey(dogsType))
-//	}
-//	})
-//	
-//	pc().revokeResourcePermission(u1().id, dogsType,
-//	 {
-//	 {
-//	pc().resourcePermissions(u1().id,
-//	 {
-//	 {
-//	XCTAssertFalse(permits.get(u1().id).containsKey(dogsType))
-//	pc().isAllowedTo(u1().id, dogsType, "GET",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, dogsType, "POST",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	
-//	String[] WRITE =  String[]{"POST", "PUT", "PATCH", "DELETE"}
-//	
-//	pc().grantResourcePermission(u2().id, ALLOW_ALL, WRITE,
-//	 {
-//	 {
-//	pc().isAllowedTo(u2().id, dogsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u2().id, dogsType, "PATCH",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	
-//	pc().revokeAllResourcePermissions(u2().id,
-//	 {
-//	 {
-//	pc().resourcePermissions( {
-//	 {
-//	pc().isAllowedTo(u2().id, dogsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	XCTAssertFalse(permits.containsKey(u2().id))
-//	}
-//	})
-//	
-//	}
-//	})
-//	}
-//	})
-//	
-//	pc().grantResourcePermission(u1().id, dogsType, WRITE,
-//	 {
-//	 {
-//	pc().grantResourcePermission(ALLOW_ALL, catsType, WRITE,
-//	 {
-//	 {
-//	pc().grantResourcePermission(ALLOW_ALL, ALLOW_ALL, {"GET"},
-//	 {
-//	 {
-//	// user-specific permissions are in effect
-//	pc().isAllowedTo(u1().id, dogsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, dogsType, "GET",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, catsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, catsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	
-//	pc().revokeAllResourcePermissions(u1().id,
-//	 {
-//	 {
-//	// user-specific permissions not found so check wildcard
-//	pc().isAllowedTo(u1().id, dogsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, dogsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, catsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, catsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	pc().revokeResourcePermission(ALLOW_ALL, catsType,
-//	 {
-//	 {
-//	// resource-specific permissions not found so check wildcard
-//	pc().isAllowedTo(u1().id, dogsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, catsType, "PUT",
-//	 {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, dogsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u1().id, catsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	}
-//	})
-//	pc().isAllowedTo(u2().id, dogsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	
-//	}
-//	})
-//	pc().isAllowedTo(u2().id, catsType, "GET",
-//	 {
-//	 {
-//	XCTAssertTrue(res)
-//	pc().revokeAllResourcePermissions(ALLOW_ALL, nil)
-//	pc().revokeAllResourcePermissions(u1().id, nil)
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	})
-//	}
-//	
-//	
-//	public void testAccessTokens() {
-//	XCTAssertNil(pc().getAccessToken())
-//	pc().signIn("facebook", "test_token",  {
-//	 {
-//	XCTAssertNil(res)
-//	}
-//	})
-//	pc().signOut()
-//	pc().revokeAllTokens( {
-//	 {
-//	XCTAssertFalse(res)
-//	}
-//	})
-//	}
+	func testList() {
+		var cats = [ParaObject]()
+		for i in 0...2 {
+			let s = ParaObject(id: catsType + "\(i)")
+			s.type = catsType
+			cats.append(s)
+		}
+		
+		pc().list("", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		
+		pc().createAll(cats, callback: { list in
+			sleep(1)
+			
+			self.pc().list(self.catsType, callback: { list1 in
+				XCTAssertFalse(list1?.count == 0)
+				XCTAssertEqual(3, list1?.count)
+				XCTAssertEqual("sysprop", list1?[0].type)
+			})
+			
+			self.pc().list(self.catsType, pager: Pager(limit: 2), callback: { list2 in
+				XCTAssertFalse(list2?.count == 0)
+				XCTAssertEqual(2, list2?.count)
+				
+				let nl = [cats[0].id, cats[1].id, cats[2].id]
+				
+				self.pc().deleteAll(nl, callback: { _ in
+					self.pc().me({ res in
+						let datatypes = res!.properties["datatypes"] as? [String: String]
+						XCTAssertTrue(datatypes!.values.contains(self.catsType))
+					})
+				})
+			})
+		})
+	}
+
+	func testSearch() {
+		pc().findById("", callback: { res in
+			XCTAssertNil(res)
+		})
+		pc().findById(u().id, callback: { res in
+			XCTAssertNotNil(res)
+		})
+		pc().findById(t().id, callback: { res in
+			XCTAssertNotNil(res)
+		})
+		
+		pc().findByIds([], callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findByIds([u().id, u1().id, u2().id], callback: { res in
+			XCTAssertEqual(3, res?.count)
+		})
+		pc().findNearby("", query: "", radius: 100, lat: 1, lng: 1, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findNearby(u().type, query: "*", radius: 10, lat: 40.60, lng: -73.90, callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		pc().findNearby(t().type, query: "*", radius: 20, lat: 40.62, lng: -73.91, callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		
+		pc().findPrefix("", field: "", prefix: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		
+		pc().findPrefix("", field: "nil", prefix: "xx", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		
+		pc().findPrefix(u().type, field: "name", prefix: "ann", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		
+		pc().findQuery("", query: "", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		pc().findQuery("", query: "*", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		pc().findQuery(a1().type, query: "country:US", callback: { res in
+			XCTAssertEqual(2, res?.count)
+		})
+		pc().findQuery(u().type, query: "ann", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		pc().findQuery(u().type, query: "Ann", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		pc().findQuery("", query: "*", callback: { res in
+			XCTAssertTrue(res?.count > 4)
+		})
+		
+		let p =  Pager()
+		XCTAssertEqual(0, p.count)
+		pc().findQuery(u().type, query: "*", pager: p, callback: { res in
+			XCTAssertEqual(UInt(res!.count), p.count)
+			XCTAssertTrue(p.count > 0)
+		})
+		
+		pc().findSimilar(t().type, filterKey: "", fields: nil, liketext: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findSimilar(t().type, filterKey: "", fields: [], liketext: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findSimilar(s1().type, filterKey: s1().id, fields: ["name"], liketext: s1().name, callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			XCTAssertEqual(self.s2(), res![0])
+		})
+		
+		pc().findTagged(u().type, tags: nil, callback: { res in
+			XCTAssertEqual(0, res?.count)
+		})
+		pc().findTagged(u().type, tags: ["two"], callback: { res in
+			XCTAssertEqual(2, res?.count)
+		})
+		pc().findTagged(u().type, tags: ["one", "two"], callback: { res in
+			XCTAssertEqual(1, res?.count)
+		})
+		pc().findTagged(u().type, tags: ["three"], callback: { res in
+			XCTAssertEqual(3, res?.count)
+		})
+		pc().findTagged(u().type, tags: ["four", "three"], callback: { res in
+			XCTAssertEqual(2, res?.count)
+		})
+		pc().findTagged(u().type, tags: ["five", "three"], callback: { res in
+			XCTAssertEqual(1, res?.count)
+		})
+		pc().findTagged(t().type, tags: ["four", "three"], callback: { res in
+			XCTAssertEqual(0, res?.count)
+		})
+		
+		pc().findTags(callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		pc().findTags("", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		pc().findTags("unknown", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findTags(t().properties["tag"] as? String, callback: { res in
+			XCTAssertTrue(res?.count >= 1)
+		})
+		
+		pc().findTermInList(u().type, field: "id", terms: [u().id, u1().id, u2().id, "xxx", "yyy"], callback: { res in
+			XCTAssertEqual(3, res?.count)
+		})
+		
+		// many terms
+		let terms = ["id": u().id]
+		let terms1 = ["type": "", "id": " "]
+		let terms2 = [" ": "bad", "": ""]
+		
+		pc().findTerms(u().type, terms: terms, matchAll: true, callback: { res in
+			XCTAssertEqual(1, res?.count)
+		})
+		pc().findTerms(u().type, terms: terms1, matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findTerms(u().type, terms: terms2, matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		
+		// single term
+		pc().findTerms("", terms: [:], matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findTerms(u().type, terms: ["": ""], matchAll: true,  callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findTerms(u().type, terms: ["term": ""], matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findTerms(u().type, terms: ["type": u().type], matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count >= 2)
+		})
+		
+		pc().findWildcard(u().type, field: "", wildcard: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().findWildcard(u().type, field: "name", wildcard: "an*", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+		})
+		
+		pc().getCount("", callback: { res in
+			XCTAssertTrue(res > 4)
+		})
+		pc().getCount("", callback: { res in
+			XCTAssertNotEqual(0, res)
+		})
+		pc().getCount("test", callback: { res in
+			XCTAssertEqual(0, res)
+		})
+		pc().getCount(u().type, callback: { res in
+			XCTAssertTrue(res >= 3)
+		})
+		
+		pc().getCount("", terms: [:], callback: { res in
+			XCTAssertEqual(0, res)
+		})
+		pc().getCount(u().type, terms: ["id": " "], callback: { res in
+			XCTAssertEqual(0, res)
+		})
+		pc().getCount(u().type, terms: ["id": u().id], callback: { res in
+			XCTAssertEqual(1, res)
+		})
+		pc().getCount("", terms: ["type": u().type], callback: { res in
+			XCTAssertTrue(res > 1)
+		})
+	}
 	
+	func testLinks() {
+		pc().link(u(), id2: t().id, callback: { res in
+			XCTAssertNotNil(res)
+			self.pc().link(self.u(), id2: self.u2().id, callback: { res in
+				XCTAssertNotNil(res)
+				
+				self.pc().isLinked(self.u(), toObj: ParaObject(), callback: { res in
+					XCTAssertFalse(res)
+				})
+				self.pc().isLinked(self.u(), toObj: self.t(), callback: { res in
+					XCTAssertTrue(res)
+				})
+				self.pc().isLinked(self.u(), toObj: self.u2(), callback: { res in
+					XCTAssertTrue(res)
+				})
+				
+				self.pc().getLinkedObjects(self.u(), type2: "tag", callback: { res in
+					XCTAssertEqual(1, res.count)
+				})
+				self.pc().getLinkedObjects(self.u(), type2: "ParaObject", callback: { res in
+					XCTAssertEqual(1, res.count)
+				})
+				
+				self.pc().countLinks(self.u(), type2: "", callback: { res in
+					XCTAssertEqual(0, res)
+				})
+				self.pc().countLinks(self.u(), type2: "tag", callback: { res in
+					XCTAssertEqual(1, res)
+				})
+				self.pc().countLinks(self.u(), type2: "ParaObject", callback: { res in
+					XCTAssertEqual(1, res)
+				})
+				
+				self.pc().unlinkAll(self.u(), callback: { res in
+					self.pc().isLinked(self.u(), toObj: self.t(), callback: { res in
+						XCTAssertFalse(res)
+					})
+					self.pc().isLinked(self.u(), toObj: self.u2(), callback: { res in
+						XCTAssertFalse(res)
+					})
+				})
+			})
+		}, error: { err in
+			assert(false, "Link test failed.")
+		})
+	}
+
 	
+	func testUtils() {
+		pc().newId({ id1 in
+			self.pc().newId({ id2 in
+				XCTAssertNotNil(id1)
+				XCTAssertFalse(id1.isEmpty)
+				XCTAssertNotEqual(id1, id2)
+			})
+		})
+			
+		pc().getTimestamp({ ts in
+			XCTAssertNotNil(ts)
+			XCTAssertNotEqual(0, ts)
+		})
+			
+		pc().formatDate("MM dd yyyy", locale: "US", callback: { date1 in
+			let dateFormatter = NSDateFormatter()
+			dateFormatter.dateFormat = "MM dd yyyy"
+			let date2 = dateFormatter.stringFromDate(NSDate())
+			XCTAssertEqual(date1, date2)
+		})
+		
+		pc().noSpaces(" test  123         test ", replaceWith: "", callback: { ns1 in
+			let ns2 = "test123test"
+			XCTAssertEqual(ns1, ns2)
+		})
+		
+		pc().stripAndTrim(" %^&*( cool )      @!", callback: { st1 in
+			let st2 = "cool"
+			XCTAssertEqual(st1, st2)
+		})
+		
+		pc().markdownToHtml("### hello **test**", callback: { md1 in
+			let md2 = "<h3>hello <strong>test</strong></h3>"
+			XCTAssertEqual(md1?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()), md2)
+		})
+		
+		pc().approximately(UInt(15000), callback: { ht1 in
+			let ht2 = "15s"
+			XCTAssertEqual(ht1, ht2)
+		})
+	}
 	
+	func testMisc() {
+		pc().types({ types in
+			XCTAssertTrue(types!.keys.contains("users"))
+		})
+		
+		pc().me({ app in
+			XCTAssertEqual(self.APP_ID, app?.id)
+		})
+	}
 	
+	func testValidationConstraints() {
+		// Validations
+		let kittenType = "kitten"
+		pc().validationConstraints({ constraints in
+			XCTAssertNotNil(constraints)
+			XCTAssertFalse(constraints!.isEmpty)
+			XCTAssertTrue(constraints!.keys.contains("app"))
+			XCTAssertTrue(constraints!.keys.contains("user"))
+		})
+		
+		pc().validationConstraints("app", callback: { constraint in
+			XCTAssertFalse(constraint!.isEmpty)
+			XCTAssertTrue(constraint!.keys.contains("app"))
+			XCTAssertEqual(1, constraint!.count)
+		})
+		
+		pc().addValidationConstraint(kittenType, field: "paws", constraint: Constraint.required(), callback: { _ in
+			self.pc().validationConstraints(kittenType, callback: { constraint in
+				XCTAssertTrue((constraint![kittenType] as! [String: AnyObject]).keys.contains("paws"))
+				
+				let ct = ParaObject(id: "felix")
+				ct.type = kittenType
+				// validation fails
+				self.pc().create(ct, callback: { res in
+					XCTAssertNil(res)
+					// fix
+					ct.properties["paws"] = "4"
+					self.pc().create(ct, callback: { res in
+						XCTAssertNotNil(res)
+					})
+				})
+			})
+		})
+		
+		pc().removeValidationConstraint(kittenType, field: "paws", constraintName: "required", callback: { _ in
+			self.pc().validationConstraints(kittenType, callback: { constraint in
+				XCTAssertFalse(constraint!.keys.contains(kittenType))
+			})
+		})
+	}
 	
+	func testResourcePermissions() {
+		// Permissions
+		pc().resourcePermissions({ res in
+			XCTAssertNotNil(res)
+		})
+		pc().grantResourcePermission("", resourcePath: dogsType, permission: [], callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		pc().grantResourcePermission(" ", resourcePath: "", permission: [], callback: { res in
+			XCTAssertTrue(res?.count == 0)
+		})
+		
+		pc().grantResourcePermission(u1().id, resourcePath: dogsType, permission: ["GET"], callback: { _ in
+			self.pc().resourcePermissions(self.u1().id, callback: { permits in
+				XCTAssertTrue(permits!.keys.contains(self.u1().id))
+				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
+				self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+					XCTAssertTrue(res)
+				})
+				self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "POST", callback: { res in
+					XCTAssertFalse(res)
+				})
+			})
+				
+			// anonymous permissions
+			self.pc().isAllowedTo(self.ALLOW_ALL, resourcePath: "utils/timestamp", httpMethod: "GET", callback: { res in
+				XCTAssertFalse(res)
+			})
+			self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: "utils/timestamp", permission: ["GET"],
+												allowGuestAccess: true, callback: { res in
+				XCTAssertNotNil(res)
+				self.pc2().getTimestamp({ res in
+					XCTAssertTrue(res > 0)
+				})
+				
+				self.pc().isAllowedTo("*", resourcePath: "utils/timestamp", httpMethod: "DELETE", callback: { res in
+					XCTAssertFalse(res)
+				})
+			})
+				
+			self.pc().resourcePermissions({ permits in
+				XCTAssertTrue(permits!.keys.contains(self.u1().id))
+				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
+			})
+				
+			self.pc().revokeResourcePermission(self.u1().id, resourcePath: self.dogsType, callback: { res in
+				self.pc().resourcePermissions(self.u1().id, callback: { permits in
+					XCTAssertFalse((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
+					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+						XCTAssertFalse(res)
+					})
+					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "POST", callback: { res in
+						XCTAssertFalse(res)
+					})
+				})
+			})
+		})
+
+		let WRITE = ["POST", "PUT", "PATCH", "DELETE"]
+		
+		pc().grantResourcePermission(self.u2().id, resourcePath: self.ALLOW_ALL, permission: WRITE, callback: { res in
+			self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+				XCTAssertTrue(res)
+			})
+			self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PATCH", callback: { res in
+				XCTAssertTrue(res)
+			})
+		
+			self.pc().revokeAllResourcePermissions(self.u2().id, callback: { permits in
+				self.pc().resourcePermissions({ res in
+					self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+						XCTAssertFalse(res)
+					})
+					XCTAssertFalse(permits!.keys.contains(self.u2().id))
+				})
+			})
+		})
+		
+		pc().grantResourcePermission(u1().id, resourcePath: dogsType, permission: WRITE, callback: { res in
+			self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.catsType, permission: WRITE, callback: { res in
+				self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.ALLOW_ALL, permission: ["GET"], callback: { res in
+					// user-specific permissions are in effect
+					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+						XCTAssertTrue(res)
+					})
+					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+						XCTAssertFalse(res)
+					})
+					self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
+						XCTAssertTrue(res)
+					})
+					self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+						XCTAssertTrue(res)
+					})
+							
+					self.pc().revokeAllResourcePermissions(self.u1().id, callback: { res in
+						// user-specific permissions not found so check wildcard
+						self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+							XCTAssertFalse(res)
+						})
+						self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+							XCTAssertTrue(res)
+						})
+						self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
+							XCTAssertTrue(res)
+						})
+						self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+							XCTAssertTrue(res)
+							self.pc().revokeResourcePermission(self.ALLOW_ALL, resourcePath: self.catsType, callback: { res in
+								// resource-specific permissions not found so check wildcard
+								self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+									XCTAssertFalse(res)
+								})
+								self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
+									XCTAssertFalse(res)
+								})
+								self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+								})
+								self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+								})
+								self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+								})
+								self.pc().isAllowedTo(self.u2().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+									self.pc().revokeAllResourcePermissions(self.ALLOW_ALL, callback: { _ in })
+									self.pc().revokeAllResourcePermissions(self.u1().id, callback: { _ in })
+								})
+							})
+						})
+					})
+				})
+			})
+		})
+	}
+	
+	func testAccessTokens() {
+		XCTAssertNil(pc().getAccessToken())
+		pc().signIn("facebook", providerToken: "test_token", callback: { res in
+			XCTAssertNil(res)
+		})
+		pc().signOut()
+		pc().revokeAllTokens({ res in
+			XCTAssertFalse(res)
+		})
+	}
 	
 }
 

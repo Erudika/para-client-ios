@@ -185,8 +185,8 @@ public class ParaClient {
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
 	
-	private func invokeDelete(resourcePath: String, params: NSMutableDictionary? = [:],
-	                          rawResult: Bool? = true, callback: Any? -> Void, error: (NSError -> Void)? = { _ in }) {
+	private func invokeDelete<T>(resourcePath: String, params: NSMutableDictionary? = [:],
+	                          rawResult: Bool? = true, callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "DELETE",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                params: params, rawResult: rawResult, callback: callback, error: error)
@@ -356,9 +356,7 @@ public class ParaClient {
 			return
 		}
 		let ids:NSMutableDictionary = ["ids": keys]
-		invokeDelete("_batch", params: ids, callback: { res in
-			callback([])
-		}, error: error)
+		invokeDelete("_batch", params: ids, callback: callback, error: error)
 	}
 	
 	/**
@@ -755,9 +753,7 @@ public class ParaClient {
 			callback(nil)
 			return
 		}
-		invokeDelete("\(obj.getObjectURI())/links", callback: { res in
-			callback(true)
-		}, error: error)
+		invokeDelete("\(obj.getObjectURI())/links", callback: callback, error: error)
 	}
 	
 	/**
@@ -905,7 +901,7 @@ public class ParaClient {
 	- parameter delta: the time delta between two events, in milliseconds
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func markdownToHtml(delta: UInt, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func approximately(delta: UInt, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
 		let params:NSMutableDictionary = ["delta": delta]
 		invokeGet("utils/timeago", params: params, callback: callback, error: error)
 	}
@@ -951,7 +947,7 @@ public class ParaClient {
 	Returns the validation constraints map.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func validationConstraints(callback: NSDictionary? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func validationConstraints(callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
 		invokeGet("_constraints", callback: callback, error: error)
 	}
 	
@@ -960,7 +956,8 @@ public class ParaClient {
 	- parameter type: a type
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func validationConstraints(type: String, callback: NSDictionary? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func validationConstraints(type: String, callback: [String: AnyObject]? -> Void,
+	                                  error: (NSError -> Void)? = { _ in }) {
 		invokeGet("_constraints/\(type)", callback: callback, error: error)
 	}
 	
@@ -968,16 +965,17 @@ public class ParaClient {
 	Add a new constraint for a given field.
 	- parameter type: a type
 	- parameter field: a field name
-	- parameter c: a Constraint
+	- parameter constraint: a Constraint
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func addValidationConstraint(type: String, field: String, c: Constraint,
-	                                    callback: NSDictionary? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func addValidationConstraint(type: String, field: String, constraint: Constraint,
+	                                    callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
 		if type.isEmpty || field.isEmpty {
 			callback([:])
 			return
 		}
-		invokePut("_constraints/\(type)/\(field)/\(c.name)", entity: JSON(c.payload), callback: callback, error: error)
+		invokePut("_constraints/\(type)/\(field)/\(constraint.name)", entity: JSON(constraint.payload),
+		          callback: callback, error: error)
 	}
 	
 	/**
@@ -1004,7 +1002,7 @@ public class ParaClient {
 	Returns the permissions for all subjects and resources for current app.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func resourcePermissions(callback: NSDictionary? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func resourcePermissions(callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
 		invokeGet("_permissions", callback: callback, error: error)
 	}
 	
@@ -1013,7 +1011,8 @@ public class ParaClient {
 	- parameter subjectid: the subject id (user id)
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func resourcePermissions(subjectid: String, callback: NSDictionary? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func resourcePermissions(subjectid: String, callback: [String: AnyObject]? -> Void,
+	                                error: (NSError -> Void)? = { _ in }) {
 		invokeGet("_permissions/\(subjectid)", callback: callback, error: error)
 	}
 	
@@ -1026,7 +1025,7 @@ public class ParaClient {
 	- parameter callback: called with response object when the request is completed
 	*/
 	public func grantResourcePermission(subjectid: String, resourcePath: String, permission: [String],
-	                                    allowGuestAccess: Bool = false, callback: NSDictionary? -> Void,
+	                                    allowGuestAccess: Bool = false, callback: [String: AnyObject]? -> Void,
 	                                    error: (NSError -> Void)? = { _ in }) {
 		if subjectid.isEmpty || resourcePath.isEmpty || permission.isEmpty {
 			callback([:])
@@ -1061,7 +1060,7 @@ public class ParaClient {
 	- parameter subjectid: the subject id (user id)
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func revokeAllResourcePermissions(subjectid: String, callback: Any? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func revokeAllResourcePermissions(subjectid: String, callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
 		if subjectid.isEmpty {
 			callback([:])
 			return

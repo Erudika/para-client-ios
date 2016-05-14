@@ -41,10 +41,11 @@ Initialize the client in your code like so:
 ```js
 import ParaClient
 // avoid using the secret key on mobile devices
-let client = ParaClient(accessKey: "ACCESS_KEY", secretKey: "")
+let client = ParaClient(accessKey: "ACCESS_KEY", secretKey:"")
 client.signIn("facebook", providerToken: "fb_access_token", callback: { user in
     if user != nil {
         // success! user is authenticated, JWT token is saved on the device
+        // you can now call the API methods
     }
 })
 ```
