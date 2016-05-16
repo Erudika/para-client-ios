@@ -169,7 +169,7 @@ public class Signer {
 	
 	public func invokeSignedRequest<T>(accessKey: String, secretKey: String, httpMethod: String, endpointURL: String,
 	                                reqPath: String, headers: NSMutableDictionary? = [:],
-	                                params: NSMutableDictionary? = [:], body: JSON? = nil, rawResult: Bool? = true,
+	                                params: [String: AnyObject]? = [:], body: JSON? = nil, rawResult: Bool? = true,
 	                                callback: T? -> Void, error: (NSError -> Void)? = { _ in })	{
 		
 		if accessKey.isEmpty {
@@ -194,32 +194,34 @@ public class Signer {
 			urlForSigning = String(url.characters.dropLast())
 		}
 		
-		let request = NSMutableURLRequest(URL: NSURL(string: url)!)
+		let request = NSMutableURLRequest.init(URL: NSURL(string: url)!)
 		request.HTTPMethod = httpMethod
 		
 		if params?.count > 0 {
 			var paramArrayForSigning = [String]()
 			var paramArray = [String]()
-			for (k, v) in params! {
-				if let listValue = v as? [String] {
+			let sortedKeys = params!.sort { $0.0 < $1.0 }
+			for (k, _) in sortedKeys {
+				if let listValue = params![k] as? [String] {
 					if !listValue.isEmpty {
-						paramArrayForSigning.append("\(k as! String)=\(Signer.encodeURIComponent(listValue[0]))")
+						paramArrayForSigning.append("\(k)=\(Signer.encodeURIComponent(listValue[0]))")
 						for val in listValue {
-							paramArray.append("\(k as! String)=\(Signer.encodeURIComponent(val))")
+							paramArray.append("\(k)=\(Signer.encodeURIComponent(val))")
 						}
 					}
 				} else {
-					paramArrayForSigning.append("\(k as! String)=\(Signer.encodeURIComponent(v as! String))")
-					paramArray.append("\(k as! String)=\(Signer.encodeURIComponent(v as! String))")
+					paramArrayForSigning.append("\(k)=\(Signer.encodeURIComponent(params![k] as! String))")
+					paramArray.append("\(k)=\(Signer.encodeURIComponent(params![k] as! String))")
 				}
 				
 			}
 			urlForSigning = urlForSigning + "?" + paramArrayForSigning.joinWithSeparator("&")
 			url = url + "?" + paramArray.joinWithSeparator("&")
+			request.URL = NSURL(string: url)
 		}
 		
 		if body != nil {
-			let bodyString = body!.rawString()!
+			let bodyString = body!.rawString() ?? ""
 			bodyDigest = sha256(bodyString)
 			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 			request.HTTPBody = bodyString.dataUsingEncoding(NSUTF8StringEncoding)
@@ -239,34 +241,34 @@ public class Signer {
 		}
 		
 		Alamofire.request(request).validate().responseData { response in
-				switch response.result {
-					case .Success:
-						if let value = response.result.value {
-							if value.length > 0 {
-								let json = JSON(data: value)
-								
-								if rawResult! {
-									callback(json as? T)
-								} else {
-									let obj = ParaObject()
-									obj.setFields(json.dictionaryObject!)
-									callback(obj as? T)
-								}
+//			print("------------> DEBUG \(httpMethod) \(url)")
+			switch response.result {
+				case .Success:
+					if let value = response.result.value {
+						if value.length > 0 {
+							let json = JSON(data: value)
+							if rawResult! {
+								callback(json as? T)
 							} else {
-								callback(nil)
+								let obj = ParaObject()
+								obj.setFields(json.dictionaryObject!)
+								callback(obj as? T)
 							}
 						} else {
 							callback(nil)
 						}
-					case .Failure(let err):
-						if response.response!.statusCode == 404 {
-							callback(nil)
-						} else {
-							print("Request '\(httpMethod) \(reqPath)' failed: \(err)")
-							error?(err)
-						}
-				}
+					} else {
+						callback(nil)
+					}
+				case .Failure(let err):
+					if response.response!.statusCode == 404 {
+						callback(nil)
+					} else {
+						print("Request '\(httpMethod) \(reqPath)' failed: \(err)")
+						error?(err)
+					}
 			}
+		}
 		
 	}
 

@@ -157,7 +157,7 @@ public class ParaClient {
 		return UInt64(NSDate().timeIntervalSince1970 * 1000)
 	}
 	
-	private func invokeGet<T>(resourcePath: String, params: NSMutableDictionary? = [:],
+	private func invokeGet<T>(resourcePath: String, params: [String: AnyObject]? = [:],
 	                       rawResult: Bool? = true, callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(JWT_PATH != resourcePath), httpMethod: "GET",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
@@ -185,7 +185,7 @@ public class ParaClient {
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
 	
-	private func invokeDelete<T>(resourcePath: String, params: NSMutableDictionary? = [:],
+	private func invokeDelete<T>(resourcePath: String, params: [String: AnyObject]? = [:],
 	                          rawResult: Bool? = true, callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "DELETE",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
@@ -324,10 +324,10 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		let ids:NSMutableDictionary = ["ids": keys]
+		let ids = ["ids": keys]
 		invokeGet("_batch", params: ids, callback: { res in
-			callback(self.getItemsFromList(res))
-		}, error: error)
+			callback(self.getItemsFromList(res?.arrayValue))
+		} as JSON? -> Void, error: error)
 	}
 	
 	/**
@@ -340,9 +340,13 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		invokePatch("_batch", entity: JSON(objects), callback: { res in
-			callback(self.getItemsFromList(res))
-		}, error: error)
+		var entity = [AnyObject]()
+		for po in objects {
+			entity.append(po.getFields())
+		}
+		invokePatch("_batch", entity: JSON(entity), callback: { res in
+			callback(self.getItemsFromList(res?.arrayValue))
+		} as JSON? -> Void, error: error)
 	}
 	
 	/**
@@ -355,7 +359,7 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		let ids:NSMutableDictionary = ["ids": keys]
+		let ids = ["ids": keys]
 		invokeDelete("_batch", params: ids, callback: callback, error: error)
 	}
 	
@@ -372,9 +376,9 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		invokeGet(type, params: pagerToParams(pager), callback: { res in
-			callback(self.getItems(res, pager: pager))
-		}, error: error)
+		invokeGet(type, params: (pagerToParams(pager) as NSDictionary) as? [String: AnyObject], callback: { res in
+			callback(self.getItems(res?.dictionaryValue, pager: pager))
+		} as JSON? -> Void, error: error)
 	}
 	
 	/////////////////////////////////////////////
@@ -632,7 +636,8 @@ public class ParaClient {
 	                  callback: [String: JSON]? -> Void, error: (NSError -> Void)? = { _ in }) {
 		if params.count > 0 {
 			let qType = queryType.isEmpty ? "" : "/" + queryType
-			invokeGet("search" + qType, params: params, rawResult: true, callback: callback, error: error)
+			invokeGet("search" + qType, params: (params as NSDictionary) as? [String: AnyObject], rawResult: true,
+			          callback: callback, error: error)
 			return
 		}
 		callback(["items": [:], "totalHits": 0])
@@ -653,7 +658,7 @@ public class ParaClient {
 			callback(0)
 			return
 		}
-		let params:NSMutableDictionary = ["count": "true"]
+		let params = ["count": "true"]
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
 			let pager = Pager()
 			self.getItems(res?.dictionaryValue, pager: pager)
@@ -767,7 +772,7 @@ public class ParaClient {
 			callback(0)
 			return
 		}
-		let params:NSMutableDictionary = ["count": "true", "childrenonly": "true"]
+		let params = ["count": "true", "childrenonly": "true"]
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
 			let pager = Pager()
 			self.getItems(res?.dictionaryValue, pager: pager)
@@ -788,7 +793,7 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		let params:NSMutableDictionary = ["childrenonly": "true"]
+		let params = ["childrenonly": "true"]
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
@@ -809,7 +814,7 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		let params:NSMutableDictionary = ["childrenonly": "true", "field": field, "term": term]
+		let params = ["childrenonly": "true", "field": field, "term": term]
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
@@ -826,7 +831,7 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		let params:NSMutableDictionary = ["childrenonly": "true"]
+		let params = ["childrenonly": "true"]
 		invokeDelete("\(obj.getObjectURI())/links/\(type2)", params: params, callback: callback, error: error)
 	}
 	
@@ -861,7 +866,7 @@ public class ParaClient {
 	- parameter callback: called with response object when the request is completed
 	*/
 	public func formatDate(format: String, locale: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
-		let params:NSMutableDictionary = ["format": format, "locale": locale]
+		let params = ["format": format, "locale": locale]
 		invokeGet("utils/formatdate", params: params, callback: callback, error: error)
 	}
 	
@@ -872,7 +877,7 @@ public class ParaClient {
 	- parameter callback: called with response object when the request is completed
 	*/
 	public func noSpaces(str: String, replaceWith: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
-		let params:NSMutableDictionary = ["string": str, "replacement": replaceWith]
+		let params = ["string": str, "replacement": replaceWith]
 		invokeGet("utils/nospaces", params: params, callback: callback, error: error)
 	}
 	
@@ -882,7 +887,7 @@ public class ParaClient {
 	- parameter callback: called with response object when the request is completed
 	*/
 	public func stripAndTrim(str: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
-		let params:NSMutableDictionary = ["string": str]
+		let params = ["string": str]
 		invokeGet("utils/nosymbols", params: params, callback: callback, error: error)
 	}
 	
@@ -892,7 +897,7 @@ public class ParaClient {
 	- parameter callback: called with response object when the request is completed
 	*/
 	public func markdownToHtml(markdownString: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
-		let params:NSMutableDictionary = ["md": markdownString]
+		let params = ["md": markdownString]
 		invokeGet("utils/md2html", params: params, callback: callback, error: error)
 	}
 	
@@ -902,7 +907,7 @@ public class ParaClient {
 	- parameter callback: called with response object when the request is completed
 	*/
 	public func approximately(delta: UInt, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
-		let params:NSMutableDictionary = ["delta": delta]
+		let params = ["delta": delta]
 		invokeGet("utils/timeago", params: params, callback: callback, error: error)
 	}
 	
