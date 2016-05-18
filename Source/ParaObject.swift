@@ -29,20 +29,20 @@ public class ParaObject : NSObject {
 	/// The type of the object.
 	public var type: String
 	/// The type in plural form
-	public var plural: String?
+	public var plural: String
 	/// The application name. Added to support multiple separate apps.
 	/// Every object must belong to an app.
-	public var appid: String?
+	public var appid: String
 	/// The id of the parent object.
-	public var parentid: String?
+	public var parentid: String
 	/// The id of the user who created this. Should point to a {@link User} id.
-	public var creatorid: String?
+	public var creatorid: String
 	/// The last time this object was updated. Timestamp in milliseconds.
 	public var updated: NSNumber?
 	/// The name of the object. Can be anything.
 	public var name: String
 	/// The tags associated with this object. Tags must not be null or empty.
-	public var tags: [String]?
+	public var tags: [String]
 	/// Returns the total sum of all votes for this object (score, weight etc.).
 	public var votes: Int = 0
 	/// Gets or sets a value indicating whether this object must be stored in DB.
@@ -72,6 +72,11 @@ public class ParaObject : NSObject {
 		self.stored = true
 		self.indexed = true
 		self.cached = true
+		self.plural = ""
+		self.parentid = ""
+		self.creatorid = ""
+		self.appid = ""
+		self.tags = []
 	}
 	
 	/**
@@ -80,7 +85,7 @@ public class ParaObject : NSObject {
 	*/
 	public final func getPlural() -> String {
 		if !(self.plural ?? "").isEmpty {
-			return self.plural!
+			return self.plural
 		}
 		if self.type.isEmpty || self.type.characters.count < 2 {
 			self.type = "sysprop"
@@ -135,6 +140,9 @@ public class ParaObject : NSObject {
 	- returns: a dictionary of data
 	*/
 	public func getFields() -> [String: AnyObject] {
+		if self.plural.isEmpty {
+			self.plural = getPlural()
+		}
 		var props = [String: AnyObject]()
 		let mirror = Mirror(reflecting: self)
 		for child in mirror.children {
@@ -175,6 +183,6 @@ public class ParaObject : NSObject {
 	
 	/// Returns the JSON string of this object.
 	public override var description: String {
-		return self.toJSON().description
+		return self.toJSON().rawString() ?? "{}"
 	}
 }

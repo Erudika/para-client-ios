@@ -27,7 +27,7 @@ public class Signer {
 	let regionName: String
 	let serviceName: String
 	
-	//let CC_SHA256_DIGEST_LENGTH = 32
+	let JSON_TYPE = "application/json"
 	
 	public required init() {
 		self.regionName = "us-east-1"
@@ -51,8 +51,24 @@ public class Signer {
 		var path = url.path
 		if (path ?? "").isEmpty {
 			path = "/"
+		} else {
+			// do this to preserve encoded path fragments, like those containing encoded '/' (%2F)
+			// NSURL.path  decodes them and they are lost
+			var encodedPartsArray = [String]()
+			// get rid of 'http(s)://'
+			let fullURL = url.absoluteString.substringFromIndex(url.absoluteString.startIndex.advancedBy(8))
+			var rawPath = fullURL.substringFromIndex(fullURL.rangeOfString("/")!.startIndex)
+			if rawPath.characters.contains("?") {
+				rawPath = rawPath.substringToIndex(rawPath.rangeOfString("?")!.startIndex)
+			}
+			for part in rawPath.componentsSeparatedByString("/") {
+				if !part.isEmpty {
+					encodedPartsArray.append(Signer.encodeURIComponent(part))
+				}
+			}
+			path = "/" + encodedPartsArray.joinWithSeparator("/")
 		}
-		return Signer.encodeURIComponent(path!).stringByReplacingOccurrencesOfString("%2F", withString: "/")
+		return path! //Signer.encodeURIComponent(path!).stringByReplacingOccurrencesOfString("%2F", withString: "/")
 	}
 	
 	func sha256(str: String) -> String {
@@ -189,7 +205,6 @@ public class Signer {
 		let isJWT = secretKey.hasPrefix("Bearer")
 		var bodyDigest = sha256("")
 		var signedHeaders = [:]
-		//var encoding = Alamofire.ParameterEncoding.URL
 		if urlForSigning.characters.last == "/" {
 			urlForSigning = String(url.characters.dropLast())
 		}
@@ -210,8 +225,8 @@ public class Signer {
 						}
 					}
 				} else {
-					paramArrayForSigning.append("\(k)=\(Signer.encodeURIComponent(params![k] as! String))")
-					paramArray.append("\(k)=\(Signer.encodeURIComponent(params![k] as! String))")
+					paramArrayForSigning.append("\(k)=\(Signer.encodeURIComponent(params![k]!.description))")
+					paramArray.append("\(k)=\(Signer.encodeURIComponent(params![k]!.description))")
 				}
 				
 			}
@@ -223,7 +238,7 @@ public class Signer {
 		if body != nil {
 			let bodyString = body!.rawString() ?? ""
 			bodyDigest = sha256(bodyString)
-			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+			request.setValue(JSON_TYPE, forHTTPHeaderField: "Content-Type")
 			request.HTTPBody = bodyString.dataUsingEncoding(NSUTF8StringEncoding)
 		}
 		
@@ -241,14 +256,20 @@ public class Signer {
 		}
 		
 		Alamofire.request(request).validate().responseData { response in
-//			print("------------> DEBUG \(httpMethod) \(url)")
+			print("------------> DEBUG \(httpMethod) \(url)")
 			switch response.result {
 				case .Success:
 					if let value = response.result.value {
 						if value.length > 0 {
 							let json = JSON(data: value)
+							
+//							print("__________________ \(response.response?.MIMEType) \(json)")
 							if rawResult! {
-								callback(json as? T)
+								if response.response?.MIMEType == self.JSON_TYPE {
+									callback(json as? T)
+								} else {
+									callback(String(data: value, encoding: NSUTF8StringEncoding) as? T)
+								}
 							} else {
 								let obj = ParaObject()
 								obj.setFields(json.dictionaryObject!)
@@ -274,7 +295,15 @@ public class Signer {
 
 	public static func encodeURIComponent(s: String) -> String {
 		let allowed = NSMutableCharacterSet.alphanumericCharacterSet()
-		allowed.addCharactersInString("-_.!~*'()")
+		allowed.addCharactersInString("-_.~")
+		//allowed.addCharactersInString("-_.!~*'()")
 		return s.stringByAddingPercentEncodingWithAllowedCharacters(allowed) ?? ""
 	}
+//	
+//	public static func encodeURI(s: String) -> String {
+//		let allowed = NSMutableCharacterSet.alphanumericCharacterSet()
+//		//allowed.addCharactersInString("-_.~")
+//		allowed.addCharactersInString("-_.~")
+//		return s.stringByAddingPercentEncodingWithAllowedCharacters(allowed) ?? ""
+//	}
 }

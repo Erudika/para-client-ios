@@ -178,7 +178,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testCRUD() {
 		let _1 = self.expectationWithDescription("1")
 		let _2 = self.expectationWithDescription("2")
@@ -282,7 +282,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testBatchCRUD() {
 		var dogs = [ParaObject]()
 		for _ in 0...2 {
@@ -403,7 +403,7 @@ class ParaClientTests: XCTestCase {
 			self.pc().list(self.catsType, callback: { list1 in
 				XCTAssertFalse(list1?.count == 0)
 				XCTAssertEqual(3, list1?.count)
-				XCTAssertEqual("cat", list1?[0].type)
+				XCTAssertEqual(self.catsType, list1?[0].type)
 				_2.fulfill()
 			})
 			
@@ -431,472 +431,773 @@ class ParaClientTests: XCTestCase {
 		}
 	}
 
-//	func testSearch() {
-//		pc().findById("", callback: { res in
-//			XCTAssertNil(res)
-//		})
-//		pc().findById(u().id, callback: { res in
-//			XCTAssertNotNil(res)
-//		})
-//		pc().findById(t().id, callback: { res in
-//			XCTAssertNotNil(res)
-//		})
-//		
-//		pc().findByIds([], callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findByIds([u().id, u1().id, u2().id], callback: { res in
-//			XCTAssertEqual(3, res?.count)
-//		})
-//		pc().findNearby("", query: "", radius: 100, lat: 1, lng: 1, callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findNearby(u().type, query: "*", radius: 10, lat: 40.60, lng: -73.90, callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		pc().findNearby(t().type, query: "*", radius: 20, lat: 40.62, lng: -73.91, callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		
-//		pc().findPrefix("", field: "", prefix: "", callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		
-//		pc().findPrefix("", field: "nil", prefix: "xx", callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		
-//		pc().findPrefix(u().type, field: "name", prefix: "ann", callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		
-//		pc().findQuery("", query: "", callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		pc().findQuery("", query: "*", callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		pc().findQuery(a1().type, query: "country:US", callback: { res in
-//			XCTAssertEqual(2, res?.count)
-//		})
-//		pc().findQuery(u().type, query: "ann", callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		pc().findQuery(u().type, query: "Ann", callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		pc().findQuery("", query: "*", callback: { res in
-//			XCTAssertTrue(res?.count > 4)
-//		})
-//		
-//		let p =  Pager()
-//		XCTAssertEqual(0, p.count)
-//		pc().findQuery(u().type, query: "*", pager: p, callback: { res in
-//			XCTAssertEqual(UInt(res!.count), p.count)
-//			XCTAssertTrue(p.count > 0)
-//		})
-//		
-//		pc().findSimilar(t().type, filterKey: "", fields: nil, liketext: "", callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findSimilar(t().type, filterKey: "", fields: [], liketext: "", callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findSimilar(s1().type, filterKey: s1().id, fields: ["name"], liketext: s1().name, callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//			XCTAssertEqual(self.s2(), res![0])
-//		})
-//		
-//		pc().findTagged(u().type, tags: nil, callback: { res in
-//			XCTAssertEqual(0, res?.count)
-//		})
-//		pc().findTagged(u().type, tags: ["two"], callback: { res in
-//			XCTAssertEqual(2, res?.count)
-//		})
-//		pc().findTagged(u().type, tags: ["one", "two"], callback: { res in
-//			XCTAssertEqual(1, res?.count)
-//		})
-//		pc().findTagged(u().type, tags: ["three"], callback: { res in
-//			XCTAssertEqual(3, res?.count)
-//		})
-//		pc().findTagged(u().type, tags: ["four", "three"], callback: { res in
-//			XCTAssertEqual(2, res?.count)
-//		})
-//		pc().findTagged(u().type, tags: ["five", "three"], callback: { res in
-//			XCTAssertEqual(1, res?.count)
-//		})
-//		pc().findTagged(t().type, tags: ["four", "three"], callback: { res in
-//			XCTAssertEqual(0, res?.count)
-//		})
-//		
-//		pc().findTags(callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		pc().findTags("", callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		pc().findTags("unknown", callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findTags(t().properties["tag"] as? String, callback: { res in
-//			XCTAssertTrue(res?.count >= 1)
-//		})
-//		
-//		pc().findTermInList(u().type, field: "id", terms: [u().id, u1().id, u2().id, "xxx", "yyy"], callback: { res in
-//			XCTAssertEqual(3, res?.count)
-//		})
-//		
-//		// many terms
-//		let terms = ["id": u().id]
-//		let terms1 = ["type": "", "id": " "]
-//		let terms2 = [" ": "bad", "": ""]
-//		
-//		pc().findTerms(u().type, terms: terms, matchAll: true, callback: { res in
-//			XCTAssertEqual(1, res?.count)
-//		})
-//		pc().findTerms(u().type, terms: terms1, matchAll: true, callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findTerms(u().type, terms: terms2, matchAll: true, callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		
-//		// single term
-//		pc().findTerms("", terms: [:], matchAll: true, callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findTerms(u().type, terms: ["": ""], matchAll: true,  callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findTerms(u().type, terms: ["term": ""], matchAll: true, callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findTerms(u().type, terms: ["type": u().type], matchAll: true, callback: { res in
-//			XCTAssertTrue(res?.count >= 2)
-//		})
-//		
-//		pc().findWildcard(u().type, field: "", wildcard: "", callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().findWildcard(u().type, field: "name", wildcard: "an*", callback: { res in
-//			XCTAssertFalse(res?.count == 0)
-//		})
-//		
-//		pc().getCount("", callback: { res in
-//			XCTAssertTrue(res > 4)
-//		})
-//		pc().getCount("", callback: { res in
-//			XCTAssertNotEqual(0, res)
-//		})
-//		pc().getCount("test", callback: { res in
-//			XCTAssertEqual(0, res)
-//		})
-//		pc().getCount(u().type, callback: { res in
-//			XCTAssertTrue(res >= 3)
-//		})
-//		
-//		pc().getCount("", terms: [:], callback: { res in
-//			XCTAssertEqual(0, res)
-//		})
-//		pc().getCount(u().type, terms: ["id": " "], callback: { res in
-//			XCTAssertEqual(0, res)
-//		})
-//		pc().getCount(u().type, terms: ["id": u().id], callback: { res in
-//			XCTAssertEqual(1, res)
-//		})
-//		pc().getCount("", terms: ["type": u().type], callback: { res in
-//			XCTAssertTrue(res > 1)
-//		})
-//	}
-//	
-//	func testLinks() {
-//		pc().link(u(), id2: t().id, callback: { res in
-//			XCTAssertNotNil(res)
-//			self.pc().link(self.u(), id2: self.u2().id, callback: { res in
-//				XCTAssertNotNil(res)
-//				
-//				self.pc().isLinked(self.u(), toObj: ParaObject(), callback: { res in
-//					XCTAssertFalse(res)
-//				})
-//				self.pc().isLinked(self.u(), toObj: self.t(), callback: { res in
-//					XCTAssertTrue(res)
-//				})
-//				self.pc().isLinked(self.u(), toObj: self.u2(), callback: { res in
-//					XCTAssertTrue(res)
-//				})
-//				
-//				self.pc().getLinkedObjects(self.u(), type2: "tag", callback: { res in
-//					XCTAssertEqual(1, res.count)
-//				})
-//				self.pc().getLinkedObjects(self.u(), type2: "ParaObject", callback: { res in
-//					XCTAssertEqual(1, res.count)
-//				})
-//				
-//				self.pc().countLinks(self.u(), type2: "", callback: { res in
-//					XCTAssertEqual(0, res)
-//				})
-//				self.pc().countLinks(self.u(), type2: "tag", callback: { res in
-//					XCTAssertEqual(1, res)
-//				})
-//				self.pc().countLinks(self.u(), type2: "ParaObject", callback: { res in
-//					XCTAssertEqual(1, res)
-//				})
-//				
-//				self.pc().unlinkAll(self.u(), callback: { res in
-//					self.pc().isLinked(self.u(), toObj: self.t(), callback: { res in
-//						XCTAssertFalse(res)
-//					})
-//					self.pc().isLinked(self.u(), toObj: self.u2(), callback: { res in
-//						XCTAssertFalse(res)
-//					})
-//				})
-//			})
-//		}, error: { err in
-//			assert(false, "Link test failed.")
-//		})
-//	}
-//	
-//	func testUtils() {
-//		pc().newId({ id1 in
-//			self.pc().newId({ id2 in
-//				XCTAssertNotNil(id1)
-//				XCTAssertFalse(id1.isEmpty)
-//				XCTAssertNotEqual(id1, id2)
-//			})
-//		})
-//			
-//		pc().getTimestamp({ ts in
-//			XCTAssertNotNil(ts)
-//			XCTAssertNotEqual(0, ts)
-//		})
-//			
-//		pc().formatDate("MM dd yyyy", locale: "US", callback: { date1 in
-//			let dateFormatter = NSDateFormatter()
-//			dateFormatter.dateFormat = "MM dd yyyy"
-//			let date2 = dateFormatter.stringFromDate(NSDate())
-//			XCTAssertEqual(date1, date2)
-//		})
-//		
-//		pc().noSpaces(" test  123         test ", replaceWith: "", callback: { ns1 in
-//			let ns2 = "test123test"
-//			XCTAssertEqual(ns1, ns2)
-//		})
-//		
-//		pc().stripAndTrim(" %^&*( cool )      @!", callback: { st1 in
-//			let st2 = "cool"
-//			XCTAssertEqual(st1, st2)
-//		})
-//		
-//		pc().markdownToHtml("### hello **test**", callback: { md1 in
-//			let md2 = "<h3>hello <strong>test</strong></h3>"
-//			XCTAssertEqual(md1?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()), md2)
-//		})
-//		
-//		pc().approximately(UInt(15000), callback: { ht1 in
-//			let ht2 = "15s"
-//			XCTAssertEqual(ht1, ht2)
-//		})
-//	}
-//	
-//	func testMisc() {
-//		pc().types({ types in
-//			XCTAssertTrue(types!.keys.contains("users"))
-//		})
-//		
-//		pc().me({ app in
-//			XCTAssertEqual(self.APP_ID, app?.id)
-//		})
-//	}
-//	
-//	func testValidationConstraints() {
-//		// Validations
-//		let kittenType = "kitten"
-//		pc().validationConstraints({ constraints in
-//			XCTAssertNotNil(constraints)
-//			XCTAssertFalse(constraints!.isEmpty)
-//			XCTAssertTrue(constraints!.keys.contains("app"))
-//			XCTAssertTrue(constraints!.keys.contains("user"))
-//		})
-//		
-//		pc().validationConstraints("app", callback: { constraint in
-//			XCTAssertFalse(constraint!.isEmpty)
-//			XCTAssertTrue(constraint!.keys.contains("app"))
-//			XCTAssertEqual(1, constraint!.count)
-//		})
-//		
-//		pc().addValidationConstraint(kittenType, field: "paws", constraint: Constraint.required(), callback: { _ in
-//			self.pc().validationConstraints(kittenType, callback: { constraint in
-//				XCTAssertTrue((constraint![kittenType] as! [String: AnyObject]).keys.contains("paws"))
-//				
-//				let ct = ParaObject(id: "felix")
-//				ct.type = kittenType
-//				// validation fails
-//				self.pc().create(ct, callback: { res in
-//					XCTAssertNil(res)
-//					// fix
-//					ct.properties["paws"] = "4"
-//					self.pc().create(ct, callback: { res in
-//						XCTAssertNotNil(res)
-//					})
-//				})
-//			})
-//		})
-//		
-//		pc().removeValidationConstraint(kittenType, field: "paws", constraintName: "required", callback: { _ in
-//			self.pc().validationConstraints(kittenType, callback: { constraint in
-//				XCTAssertFalse(constraint!.keys.contains(kittenType))
-//			})
-//		})
-//	}
-//	
-//	func testResourcePermissions() {
-//		// Permissions
-//		pc().resourcePermissions({ res in
-//			XCTAssertNotNil(res)
-//		})
-//		pc().grantResourcePermission("", resourcePath: dogsType, permission: [], callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		pc().grantResourcePermission(" ", resourcePath: "", permission: [], callback: { res in
-//			XCTAssertTrue(res?.count == 0)
-//		})
-//		
-//		pc().grantResourcePermission(u1().id, resourcePath: dogsType, permission: ["GET"], callback: { _ in
-//			self.pc().resourcePermissions(self.u1().id, callback: { permits in
-//				XCTAssertTrue(permits!.keys.contains(self.u1().id))
-//				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
-//				self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
-//					XCTAssertTrue(res)
-//				})
-//				self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "POST", callback: { res in
-//					XCTAssertFalse(res)
-//				})
-//			})
-//				
-//			// anonymous permissions
-//			self.pc().isAllowedTo(self.ALLOW_ALL, resourcePath: "utils/timestamp", httpMethod: "GET", callback: { res in
-//				XCTAssertFalse(res)
-//			})
-//			self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: "utils/timestamp", permission: ["GET"],
-//												allowGuestAccess: true, callback: { res in
-//				XCTAssertNotNil(res)
-//				self.pc2().getTimestamp({ res in
-//					XCTAssertTrue(res > 0)
-//				})
-//				
-//				self.pc().isAllowedTo("*", resourcePath: "utils/timestamp", httpMethod: "DELETE", callback: { res in
-//					XCTAssertFalse(res)
-//				})
-//			})
-//				
-//			self.pc().resourcePermissions({ permits in
-//				XCTAssertTrue(permits!.keys.contains(self.u1().id))
-//				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
-//			})
-//				
-//			self.pc().revokeResourcePermission(self.u1().id, resourcePath: self.dogsType, callback: { res in
-//				self.pc().resourcePermissions(self.u1().id, callback: { permits in
-//					XCTAssertFalse((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
-//					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
-//						XCTAssertFalse(res)
-//					})
-//					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "POST", callback: { res in
-//						XCTAssertFalse(res)
-//					})
-//				})
-//			})
-//		})
-//
-//		let WRITE = ["POST", "PUT", "PATCH", "DELETE"]
-//		
-//		pc().grantResourcePermission(self.u2().id, resourcePath: self.ALLOW_ALL, permission: WRITE, callback: { res in
-//			self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
-//				XCTAssertTrue(res)
-//			})
-//			self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PATCH", callback: { res in
-//				XCTAssertTrue(res)
-//			})
-//		
-//			self.pc().revokeAllResourcePermissions(self.u2().id, callback: { permits in
-//				self.pc().resourcePermissions({ res in
-//					self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
-//						XCTAssertFalse(res)
-//					})
-//					XCTAssertFalse(permits!.keys.contains(self.u2().id))
-//				})
-//			})
-//		})
-//		
-//		pc().grantResourcePermission(u1().id, resourcePath: dogsType, permission: WRITE, callback: { res in
-//			self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.catsType, permission: WRITE, callback: { res in
-//				self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.ALLOW_ALL, permission: ["GET"], callback: { res in
-//					// user-specific permissions are in effect
-//					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
-//						XCTAssertTrue(res)
-//					})
-//					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
-//						XCTAssertFalse(res)
-//					})
-//					self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
-//						XCTAssertTrue(res)
-//					})
-//					self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
-//						XCTAssertTrue(res)
-//					})
-//							
-//					self.pc().revokeAllResourcePermissions(self.u1().id, callback: { res in
-//						// user-specific permissions not found so check wildcard
-//						self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
-//							XCTAssertFalse(res)
-//						})
-//						self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
-//							XCTAssertTrue(res)
-//						})
-//						self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
-//							XCTAssertTrue(res)
-//						})
-//						self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
-//							XCTAssertTrue(res)
-//							self.pc().revokeResourcePermission(self.ALLOW_ALL, resourcePath: self.catsType, callback: { res in
-//								// resource-specific permissions not found so check wildcard
-//								self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
-//									XCTAssertFalse(res)
-//								})
-//								self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
-//									XCTAssertFalse(res)
-//								})
-//								self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
-//									XCTAssertTrue(res)
-//								})
-//								self.pc().isAllowedTo(self.u1().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
-//									XCTAssertTrue(res)
-//								})
-//								self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
-//									XCTAssertTrue(res)
-//								})
-//								self.pc().isAllowedTo(self.u2().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
-//									XCTAssertTrue(res)
-//									self.pc().revokeAllResourcePermissions(self.ALLOW_ALL, callback: { _ in })
-//									self.pc().revokeAllResourcePermissions(self.u1().id, callback: { _ in })
-//								})
-//							})
-//						})
-//					})
-//				})
-//			})
-//		})
-//	}
+	func testSearch() {
+		let _1 = self.expectationWithDescription("1")
+		let _2 = self.expectationWithDescription("2")
+		let _3 = self.expectationWithDescription("3")
+		let _4 = self.expectationWithDescription("4")
+		let _5 = self.expectationWithDescription("5")
+		let _6 = self.expectationWithDescription("6")
+		let _7 = self.expectationWithDescription("7")
+		let _8 = self.expectationWithDescription("8")
+		let _9 = self.expectationWithDescription("9")
+		let _10 = self.expectationWithDescription("10")
+		let _11 = self.expectationWithDescription("11")
+		let _12 = self.expectationWithDescription("12")
+		let _13 = self.expectationWithDescription("13")
+		let _14 = self.expectationWithDescription("14")
+		let _15 = self.expectationWithDescription("15")
+		let _16 = self.expectationWithDescription("16")
+		let _17 = self.expectationWithDescription("17")
+		let _18 = self.expectationWithDescription("18")
+		let _19 = self.expectationWithDescription("19")
+		let _20 = self.expectationWithDescription("20")
+		let _21 = self.expectationWithDescription("21")
+		let _22 = self.expectationWithDescription("22")
+		let _23 = self.expectationWithDescription("23")
+		let _24 = self.expectationWithDescription("24")
+		let _25 = self.expectationWithDescription("25")
+		let _26 = self.expectationWithDescription("26")
+		let _27 = self.expectationWithDescription("27")
+		let _28 = self.expectationWithDescription("28")
+		let _29 = self.expectationWithDescription("29")
+		let _30 = self.expectationWithDescription("30")
+		let _31 = self.expectationWithDescription("31")
+		let _32 = self.expectationWithDescription("32")
+		let _33 = self.expectationWithDescription("33")
+		let _34 = self.expectationWithDescription("34")
+		let _35 = self.expectationWithDescription("35")
+		let _36 = self.expectationWithDescription("36")
+		let _37 = self.expectationWithDescription("37")
+		let _38 = self.expectationWithDescription("38")
+		let _39 = self.expectationWithDescription("39")
+		let _40 = self.expectationWithDescription("40")
+		let _41 = self.expectationWithDescription("41")
+		let _42 = self.expectationWithDescription("42")
+		let _43 = self.expectationWithDescription("43")
+		let _44 = self.expectationWithDescription("44")
+		let _45 = self.expectationWithDescription("45")
+		let _46 = self.expectationWithDescription("46")
+		let _47 = self.expectationWithDescription("47")
+		let _48 = self.expectationWithDescription("48")
+		let _49 = self.expectationWithDescription("49")
+		let _50 = self.expectationWithDescription("50")
+
+		pc().findById("", callback: { res in
+			XCTAssertNil(res)
+			_1.fulfill()
+		})
+		pc().findById(u().id, callback: { res in
+			XCTAssertNotNil(res)
+			_2.fulfill()
+		})
+		pc().findById(t().id, callback: { res in
+			XCTAssertNotNil(res)
+			_3.fulfill()
+		})
+		
+		pc().findByIds([], callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_4.fulfill()
+		})
+		pc().findByIds([u().id, u1().id, u2().id], callback: { res in
+			XCTAssertEqual(3, res?.count)
+			_5.fulfill()
+		})
+		pc().findNearby("", query: "", radius: 100, lat: 1, lng: 1, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_6.fulfill()
+		})
+		pc().findNearby(u().type, query: "*", radius: 10, lat: 40.60, lng: -73.90, callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_7.fulfill()
+		})
+		pc().findNearby(t().type, query: "*", radius: 20, lat: 40.62, lng: -73.91, callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_8.fulfill()
+		})
+		
+		pc().findPrefix("", field: "", prefix: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_9.fulfill()
+		})
+		
+		pc().findPrefix("", field: "nil", prefix: "xx", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_10.fulfill()
+		})
+		
+		pc().findPrefix(u().type, field: "name", prefix: "ann", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_11.fulfill()
+		})
+		
+		pc().findQuery("", query: "", callback: { res in
+			XCTAssertFalse(res?.count > 0)
+			_12.fulfill()
+		})
+		pc().findQuery("", query: "*", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_13.fulfill()
+		})
+		pc().findQuery(a1().type, query: "country:US", callback: { res in
+			XCTAssertEqual(2, res?.count)
+			_14.fulfill()
+		})
+		pc().findQuery(u().type, query: "ann", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_15.fulfill()
+		})
+		pc().findQuery(u().type, query: "Ann", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_16.fulfill()
+		})
+		pc().findQuery("", query: "*", callback: { res in
+			XCTAssertTrue(res?.count > 4)
+			_17.fulfill()
+		})
+		
+		let p =  Pager()
+		XCTAssertEqual(0, p.count)
+		pc().findQuery(u().type, query: "*", pager: p, callback: { res in
+			XCTAssertEqual(UInt(res!.count), p.count)
+			XCTAssertTrue(p.count > 0)
+			_18.fulfill()
+		})
+		
+		pc().findSimilar(t().type, filterKey: "", fields: nil, liketext: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_19.fulfill()
+		})
+		pc().findSimilar(t().type, filterKey: "", fields: [], liketext: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_20.fulfill()
+		})
+		pc().findSimilar(s1().type, filterKey: s1().id, fields: ["name"], liketext: s1().name, callback: { res in
+			assert(res?.count > 0)
+			XCTAssertEqual(self.s2().id, res![0].id)
+			XCTAssertEqual(self.s2().name, res![0].name)
+			_21.fulfill()
+		})
+		
+		pc().findTagged(u().type, callback: { res in
+			XCTAssertEqual(0, res?.count)
+			_22.fulfill()
+		})
+		pc().findTagged(u().type, tags: ["two"], callback: { res in
+			XCTAssertEqual(2, res?.count)
+			_23.fulfill()
+		})
+		pc().findTagged(u().type, tags: ["one", "two"], callback: { res in
+			XCTAssertEqual(1, res?.count)
+			_24.fulfill()
+		})
+		pc().findTagged(u().type, tags: ["three"], callback: { res in
+			XCTAssertEqual(3, res?.count)
+			_25.fulfill()
+		})
+		pc().findTagged(u().type, tags: ["four", "three"], callback: { res in
+			XCTAssertEqual(2, res?.count)
+			_26.fulfill()
+		})
+		pc().findTagged(u().type, tags: ["five", "three"], callback: { res in
+			XCTAssertEqual(1, res?.count)
+			_27.fulfill()
+		})
+		pc().findTagged(t().type, tags: ["four", "three"], callback: { res in
+			XCTAssertEqual(0, res?.count)
+			_28.fulfill()
+		})
+		
+		pc().findTags(callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_29.fulfill()
+		})
+		pc().findTags("", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_30.fulfill()
+		})
+		pc().findTags("unknown", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_31.fulfill()
+		})
+		pc().findTags(t().properties["tag"] as? String, callback: { res in
+			XCTAssertTrue(res?.count >= 1)
+			_32.fulfill()
+		})
+		
+		pc().findTermInList(u().type, field: "id", terms: [u().id, u1().id, u2().id, "xxx", "yyy"], callback: { res in
+			XCTAssertEqual(3, res?.count)
+			_33.fulfill()
+		})
+		
+		// many terms
+		let terms = ["id": u().id]
+		let terms1 = ["type": "", "id": " "]
+		let terms2 = [" ": "bad", "": ""]
+		
+		pc().findTerms(u().type, terms: terms, matchAll: true, callback: { res in
+			XCTAssertEqual(1, res?.count)
+			_34.fulfill()
+		})
+		pc().findTerms(u().type, terms: terms1, matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_35.fulfill()
+		})
+		pc().findTerms(u().type, terms: terms2, matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_36.fulfill()
+		})
+		
+		// single term
+		pc().findTerms("", terms: [:], matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_37.fulfill()
+		})
+		pc().findTerms(u().type, terms: ["": ""], matchAll: true,  callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_38.fulfill()
+		})
+		pc().findTerms(u().type, terms: ["term": ""], matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_39.fulfill()
+		})
+		pc().findTerms(u().type, terms: ["type": u().type], matchAll: true, callback: { res in
+			XCTAssertTrue(res?.count >= 2)
+			_40.fulfill()
+		})
+		
+		pc().findWildcard(u().type, field: "", wildcard: "", callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_41.fulfill()
+		})
+		pc().findWildcard(u().type, field: "name", wildcard: "an*", callback: { res in
+			XCTAssertFalse(res?.count == 0)
+			_42.fulfill()
+		})
+		
+		pc().getCount("", callback: { res in
+			XCTAssertTrue(res > 4)
+			_43.fulfill()
+		})
+		pc().getCount("", callback: { res in
+			XCTAssertNotEqual(0, res)
+			_44.fulfill()
+		})
+		pc().getCount("test", callback: { res in
+			XCTAssertEqual(0, res)
+			_45.fulfill()
+		})
+		pc().getCount(u().type, callback: { res in
+			XCTAssertTrue(res >= 3)
+			_46.fulfill()
+		})
+		
+		pc().getCount("", terms: [:], callback: { res in
+			XCTAssertEqual(0, res)
+			_47.fulfill()
+		})
+		pc().getCount(u().type, terms: ["id": " "], callback: { res in
+			XCTAssertEqual(0, res)
+			_48.fulfill()
+		})
+		pc().getCount(u().type, terms: ["id": u().id], callback: { res in
+			XCTAssertEqual(1, res)
+			_49.fulfill()
+		})
+		pc().getCount("", terms: ["type": u().type], callback: { res in
+			XCTAssertTrue(res > 1)
+			_50.fulfill()
+		})
+		
+		self.waitForExpectationsWithTimeout(10) { error in
+			XCTAssertNil(error, "Test failed.")
+		}
+	}
 	
-//	func testAccessTokens() {
-//		XCTAssertNil(pc().getAccessToken())
-//		pc().signIn("facebook", providerToken: "test_token", callback: { res in
-//			XCTAssertNil(res)
-//		})
-//		pc().signOut()
-//		pc().revokeAllTokens({ res in
-//			XCTAssertFalse(res)
-//		})
-//	}
+	func testLinks() {
+		let _1 = self.expectationWithDescription("1")
+		let _2 = self.expectationWithDescription("2")
+		let _3 = self.expectationWithDescription("3")
+		let _4 = self.expectationWithDescription("4")
+		let _5 = self.expectationWithDescription("5")
+		let _6 = self.expectationWithDescription("6")
+		let _7 = self.expectationWithDescription("7")
+		let _8 = self.expectationWithDescription("8")
+		let _9 = self.expectationWithDescription("9")
+		let _10 = self.expectationWithDescription("10")
+		let _11 = self.expectationWithDescription("11")
+		let _12 = self.expectationWithDescription("12")
+		let _13 = self.expectationWithDescription("13")
+		let _14 = self.expectationWithDescription("13")
+
+		pc().link(u(), id2: t().id, callback: { res in
+			XCTAssertNotNil(res)
+			self.pc().link(self.u(), id2: self.u2().id, callback: { res in
+				XCTAssertNotNil(res)
+				
+				sleep(1)
+				
+				self.pc().isLinked(self.u(), toObj: ParaObject(), callback: { res in
+					XCTAssertFalse(res)
+					_1.fulfill()
+				})
+				self.pc().isLinked(self.u(), toObj: self.t(), callback: { res in
+					XCTAssertTrue(res)
+					_2.fulfill()
+				})
+				self.pc().isLinked(self.u(), toObj: self.u2(), callback: { res in
+					XCTAssertTrue(res)
+					_3.fulfill()
+				})
+				
+				self.pc().getLinkedObjects(self.u(), type2: "tag", callback: { res in
+					XCTAssertEqual(1, res.count)
+					_4.fulfill()
+				})
+				self.pc().getLinkedObjects(self.u(), type2: "sysprop", callback: { res in
+					XCTAssertEqual(1, res.count)
+					_5.fulfill()
+				})
+				
+				self.pc().countLinks(self.u(), type2: "", callback: { res in
+					XCTAssertEqual(0, res)
+					_6.fulfill()
+				})
+				self.pc().countLinks(self.u(), type2: "tag", callback: { res in
+					XCTAssertEqual(1, res)
+					_7.fulfill()
+				})
+				self.pc().countLinks(self.u(), type2: "sysprop", callback: { res in
+					XCTAssertEqual(1, res)
+					_8.fulfill()
+				})
+				
+				self.pc().countChildren(self.u(), type2: "address", callback: { res in
+					XCTAssertEqual(2, res)
+					_14.fulfill()
+				})
+				
+				self.pc().unlinkAll(self.u(), callback: { res in
+					self.pc().isLinked(self.u(), toObj: self.t(), callback: { res in
+						XCTAssertFalse(res)
+						_9.fulfill()
+					})
+					self.pc().isLinked(self.u(), toObj: self.u2(), callback: { res in
+						XCTAssertFalse(res)
+						_10.fulfill()
+					})
+					_11.fulfill()
+				})
+				_12.fulfill()
+			})
+			_13.fulfill()
+		}, error: { err in
+			assert(false, "Link test failed.")
+		})
+		
+		self.waitForExpectationsWithTimeout(10) { error in
+			XCTAssertNil(error, "Test failed.")
+		}
+	}
+	
+	func testUtils() {
+		let _1 = self.expectationWithDescription("1")
+		let _2 = self.expectationWithDescription("2")
+		let _3 = self.expectationWithDescription("3")
+		let _4 = self.expectationWithDescription("4")
+		let _5 = self.expectationWithDescription("5")
+		let _6 = self.expectationWithDescription("6")
+		let _7 = self.expectationWithDescription("7")
+		let _8 = self.expectationWithDescription("8")
+		
+		pc().newId({ id1 in
+			self.pc().newId({ id2 in
+				XCTAssertNotNil(id1)
+				XCTAssertFalse(id1!.isEmpty)
+				XCTAssertNotEqual(id1, id2)
+				_1.fulfill()
+			})
+			_2.fulfill()
+		})
+			
+		pc().getTimestamp({ ts in
+			XCTAssertNotNil(ts)
+			XCTAssertNotEqual(0, ts)
+			_3.fulfill()
+		})
+			
+		pc().formatDate("MM dd yyyy", locale: "US", callback: { date1 in
+			let dateFormatter = NSDateFormatter()
+			dateFormatter.dateFormat = "MM dd yyyy"
+			let date2 = dateFormatter.stringFromDate(NSDate())
+			XCTAssertEqual(date1, date2)
+			_4.fulfill()
+		})
+		
+		pc().noSpaces(" test  123         test ", replaceWith: "", callback: { ns1 in
+			let ns2 = "test123test"
+			XCTAssertEqual(ns1, ns2)
+			_5.fulfill()
+		})
+		
+		pc().stripAndTrim(" %^&*( cool )      @!", callback: { st1 in
+			let st2 = "cool"
+			XCTAssertEqual(st1, st2)
+			_6.fulfill()
+		})
+		
+		pc().markdownToHtml("### hello **test**", callback: { md1 in
+			let md2 = "<h3>hello <strong>test</strong></h3>"
+			XCTAssertEqual(md1?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()), md2)
+			_7.fulfill()
+		})
+		
+		pc().approximately(UInt(15000), callback: { ht1 in
+			let ht2 = "15s"
+			XCTAssertEqual(ht1, ht2)
+			_8.fulfill()
+		})
+		
+		self.waitForExpectationsWithTimeout(10) { error in
+			XCTAssertNil(error, "Test failed.")
+		}
+	}
+
+	func testMisc() {
+		let _1 = self.expectationWithDescription("1")
+		let _2 = self.expectationWithDescription("2")
+
+		pc().types({ types in
+			XCTAssertTrue(types!.keys.contains("users"))
+			_1.fulfill()
+		})
+		
+		pc().me({ app in
+			XCTAssertEqual(self.APP_ID, app?.id)
+			_2.fulfill()
+		})
+		
+		self.waitForExpectationsWithTimeout(10) { error in
+			XCTAssertNil(error, "Test failed.")
+		}
+	}
+	
+	func testValidationConstraints() {
+		let _1 = self.expectationWithDescription("1")
+		let _2 = self.expectationWithDescription("2")
+		let _3 = self.expectationWithDescription("3")
+		let _4 = self.expectationWithDescription("4")
+		let _5 = self.expectationWithDescription("5")
+		let _6 = self.expectationWithDescription("6")
+		let _7 = self.expectationWithDescription("7")
+		let _8 = self.expectationWithDescription("8")
+
+		// Validations
+		let kittenType = "kitten"
+		pc().validationConstraints({ constraints in
+			XCTAssertNotNil(constraints)
+			XCTAssertFalse(constraints!.isEmpty)
+			XCTAssertTrue(constraints!.keys.contains("app"))
+			XCTAssertTrue(constraints!.keys.contains("user"))
+			_1.fulfill()
+		})
+		
+		pc().validationConstraints("app", callback: { constraint in
+			XCTAssertFalse(constraint!.isEmpty)
+			XCTAssertTrue(constraint!.keys.contains("app"))
+			XCTAssertEqual(1, constraint!.count)
+			_2.fulfill()
+		})
+		
+		pc().addValidationConstraint(kittenType, field: "paws", constraint: Constraint.required(), callback: { _ in
+			self.pc().validationConstraints(kittenType, callback: { constraint in
+				assert(!constraint!.isEmpty)
+				
+				XCTAssertTrue((constraint![kittenType] as! [String: AnyObject]).keys.contains("paws"))
+				
+				let ct = ParaObject(id: "felix")
+				ct.type = kittenType
+				// validation fails
+				self.pc().create(ct, callback: { res in
+					assert(false)
+				}, error: { err in
+					assert(true)
+					// fix
+					ct.properties["paws"] = "4"
+					self.pc().create(ct, callback: { res in
+						XCTAssertNotNil(res)
+						
+						self.pc().delete(res!)
+						
+						self.pc().removeValidationConstraint(kittenType, field: "paws", constraintName: "required", callback: { _ in
+							self.pc().validationConstraints(kittenType, callback: { constraint in
+								XCTAssertFalse(constraint!.keys.contains(kittenType))
+								_3.fulfill()
+							})
+							_4.fulfill()
+						})
+						_5.fulfill()
+					})
+					_6.fulfill()
+				})
+				_7.fulfill()
+			})
+			_8.fulfill()
+		})
+		
+		self.waitForExpectationsWithTimeout(10) { error in
+			XCTAssertNil(error, "Test failed.")
+		}
+	}
+	
+	func testResourcePermissions() {
+		let _1 = self.expectationWithDescription("1")
+		let _2 = self.expectationWithDescription("2")
+		let _3 = self.expectationWithDescription("3")
+		let _4 = self.expectationWithDescription("4")
+		let _5 = self.expectationWithDescription("5")
+		let _6 = self.expectationWithDescription("6")
+		let _7 = self.expectationWithDescription("7")
+		let _8 = self.expectationWithDescription("8")
+		let _9 = self.expectationWithDescription("9")
+		let _10 = self.expectationWithDescription("10")
+		let _11 = self.expectationWithDescription("11")
+		let _12 = self.expectationWithDescription("12")
+		let _13 = self.expectationWithDescription("13")
+		let _14 = self.expectationWithDescription("14")
+		let _15 = self.expectationWithDescription("15")
+		let _16 = self.expectationWithDescription("16")
+		let _17 = self.expectationWithDescription("17")
+		let _18 = self.expectationWithDescription("18")
+		let _19 = self.expectationWithDescription("19")
+		let _20 = self.expectationWithDescription("20")
+		let _21 = self.expectationWithDescription("21")
+		let _22 = self.expectationWithDescription("22")
+		let _23 = self.expectationWithDescription("23")
+		let _24 = self.expectationWithDescription("24")
+		let _25 = self.expectationWithDescription("25")
+		let _26 = self.expectationWithDescription("26")
+		let _27 = self.expectationWithDescription("27")
+		let _28 = self.expectationWithDescription("28")
+		let _29 = self.expectationWithDescription("29")
+		let _30 = self.expectationWithDescription("30")
+		let _31 = self.expectationWithDescription("31")
+		let _32 = self.expectationWithDescription("32")
+		let _33 = self.expectationWithDescription("33")
+		let _34 = self.expectationWithDescription("34")
+		let _35 = self.expectationWithDescription("35")
+		let _36 = self.expectationWithDescription("36")
+		let _37 = self.expectationWithDescription("37")
+		let _38 = self.expectationWithDescription("38")
+		let _39 = self.expectationWithDescription("39")
+		let _40 = self.expectationWithDescription("40")
+		let _41 = self.expectationWithDescription("41")
+		let _42 = self.expectationWithDescription("42")
+		let _43 = self.expectationWithDescription("43")
+		let _44 = self.expectationWithDescription("44")
+		
+		// Permissions
+		pc().resourcePermissions({ res in
+			XCTAssertNotNil(res)
+			_1.fulfill()
+		})
+		pc().grantResourcePermission("", resourcePath: dogsType, permission: [], callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_2.fulfill()
+		})
+		pc().grantResourcePermission(" ", resourcePath: "", permission: [], callback: { res in
+			XCTAssertTrue(res?.count == 0)
+			_3.fulfill()
+		})
+		
+		pc().grantResourcePermission(u1().id, resourcePath: dogsType, permission: ["GET"], callback: { _ in
+			self.pc().resourcePermissions(self.u1().id, callback: { permits in
+				XCTAssertTrue(permits!.keys.contains(self.u1().id))
+				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
+				
+				self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "POST", callback: { res in
+					XCTAssertFalse(res)
+					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+						XCTAssertTrue(res)
+						_4.fulfill()
+					})
+					_5.fulfill()
+				})
+				_6.fulfill()
+			})
+
+			// anonymous permissions
+			self.pc().isAllowedTo(self.ALLOW_ALL, resourcePath: "utils/timestamp", httpMethod: "GET", callback: { res in
+				XCTAssertFalse(res)
+				_7.fulfill()
+				
+				self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: "utils/timestamp", permission: ["GET"],
+					allowGuestAccess: true, callback: { res in
+					XCTAssertNotNil(res)
+					self.pc2().getTimestamp({ res in
+						XCTAssertTrue(res > 0)
+						_8.fulfill()
+					})
+					
+					self.pc().isAllowedTo(self.ALLOW_ALL, resourcePath: "utils/timestamp", httpMethod: "DELETE",
+						callback: { res in
+						XCTAssertFalse(res)
+						sleep(1)
+							
+						self.pc().revokeResourcePermission(self.u1().id, resourcePath: self.dogsType, callback: { res in
+							self.pc().resourcePermissions(self.u1().id, callback: { permits in
+								XCTAssertFalse((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
+								
+								self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+									_12.fulfill()
+								})
+								self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "POST", callback: { res in
+									XCTAssertFalse(res)
+									_13.fulfill()
+								})
+								_14.fulfill()
+							})
+							_15.fulfill()
+						})
+							
+						self.pc().revokeResourcePermission(self.ALLOW_ALL, resourcePath: "utils/timestamp",
+							callback: { _ in _44.fulfill() })
+							
+						_9.fulfill()
+					})
+					_10.fulfill()
+				})
+			})
+			
+			self.pc().resourcePermissions({ permits in
+				XCTAssertTrue(permits!.keys.contains(self.u1().id))
+				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
+				_11.fulfill()
+			})
+			_16.fulfill()
+		})
+
+		let WRITE = ["POST", "PUT", "PATCH", "DELETE"]
+		
+		pc().grantResourcePermission(self.u2().id, resourcePath: self.ALLOW_ALL, permission: WRITE, callback: { res in
+			self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+				XCTAssertTrue(res)
+				_17.fulfill()
+			})
+			self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PATCH", callback: { res in
+				XCTAssertTrue(res)
+				_18.fulfill()
+			})
+		
+			self.pc().revokeAllResourcePermissions(self.u2().id, callback: { permits in
+				self.pc().resourcePermissions({ res in
+					self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+						XCTAssertFalse(res)
+						_19.fulfill()
+					})
+					XCTAssertTrue((permits![self.u2().id] as! [String: AnyObject]).isEmpty)
+					_20.fulfill()
+				})
+				_21.fulfill()
+			})
+			_22.fulfill()
+		})
+		
+		pc().grantResourcePermission(u().id, resourcePath: dogsType, permission: WRITE, callback: { res in
+			self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.catsType, permission: WRITE, callback: { res in
+				self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.ALLOW_ALL, permission: ["GET"], callback: { res in
+					// user-specific permissions are in effect
+					self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+						XCTAssertTrue(res)
+						_23.fulfill()
+					})
+					self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+						XCTAssertFalse(res)
+						_24.fulfill()
+					})
+					self.pc().isAllowedTo(self.u().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
+						XCTAssertTrue(res)
+						_25.fulfill()
+					})
+					self.pc().isAllowedTo(self.u().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+						XCTAssertTrue(res)
+						_26.fulfill()
+					})
+							
+					self.pc().revokeAllResourcePermissions(self.u().id, callback: { res in
+						// user-specific permissions not found so check wildcard
+						self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+							XCTAssertFalse(res)
+							_27.fulfill()
+						})
+						self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+							XCTAssertTrue(res)
+							_28.fulfill()
+						})
+						self.pc().isAllowedTo(self.u().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
+							XCTAssertTrue(res)
+							_29.fulfill()
+						})
+						self.pc().isAllowedTo(self.u().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+							XCTAssertTrue(res)
+							self.pc().revokeResourcePermission(self.ALLOW_ALL, resourcePath: self.catsType, callback: { res in
+								// resource-specific permissions not found so check wildcard
+								self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+									XCTAssertFalse(res)
+									_30.fulfill()
+								})
+								self.pc().isAllowedTo(self.u().id, resourcePath: self.catsType, httpMethod: "PUT", callback: { res in
+									XCTAssertFalse(res)
+									_31.fulfill()
+								})
+								self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+									_32.fulfill()
+								})
+								self.pc().isAllowedTo(self.u().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+									_33.fulfill()
+								})
+								self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+									_34.fulfill()
+								})
+								self.pc().isAllowedTo(self.u2().id, resourcePath: self.catsType, httpMethod: "GET", callback: { res in
+									XCTAssertTrue(res)
+									self.pc().revokeAllResourcePermissions(self.ALLOW_ALL, callback: { _ in _35.fulfill() })
+									self.pc().revokeAllResourcePermissions(self.u().id, callback: { _ in _36.fulfill() })
+									_37.fulfill()
+								})
+								_38.fulfill()
+							})
+							_39.fulfill()
+						})
+						_40.fulfill()
+					})
+					_41.fulfill()
+				})
+				_42.fulfill()
+			})
+			_43.fulfill()
+		})
+		
+		self.waitForExpectationsWithTimeout(10) { error in
+			XCTAssertNil(error, "Test failed.")
+		}
+	}
+	
+	func testAccessTokens() {
+		XCTAssertNil(pc().getAccessToken())
+		pc().signIn("facebook", providerToken: "test_token", callback: { res in
+			XCTAssertNil(res)
+		})
+		pc().signOut()
+		pc().revokeAllTokens({ res in
+			XCTAssertFalse(res)
+		})
+	}
 	
 }
 
