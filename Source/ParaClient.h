@@ -14,7 +14,8 @@
 //
 // For issues and patches go to: https://github.com/erudika
 
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
+@import Foundation;
 
 //! Project version number for ParaClient iOS.
 FOUNDATION_EXPORT double ParaClientVersionNumber;
