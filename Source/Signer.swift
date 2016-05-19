@@ -68,7 +68,7 @@ public class Signer {
 			}
 			path = "/" + encodedPartsArray.joinWithSeparator("/")
 		}
-		return path! //Signer.encodeURIComponent(path!).stringByReplacingOccurrencesOfString("%2F", withString: "/")
+		return path!
 	}
 	
 	func sha256(str: String) -> String {
@@ -139,10 +139,6 @@ public class Signer {
 		let service = hmac(serviceName, key: region)
 		let credentials = hmac("aws4_request", key: service)
 		let string = stringToSign(datetime, url: url, headers: headers, httpMethod: httpMethod, bodyDigest: bodyDigest)
-		// FOR DEBUGGING
-//		print("------------")
-//		print(string)
-//		print("------------")
 		return hmac(string, key: credentials).toHexString()
 	}
 	
@@ -157,10 +153,6 @@ public class Signer {
 	
 	private func stringToSign(datetime: String, url: NSURL, headers: [String: String],
 	                          httpMethod: String, bodyDigest: String) -> String {
-		// FOR DEBUGGING
-//		print("===============")
-//		print(canonicalRequest(url, headers: headers, httpMethod: httpMethod, bodyDigest: bodyDigest))
-//		print("===============")
 		return [
 			"AWS4-HMAC-SHA256",
 			datetime,
@@ -256,14 +248,12 @@ public class Signer {
 		}
 		
 		Alamofire.request(request).validate().responseData { response in
-			print("------------> DEBUG \(httpMethod) \(url)")
 			switch response.result {
 				case .Success:
 					if let value = response.result.value {
 						if value.length > 0 {
 							let json = JSON(data: value)
 							
-//							print("__________________ \(response.response?.MIMEType) \(json)")
 							if rawResult! {
 								if response.response?.MIMEType == self.JSON_TYPE {
 									callback(json as? T)

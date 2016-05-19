@@ -33,6 +33,7 @@ pod 'ParaClient'
 ```sh
 $ pod install
 ```
+To edit the project in Xcode, open the file `ParaClient.xcworkspace`.
 
 ## Usage
 
