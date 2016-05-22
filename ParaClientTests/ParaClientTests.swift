@@ -1046,6 +1046,7 @@ class ParaClientTests: XCTestCase {
 						sleep(1)
 							
 						self.pc().revokeResourcePermission(self.u1().id, resourcePath: self.dogsType, callback: { res in
+							sleep(1)
 							self.pc().resourcePermissions(self.u1().id, callback: { permits in
 								XCTAssertFalse((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
 								
