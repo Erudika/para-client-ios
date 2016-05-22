@@ -13,7 +13,8 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.2"
   s.tvos.deployment_target = "9.2"
   
-  s.source       = { :git => "https://github.com/erudika/para-client-ios.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/erudika/para-client-ios.git", :tag => "#{s.version}" }
   s.source_files = "Source/*.{h,swift}"
   s.requires_arc = true
 end
+
