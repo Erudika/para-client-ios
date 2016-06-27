@@ -458,11 +458,31 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findQuery(type: String, query: String, pager: Pager? = nil, callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func findQuery(type: String, query: String, pager: Pager? = nil,
+	                      callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["q"] = query
 		params["type"] = type
 		find("", params: params, callback: { res in
+			callback(self.getItems(res, pager: pager))
+		}, error: error)
+	}
+	
+	/**
+	Searches within a nested field. The objects of the given type must contain a nested field "nstd".
+	- parameter type: the type of object to search for. See ParaObject.getType()
+	- parameter field: the name of the field to target (within a nested field "nstd")
+	- parameter query: the query string
+	- parameter pager: a Pager
+	- parameter callback: called with response object when the request is completed
+	*/
+	public func findNestedQuery(type: String, field: String, query: String, pager: Pager? = nil,
+	                            callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+		let params = pagerToParams(pager)
+		params["q"] = query
+		params["field"] = field
+		params["type"] = type
+		find("nested", params: params, callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
@@ -679,7 +699,32 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", callback: { res in
+		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+			(pagerToParams(pager) as NSDictionary) as? [String: AnyObject], callback: { res in
+			callback(self.getItems(res?.dictionaryValue, pager: pager))
+		} as JSON? -> Void, error: error)
+	}
+	
+	/**
+	Searches through all linked objects in many-to-many relationships.
+	- parameter obj: the object to execute this method on
+	- parameter type2: the other type of object
+	- parameter field: the name of the field to target (within a nested field "nstd")
+	- parameter query: a query string
+	- parameter pager: a Pager
+	- parameter callback: called with response object when the request is completed
+	*/
+	public func findLinkedObjects(obj: ParaObject, type2: String, field: String, query: String, pager: Pager? = nil,
+	                             callback: [ParaObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+		if obj.id.isEmpty || type2.isEmpty {
+			callback([])
+			return
+		}
+		let params = pagerToParams(pager)
+		params["field"] = field
+		params["q"] = query ?? "*"
+		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
 		} as JSON? -> Void, error: error)
 	}
@@ -793,8 +838,10 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		let params = ["childrenonly": "true"]
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
+		let params = pagerToParams(pager)
+		params["childrenonly"] = "true"
+		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
@@ -814,8 +861,36 @@ public class ParaClient {
 			callback([])
 			return
 		}
-		let params = ["childrenonly": "true", "field": field, "term": term]
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
+		let params = pagerToParams(pager)
+		params["childrenonly"] = "true"
+		params["field"] = field
+		params["term"] = term
+		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+			(params as NSDictionary) as? [String: AnyObject], callback: { res in
+			callback(self.getItems(res, pager: pager))
+		}, error: error)
+	}
+	
+	/**
+	Search through all child objects. Only searches child objects directly
+	connected to this parent via the {@code parentid} field.
+	- parameter obj: the object to execute this method on
+	- parameter type2: the type of the other object
+	- parameter query: a query string
+	- parameter pager: a Pager
+	- parameter callback: called with response object when the request is completed
+	*/
+	public func findChildren(obj: ParaObject, type2: String, query: String, pager: Pager? = nil,
+	                        callback: [ParaObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+		if obj.id.isEmpty || type2.isEmpty {
+			callback([])
+			return
+		}
+		let params = pagerToParams(pager)
+		params["childrenonly"] = "true"
+		params["q"] = query ?? "*"
+		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
@@ -1079,7 +1154,8 @@ public class ParaClient {
 	- parameter subjectid: the subject id (user id)
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func revokeAllResourcePermissions(subjectid: String, callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	public func revokeAllResourcePermissions(subjectid: String, callback: [String: AnyObject]? -> Void,
+	                                         error: (NSError -> Void)? = { _ in }) {
 		if subjectid.isEmpty {
 			callback([:])
 			return

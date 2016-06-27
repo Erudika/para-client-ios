@@ -14,7 +14,7 @@ It helps you build applications faster by taking care of the backend. It works o
 objects are stored in a NoSQL data store or any old relational database, then automatically indexed
 by a search engine and finally, cached.
 
-This is the Swift client for Para for iOS, tvOS, OS X and watchOS.
+This is the Swift client for Para for iOS, tvOS, macOS and watchOS.
 
 ### Quick start
 
@@ -53,7 +53,7 @@ client.signIn("facebook", providerToken: "fb_access_token", callback: { user in
 
 ## Requirements
 
-- iOS 9.2+ / Mac OS X 10.10+ / tvOS 9.2+ / watchOS 2.2+
+- iOS 9.2+ / macOS 10.10+ / tvOS 9.2+ / watchOS 2.2+
 - Xcode 7.3+, Swift 2.2+, CocoaPods 1.0+
 
 ## Thanks
