@@ -34,7 +34,7 @@ class ParaClientTests: XCTestCase {
 	private func pc() -> ParaClient {
 		if (ParaClientTests.c1 == nil) {
 			ParaClientTests.c1 = ParaClient(accessKey: "app:para",
-			                                secretKey: "rY8VVywpEBWKFMCPWTpl4FdlIJ7YxA1E7EcGNE9klLS1MHyYzar1nQ==")
+			                                secretKey: "5r+1er4j+SQDIoaIoNChSLL75hj58niaoDKvP3vdPe2mwtRCcIGTaw==")
 			//c1!.setEndpoint("http://192.168.0.114:8080")
 			ParaClientTests.c1!.setEndpoint("http://localhost:8080")
 		}
@@ -962,7 +962,7 @@ class ParaClientTests: XCTestCase {
 		let _8 = self.expectationWithDescription("8")
 		let _9 = self.expectationWithDescription("9")
 		let _10 = self.expectationWithDescription("10")
-		let _11 = self.expectationWithDescription("11")
+//		let _11 = self.expectationWithDescription("11")
 		let _12 = self.expectationWithDescription("12")
 		let _13 = self.expectationWithDescription("13")
 		let _14 = self.expectationWithDescription("14")
@@ -1072,11 +1072,11 @@ class ParaClientTests: XCTestCase {
 				})
 			})
 			
-			self.pc().resourcePermissions({ permits in
-				XCTAssertTrue(permits!.keys.contains(self.u1().id))
-				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
-				_11.fulfill()
-			})
+//			self.pc().resourcePermissions({ permits in
+//				XCTAssertTrue(permits!.keys.contains(self.u1().id))
+//				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
+//				_11.fulfill()
+//			})
 			_16.fulfill()
 		})
 
@@ -1111,10 +1111,12 @@ class ParaClientTests: XCTestCase {
 				self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.ALLOW_ALL, permission: ["GET"], callback: { res in
 					// user-specific permissions are in effect
 					self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
+						print(res)
 						XCTAssertTrue(res)
 						_23.fulfill()
 					})
 					self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
+						print(res)
 						XCTAssertFalse(res)
 						_24.fulfill()
 					})
@@ -1182,6 +1184,92 @@ class ParaClientTests: XCTestCase {
 				_42.fulfill()
 			})
 			_43.fulfill()
+		})
+		
+		self.waitForExpectationsWithTimeout(10) { error in
+			XCTAssertNil(error, "Test failed.")
+		}
+	}
+	
+	func testAppSettings() {
+		let _1 = self.expectationWithDescription("1")
+		let _2 = self.expectationWithDescription("2")
+		let _3 = self.expectationWithDescription("3")
+		let _4 = self.expectationWithDescription("4")
+		let _5 = self.expectationWithDescription("5")
+		let _6 = self.expectationWithDescription("6")
+		let _7 = self.expectationWithDescription("7")
+		let _8 = self.expectationWithDescription("8")
+		let _9 = self.expectationWithDescription("9")
+		let _10 = self.expectationWithDescription("10")
+		let _11 = self.expectationWithDescription("11")
+		let _12 = self.expectationWithDescription("12")
+		let _13 = self.expectationWithDescription("13")
+		let _14 = self.expectationWithDescription("14")
+		
+		pc().appSettings(callback: { res in
+			XCTAssertNotNil(res)
+			print(res)
+			XCTAssertTrue(res?.count == 0)
+			
+			self.pc().appSettings(" ", callback: { res in
+				XCTAssertNotNil(res)
+				XCTAssertTrue(res?.count == 0)
+				_1.fulfill()
+			})
+			
+			self.pc().appSettings(nil, callback: { res in
+				XCTAssertNotNil(res)
+				XCTAssertTrue(res?.count == 0)
+				_2.fulfill()
+			})
+			
+			self.pc().addAppSetting("prop1", value: 1, callback: { res in
+				self.pc().addAppSetting("prop2", value: true, callback: { res in
+					self.pc().addAppSetting("prop3", value: "string", callback: { res in
+						self.pc().appSettings(callback: { res in
+							XCTAssertNotNil(res)
+							XCTAssertTrue(res?.count == 3)
+							
+							self.pc().appSettings("prop1", callback: { res in
+								XCTAssertTrue((res?["value"])! as! NSObject == 1)
+								_3.fulfill()
+							})
+							
+							self.pc().appSettings("prop2", callback: { res in
+								XCTAssertNotNil(res)
+								XCTAssertTrue((res?["value"])! as! NSObject == true)
+								_4.fulfill()
+							})
+							
+							self.pc().appSettings("prop3", callback: { res in
+								XCTAssertNotNil(res)
+								XCTAssertTrue((res?["value"])! as! NSObject == "string")
+								
+								self.pc().removeAppSetting("prop3", callback: { res in
+									self.pc().removeAppSetting("prop2", callback: { res in
+										self.pc().removeAppSetting("prop1", callback: { res in
+											self.pc().appSettings(callback: { res in
+												XCTAssertTrue(res?.count == 0)
+												_5.fulfill()
+											})
+											_6.fulfill()
+										})
+										_7.fulfill()
+									})
+									_8.fulfill()
+								})
+								_9.fulfill()
+							})
+							_10.fulfill()
+						})
+						_11.fulfill()
+					})
+					_12.fulfill()
+				})
+				_13.fulfill()
+			})
+			_14.fulfill()
 		})
 		
 		self.waitForExpectationsWithTimeout(10) { error in

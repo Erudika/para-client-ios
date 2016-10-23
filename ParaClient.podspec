@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name         = "ParaClient"
-  s.version = "1.19.0"
+  s.version = "1.21.0"
   s.summary      = "Para Client for iOS"
     s.description  = "Para is a simple, modular backend framework for object persistence and retrieval. It helps you build applications faster by taking care of the backend. This is the Swift client for Para."
   s.homepage     = "https://github.com/erudika/para-client-ios"
-  s.documentation_url = "http://www.paraio.org/docs"
+  s.documentation_url = "http://www.paraio.org/docs/index.html"
   s.license      = { :type => "Apache License, Version 2.0", :file => "LICENSE" }
   s.author       = { "Alex Bogdanovski" => "alex@erudika.com" }
   s.social_media_url = "https://twitter.com/para_io"

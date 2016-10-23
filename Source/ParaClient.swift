@@ -1184,6 +1184,51 @@ public class ParaClient {
 		          error: { _ in callback(false) })
 	}
 	
+	/////////////////////////////////////////////
+	// MARK: APP SETTINGS
+	/////////////////////////////////////////////
+	//
+	/**
+	Returns the map containing app-specific settings or the value of a specific app setting (property) for a given key.
+	- parameter key: a key
+	- parameter callback: called with response object when the request is completed
+	*/
+	public func appSettings(key: String? = nil, callback: [String: AnyObject]? -> Void,
+	                        error: (NSError -> Void)? = { _ in }) {
+		if (key ?? "").stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()).isEmpty {
+			invokeGet("_settings", rawResult: true, callback: {
+				res in callback(res?.dictionaryObject)
+			} as JSON? -> Void, error: error)
+		} else {
+			invokeGet("_settings/\(key!)", rawResult: true, callback: {
+				res in callback(res?.dictionaryObject)
+			} as JSON? -> Void, error: error)
+		}
+	}
+	
+	/**
+	Adds or overwrites an app-specific setting.
+	- parameter key: a key
+	- parameter value: a value
+	- parameter callback: called with response object when the request is completed
+	*/
+	public func addAppSetting(key: String, value: AnyObject, callback: [String: AnyObject]? -> Void,
+	                          error: (NSError -> Void)? = { _ in }) {
+		if !(key ?? "").isEmpty {
+			invokePut("_settings/\(key)", entity: JSON(["value": value]), callback: callback, error: error)
+		}
+	}
+
+	/**
+	Removes an app-specific setting.
+	- parameter key: a key
+	- parameter callback: called with response object when the request is completed
+	*/
+	public func removeAppSetting(key: String, callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+		if !(key ?? "").isEmpty {
+			invokeDelete("_settings/\(key)", callback: callback, error: error)
+		}
+	}
 	
 	/////////////////////////////////////////////
 	// MARK: ACCESS TOKENS

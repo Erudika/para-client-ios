@@ -25,6 +25,10 @@
 		EA28ED271CBBE37C009E2BF4 /* Signer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA28ED1A1CBBDE10009E2BF4 /* Signer.swift */; };
 		EA28ED281CBBE37C009E2BF4 /* Signer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA28ED1A1CBBDE10009E2BF4 /* Signer.swift */; };
 		EA28ED291CBBE37D009E2BF4 /* Signer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA28ED1A1CBBDE10009E2BF4 /* Signer.swift */; };
+		EA5DC53F1DBD541000EEC5CB /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DC53E1DBD541000EEC5CB /* Package.swift */; };
+		EA5DC5401DBD541000EEC5CB /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DC53E1DBD541000EEC5CB /* Package.swift */; };
+		EA5DC5411DBD541000EEC5CB /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DC53E1DBD541000EEC5CB /* Package.swift */; };
+		EA5DC5421DBD541000EEC5CB /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DC53E1DBD541000EEC5CB /* Package.swift */; };
 		EA8D0F8E1CBC0F5E005779F8 /* ParaClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EA28ED1B1CBBE22A009E2BF4 /* ParaClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EA8D0F8F1CBC0F5F005779F8 /* ParaClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EA28ED1B1CBBE22A009E2BF4 /* ParaClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EA8D0F9E1CBC356B005779F8 /* Pager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8D0F9D1CBC356B005779F8 /* Pager.swift */; };
@@ -106,6 +110,7 @@
 		EA28ED191CBBDE10009E2BF4 /* ParaClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ParaClient.swift; path = Source/ParaClient.swift; sourceTree = "<group>"; };
 		EA28ED1A1CBBDE10009E2BF4 /* Signer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Signer.swift; path = Source/Signer.swift; sourceTree = "<group>"; };
 		EA28ED1B1CBBE22A009E2BF4 /* ParaClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParaClient.h; path = Source/ParaClient.h; sourceTree = "<group>"; };
+		EA5DC53E1DBD541000EEC5CB /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		EA8D0F831CBC0B64005779F8 /* deploy.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = deploy.sh; sourceTree = "<group>"; };
 		EA8D0F841CBC0B64005779F8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		EA8D0F851CBC0B64005779F8 /* ParaClient.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ParaClient.podspec; sourceTree = "<group>"; };
@@ -248,6 +253,7 @@
 				EA8D0F851CBC0B64005779F8 /* ParaClient.podspec */,
 				EA8D0F861CBC0B64005779F8 /* Podfile */,
 				EA8D0F871CBC0B64005779F8 /* README.md */,
+				EA5DC53E1DBD541000EEC5CB /* Package.swift */,
 			);
 			name = Metadata;
 			sourceTree = "<group>";
@@ -787,6 +793,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA5DC5421DBD541000EEC5CB /* Package.swift in Sources */,
 				EA8D0FA11CBC356B005779F8 /* Pager.swift in Sources */,
 				EA28ED231CBBE374009E2BF4 /* ParaClient.swift in Sources */,
 				EA8D0FA71CBC357E005779F8 /* ParaObject.swift in Sources */,
@@ -799,6 +806,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA5DC5401DBD541000EEC5CB /* Package.swift in Sources */,
 				EA8D0F9F1CBC356B005779F8 /* Pager.swift in Sources */,
 				EA28ED211CBBE373009E2BF4 /* ParaClient.swift in Sources */,
 				EA8D0FA51CBC357E005779F8 /* ParaObject.swift in Sources */,
@@ -811,6 +819,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA5DC5411DBD541000EEC5CB /* Package.swift in Sources */,
 				EA8D0FA01CBC356B005779F8 /* Pager.swift in Sources */,
 				EA28ED221CBBE373009E2BF4 /* ParaClient.swift in Sources */,
 				EA8D0FA61CBC357E005779F8 /* ParaObject.swift in Sources */,
@@ -823,6 +832,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA5DC53F1DBD541000EEC5CB /* Package.swift in Sources */,
 				EA8D0F9E1CBC356B005779F8 /* Pager.swift in Sources */,
 				EA28ED201CBBE372009E2BF4 /* ParaClient.swift in Sources */,
 				EA8D0FA41CBC357E005779F8 /* ParaObject.swift in Sources */,
