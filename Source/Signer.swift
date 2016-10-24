@@ -56,7 +56,7 @@ public class Signer {
 			// NSURL.path  decodes them and they are lost
 			var encodedPartsArray = [String]()
 			// get rid of 'http(s)://'
-			let fullURL = url.absoluteString.substringFromIndex(url.absoluteString.startIndex.advancedBy(8))
+			let fullURL = url.absoluteString!.substringFromIndex(url.absoluteString!.startIndex.advancedBy(8))
 			var rawPath = fullURL.substringFromIndex(fullURL.rangeOfString("/")!.startIndex)
 			if rawPath.characters.contains("?") {
 				rawPath = rawPath.substringToIndex(rawPath.rangeOfString("?")!.startIndex)
