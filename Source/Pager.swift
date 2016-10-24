@@ -20,15 +20,15 @@ import Foundation
 This class stores pagination data. It limits the results for queries in the DAO
 and Search objects and also counts the total number of results that are returned.
 */
-public class Pager {
+open class Pager {
 
-	public var page: UInt = 1
-	public var count: UInt = 0
-	public var sortby: String = "timestamp"
-	public var desc: Bool = true
-	public var limit: UInt = 30
-	public var name: String?
-	public var lastKey: String?
+	open var page: UInt = 1
+	open var count: UInt = 0
+	open var sortby: String = "timestamp"
+	open var desc: Bool = true
+	open var limit: UInt = 30
+	open var name: String?
+	open var lastKey: String?
 	
 	public convenience init () {
 		self.init(limit: 30)

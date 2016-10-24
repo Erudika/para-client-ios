@@ -18,10 +18,31 @@ import Foundation
 import SwiftyJSON
 import Alamofire
 
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
+
 /**
 The Swift REST client for communicating with a Para API server.
 */
-public class ParaClient {
+open class ParaClient {
 	
 	let DEFAULT_ENDPOINT: String = "https://paraio.com"
 	let DEFAULT_PATH: String = "/v1/"
@@ -36,7 +57,7 @@ public class ParaClient {
 	var accessKey: String
 	var secretKey: String
 	
-	private final let signer = Signer()
+	fileprivate final let signer = Signer()
 	
 	public required init (accessKey: String, secretKey: String?) {
 		self.accessKey = accessKey
@@ -55,13 +76,13 @@ public class ParaClient {
 	
 	// MARK: Public methods
 	
-	public func setEndpoint(endpoint: String) {
+	open func setEndpoint(_ endpoint: String) {
 		self.endpoint = endpoint
 	}
 	
 	/// Returns the endpoint URL
-	public func getEndpoint() -> String {
-		if (self.endpoint ?? "").isEmpty {
+	open func getEndpoint() -> String {
+		if self.endpoint.isEmpty {
 			return DEFAULT_ENDPOINT
 		} else {
 			return self.endpoint
@@ -69,12 +90,12 @@ public class ParaClient {
 	}
 	
 	/// Sets the API request path
-	public func setApiPath(path: String) {
+	open func setApiPath(_ path: String) {
 		self.path = path
 	}
 	
 	/// Returns the API request path
-	public func getApiPath() -> String {
+	open func getApiPath() -> String {
 		if (tokenKey ?? "").isEmpty {
 			return DEFAULT_PATH
 		} else {
@@ -86,11 +107,11 @@ public class ParaClient {
 	}
 	
 	/// Sets the JWT access token.
-	public func setAccessToken(token: String) {
-		if !(token ?? "").isEmpty {
-			var parts = token.componentsSeparatedByString(".")
-			let decoded:JSON = JSON(data: NSData(base64EncodedString: parts[1],
-				options: NSDataBase64DecodingOptions(rawValue: 0))!)
+	open func setAccessToken(_ token: String) {
+		if !token.isEmpty {
+			var parts = token.components(separatedBy: ".")
+			let decoded:JSON = JSON(data: NSData(base64Encoded: parts[1],
+				options: NSData.Base64DecodingOptions(rawValue: 0))! as Data)
 			if decoded != nil && decoded["exp"] != nil {
 				self.tokenKeyExpires = decoded.dictionaryValue["exp"]?.uInt64Value
 				self.tokenKeyNextRefresh = decoded.dictionaryValue["refresh"]?.uInt64Value
@@ -103,14 +124,14 @@ public class ParaClient {
 	}
 	
 	/// Returns the JWT access token, or null if not signed in
-	public func getAccessToken() -> String? {
+	open func getAccessToken() -> String? {
 		return self.tokenKey
 	}
 	
 	// MARK: Private methods
 	
 	/// Clears the JWT token from memory, if such exists.
-	private func clearAccessToken() {
+	fileprivate func clearAccessToken() {
 		self.tokenKey = nil
 		self.tokenKeyExpires = nil
 		self.tokenKeyNextRefresh = nil
@@ -120,19 +141,19 @@ public class ParaClient {
 	}
 	
 	/// Saves JWT tokens to disk
-	private func saveAccessToken(jwtData: NSDictionary?) {
+	fileprivate func saveAccessToken(_ jwtData: NSDictionary?) {
 		if jwtData != nil && jwtData!.count > 0 {
-			self.tokenKey = String(jwtData!["access_token"])
+			self.tokenKey = String(describing: jwtData!["access_token"])
 			self.tokenKeyExpires = jwtData!["expires"] as? UInt64
 			self.tokenKeyNextRefresh = jwtData!["refresh"] as? UInt64
 			self.savePref("tokenKey", value: self.tokenKey)
-			self.savePref("tokenKeyExpires", value: String(self.tokenKeyExpires))
-			self.savePref("tokenKeyNextRefresh", value: String(self.tokenKeyNextRefresh))
+			self.savePref("tokenKeyExpires", value: String(describing: self.tokenKeyExpires))
+			self.savePref("tokenKeyNextRefresh", value: String(describing: self.tokenKeyNextRefresh))
 		}
 	}
 	
 	/// Clears the JWT token from memory, if such exists.
-	private func key(refresh: Bool) -> String {
+	fileprivate func key(_ refresh: Bool) -> String {
 		if self.tokenKey != nil {
 			if refresh {
 				refreshToken({ _ in })
@@ -142,57 +163,57 @@ public class ParaClient {
 		return self.secretKey
 	}
 	
-	private func getFullPath(resourcePath: String) -> String {
+	fileprivate func getFullPath(_ resourcePath: String) -> String {
 		if !resourcePath.isEmpty && resourcePath.hasPrefix(JWT_PATH) {
 			return resourcePath
 		}
 		if resourcePath.hasPrefix("/") {
-			return getApiPath() + resourcePath.substringFromIndex(resourcePath.startIndex.advancedBy(1))
+			return getApiPath() + resourcePath.substring(from: resourcePath.characters.index(resourcePath.startIndex, offsetBy: 1))
 		} else {
 			return getApiPath() + resourcePath
 		}
 	}
 	
-	private func currentTimeMillis() -> UInt64 {
-		return UInt64(NSDate().timeIntervalSince1970 * 1000)
+	fileprivate func currentTimeMillis() -> UInt64 {
+		return UInt64(Date().timeIntervalSince1970 * 1000)
 	}
 	
-	private func invokeGet<T>(resourcePath: String, params: [String: AnyObject]? = [:],
-	                       rawResult: Bool? = true, callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
+	fileprivate func invokeGet<T>(_ resourcePath: String, params: [String: AnyObject]? = [:],
+	                       rawResult: Bool? = true, callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(JWT_PATH != resourcePath), httpMethod: "GET",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                params: params, rawResult: rawResult, callback: callback, error: error)
 	}
 	
-	private func invokePost<T>(resourcePath: String, entity: JSON?, rawResult: Bool? = true,
-	                        callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
+	fileprivate func invokePost<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
+	                        callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "POST",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
 	
-	private func invokePut<T>(resourcePath: String, entity: JSON?, rawResult: Bool? = true,
-	                       callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
+	fileprivate func invokePut<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
+	                       callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "PUT",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
 	
-	private func invokePatch<T>(resourcePath: String, entity: JSON?, rawResult: Bool? = true,
-	                         callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
+	fileprivate func invokePatch<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
+	                         callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "PATCH",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
 	
-	private func invokeDelete<T>(resourcePath: String, params: [String: AnyObject]? = [:],
-	                          rawResult: Bool? = true, callback: T? -> Void, error: (NSError -> Void)? = { _ in }) {
+	fileprivate func invokeDelete<T>(_ resourcePath: String, params: [String: AnyObject]? = [:],
+	                          rawResult: Bool? = true, callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "DELETE",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                params: params, rawResult: rawResult, callback: callback, error: error)
 	}
 	
-	private func pagerToParams(pager: Pager? = nil) -> NSMutableDictionary {
+	fileprivate func pagerToParams(_ pager: Pager? = nil) -> NSMutableDictionary {
 		let map:NSMutableDictionary = [:]
 		if pager != nil {
 			map["page"] = String(pager!.page)
@@ -205,12 +226,12 @@ public class ParaClient {
 		return map
 	}
 	
-	private func getItemsFromList(result: [JSON]? = []) -> [ParaObject] {
+	fileprivate func getItemsFromList(_ result: [JSON]? = []) -> [ParaObject] {
 		if result != nil && !result!.isEmpty {
 			var objects = [ParaObject]()
 			for map in result! {
 				let p = ParaObject()
-				p.setFields(map.dictionaryObject)
+				p.setFields(map.dictionaryObject as [String : AnyObject]?)
 				objects.append(p)
 			}
 			return objects
@@ -218,7 +239,7 @@ public class ParaClient {
 		return []
 	}
 	
-	private func getItems(result: [String: JSON]? = [:], pager: Pager? = nil) -> [ParaObject] {
+	fileprivate func getItems(_ result: [String: JSON]? = [:], pager: Pager? = nil) -> [ParaObject] {
 		if result != nil && !result!.isEmpty && result!.keys.contains("items") {
 			if pager != nil && result!.keys.contains("totalHits") {
 				pager?.count = result!["totalHits"]?.uIntValue ?? 0
@@ -228,20 +249,20 @@ public class ParaClient {
 		return []
 	}
 		
-	private func savePref(key: String, value: String?) {
-		let defaults = NSUserDefaults.standardUserDefaults()
+	fileprivate func savePref(_ key: String, value: String?) {
+		let defaults = UserDefaults.standard
 		defaults.setValue(value, forKey: key)
 		defaults.synchronize()
 	}
 	
-	private func loadPref(key: String) -> String? {
-		let defaults = NSUserDefaults.standardUserDefaults()
-		return defaults.stringForKey(key)
+	fileprivate func loadPref(_ key: String) -> String? {
+		let defaults = UserDefaults.standard
+		return defaults.string(forKey: key)
 	}
 	
-	private func clearPref(key: String) {
-		let defaults = NSUserDefaults.standardUserDefaults()
-		defaults.removeObjectForKey(key)
+	fileprivate func clearPref(_ key: String) {
+		let defaults = UserDefaults.standard
+		defaults.removeObject(forKey: key)
 	}
 	
 	/////////////////////////////////////////////
@@ -255,8 +276,8 @@ public class ParaClient {
 	- parameter obj: the domain object
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func create(obj: ParaObject, callback: ParaObject? -> Void, error: (NSError -> Void)? = { _ in }) {
-		if (obj.id ?? "").isEmpty || (obj.type ?? "").isEmpty {
+	open func create(_ obj: ParaObject, callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
+		if obj.id.isEmpty || (obj.type ).isEmpty {
 			invokePost(obj.type, entity: JSON(obj.getFields()), rawResult: false, callback: callback, error: error)
 		} else {
 			invokePut("\(obj.type)/\(obj.id)", entity: JSON(obj.getFields()), rawResult: false, callback: callback, error: error)
@@ -269,7 +290,7 @@ public class ParaClient {
 	- parameter id: the id of the object to read
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func read(type: String? = nil, id: String, callback: ParaObject? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func read(_ type: String? = nil, id: String, callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if (type ?? "").isEmpty {
 			invokeGet("_id/\(id)", rawResult: false, callback: callback, error: error)
 		} else {
@@ -282,7 +303,7 @@ public class ParaClient {
 	- parameter obj: the object to update
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func update(obj: ParaObject, callback: ParaObject? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func update(_ obj: ParaObject, callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokePatch(obj.getObjectURI(), entity: JSON(obj.getFields()), rawResult: false, callback: callback, error: error)
 	}
 	
@@ -291,7 +312,7 @@ public class ParaClient {
 	- parameter obj: tobject to delete
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func delete(obj: ParaObject, callback: (Any? -> Void)? = { _ in }, error: (NSError -> Void)? = { _ in }) {
+	open func delete(_ obj: ParaObject, callback: ((Any?) -> Void)? = { _ in }, error: ((NSError) -> Void)? = { _ in }) {
 		invokeDelete(obj.getObjectURI(), rawResult: false, callback: callback!, error: error)
 	}
 	
@@ -300,18 +321,18 @@ public class ParaClient {
 	- parameter objects: the list of objects to save
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func createAll(objects: [ParaObject], callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func createAll(_ objects: [ParaObject], callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if objects.isEmpty {
 			callback([])
 			return
 		}
 		var entity = [AnyObject]()
 		for po in objects {
-			entity.append(po.getFields())
+			entity.append(po.getFields() as AnyObject)
 		}
 		invokePost("_batch", entity: JSON(entity), callback: { res in
 			callback(self.getItemsFromList(res?.arrayValue))
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -319,15 +340,15 @@ public class ParaClient {
 	- parameter keys: a list of object ids
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func readAll(keys: [String], callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func readAll(_ keys: [String], callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if keys.isEmpty {
 			callback([])
 			return
 		}
 		let ids = ["ids": keys]
-		invokeGet("_batch", params: ids, callback: { res in
+		invokeGet("_batch", params: ids as [String : AnyObject]?, callback: { res in
 			callback(self.getItemsFromList(res?.arrayValue))
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -335,18 +356,18 @@ public class ParaClient {
 	- parameter objects: the objects to update
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func updateAll(objects: [ParaObject], callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func updateAll(_ objects: [ParaObject], callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if objects.isEmpty {
 			callback([])
 			return
 		}
 		var entity = [AnyObject]()
 		for po in objects {
-			entity.append(po.getFields())
+			entity.append(po.getFields() as AnyObject)
 		}
 		invokePatch("_batch", entity: JSON(entity), callback: { res in
 			callback(self.getItemsFromList(res?.arrayValue))
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -354,13 +375,13 @@ public class ParaClient {
 	- parameter keys: the ids of the objects to delete
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func deleteAll(keys: [String], callback: ([Any]? -> Void) = { _ in }, error: (NSError -> Void)? = { _ in }) {
+	open func deleteAll(_ keys: [String], callback: @escaping (([Any]?) -> Void) = { _ in }, error: ((NSError) -> Void)? = { _ in }) {
 		if keys.isEmpty {
 			callback([])
 			return
 		}
 		let ids = ["ids": keys]
-		invokeDelete("_batch", params: ids, callback: callback, error: error)
+		invokeDelete("_batch", params: ids as [String : AnyObject]?, callback: callback, error: error)
 	}
 	
 	/**
@@ -370,15 +391,15 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func list(type: String, pager: Pager? = nil, callback: [ParaObject]? -> Void,
-	                 error: (NSError -> Void)? = { _ in }) {
+	open func list(_ type: String, pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void,
+	                 error: ((NSError) -> Void)? = { _ in }) {
 		if type.isEmpty {
 			callback([])
 			return
 		}
 		invokeGet(type, params: (pagerToParams(pager) as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/////////////////////////////////////////////
@@ -390,7 +411,7 @@ public class ParaClient {
 	- parameter id: an id
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findById(id: String, callback: ParaObject? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findById(_ id: String, callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params:NSMutableDictionary = ["id": id]
 		find("id", params: params, callback: { res in
 			let list = self.getItems(res)
@@ -403,7 +424,7 @@ public class ParaClient {
 	- parameter ids: a list of ids to search for
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findByIds(ids: [String], callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findByIds(_ ids: [String], callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params:NSMutableDictionary = ["ids": ids]
 		find("ids", params: params, callback: { res in
 			callback(self.getItems(res))
@@ -420,8 +441,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findNearby(type: String, query: String, radius: Int, lat: Double, lng: Double,
-	                       pager: Pager? = nil, callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findNearby(_ type: String, query: String, radius: Int, lat: Double, lng: Double,
+	                       pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["latlng"] = "\(lat),\(lng)"
 		params["radius"] = String(radius)
@@ -440,8 +461,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findPrefix(type: String, field: String, prefix: String,
-	                       pager: Pager? = nil, callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findPrefix(_ type: String, field: String, prefix: String,
+	                       pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["field"] = field
 		params["prefix"] = prefix
@@ -458,8 +479,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findQuery(type: String, query: String, pager: Pager? = nil,
-	                      callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findQuery(_ type: String, query: String, pager: Pager? = nil,
+	                      callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["q"] = query
 		params["type"] = type
@@ -476,8 +497,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findNestedQuery(type: String, field: String, query: String, pager: Pager? = nil,
-	                            callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findNestedQuery(_ type: String, field: String, query: String, pager: Pager? = nil,
+	                            callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["q"] = query
 		params["field"] = field
@@ -497,8 +518,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findSimilar(type: String, filterKey: String, fields: [String]? = nil, liketext: String,
-	                        pager: Pager? = nil, callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findSimilar(_ type: String, filterKey: String, fields: [String]? = nil, liketext: String,
+	                        pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["fields"] = fields
 		params["filterid"] = filterKey
@@ -516,8 +537,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findTagged(type: String, tags: [String] = [], pager: Pager? = nil,
-	                       callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findTagged(_ type: String, tags: [String] = [], pager: Pager? = nil,
+	                       callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["tags"] = tags
 		params["type"] = type
@@ -532,8 +553,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findTags(keyword: String? = nil, pager: Pager? = nil, callback: [ParaObject]? -> Void,
-	                     error: (NSError -> Void)? = { _ in }) {
+	open func findTags(_ keyword: String? = nil, pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void,
+	                     error: ((NSError) -> Void)? = { _ in }) {
 		let kword = (keyword ?? "").isEmpty ? "*" : "\(keyword!)*"
 		findWildcard("tag", field: "tag", wildcard: kword, pager: pager, callback: callback, error: error)
 	}
@@ -546,8 +567,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findTermInList(type: String, field: String, terms: [String],
-	                           pager: Pager? = nil, callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findTermInList(_ type: String, field: String, terms: [String],
+	                           pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["field"] = field
 		params["terms"] = terms
@@ -565,8 +586,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findTerms(type: String, terms: [String: AnyObject], matchAll: Bool,
-	                      pager: Pager? = nil, callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findTerms(_ type: String, terms: [String: AnyObject], matchAll: Bool,
+	                      pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if terms.isEmpty {
 			callback([])
 			return
@@ -596,8 +617,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findWildcard(type: String, field: String, wildcard: String, pager: Pager? = nil,
-	                         callback: [ParaObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findWildcard(_ type: String, field: String, wildcard: String, pager: Pager? = nil,
+	                         callback: @escaping ([ParaObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = pagerToParams(pager)
 		params["field"] = field
 		params["q"] = wildcard
@@ -612,7 +633,7 @@ public class ParaClient {
 	- parameter type: the type of object to search for. See ParaObject.getType()
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func getCount(type: String, callback: UInt -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func getCount(_ type: String, callback: @escaping (UInt) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params:NSMutableDictionary = ["type": type]
 		find("count", params: params, callback: { res in
 			let pager = Pager()
@@ -627,8 +648,8 @@ public class ParaClient {
 	- parameter terms: a list of terms (property values)
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func getCount(type: String, terms: [String: AnyObject], callback: UInt -> Void,
-	                     error: (NSError -> Void)? = { _ in }) {
+	open func getCount(_ type: String, terms: [String: AnyObject], callback: @escaping (UInt) -> Void,
+	                     error: ((NSError) -> Void)? = { _ in }) {
 		if terms.isEmpty {
 			callback(0)
 			return
@@ -652,12 +673,12 @@ public class ParaClient {
 		}, error: error)
 	}
 	
-	private func find(queryType: String, params: NSMutableDictionary,
-	                  callback: [String: JSON]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	fileprivate func find(_ queryType: String, params: NSMutableDictionary,
+	                  callback: @escaping ([String: JSON]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if params.count > 0 {
 			let qType = queryType.isEmpty ? "" : "/" + queryType
 			invokeGet("search" + qType, params: (params as NSDictionary) as? [String: AnyObject], rawResult: true,
-			          callback: { res in callback(res?.dictionaryValue) } as JSON? -> Void, error: error)
+			          callback: { res in callback(res?.dictionaryValue) } as (JSON?) -> Void, error: error)
 			return
 		}
 		callback(["items": [:], "totalHits": 0])
@@ -673,17 +694,17 @@ public class ParaClient {
 	- parameter type2: the other type of object
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func countLinks(obj: ParaObject, type2: String, callback: UInt -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func countLinks(_ obj: ParaObject, type2: String, callback: @escaping (UInt) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback(0)
 			return
 		}
 		let params = ["count": "true"]
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
+		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params as [String : AnyObject]?, callback: { res in
 			let pager = Pager()
 			self.getItems(res?.dictionaryValue, pager: pager)
 			callback(pager.count)
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -693,8 +714,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func getLinkedObjects(obj: ParaObject, type2: String, pager: Pager? = nil,
-	                             callback: [ParaObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func getLinkedObjects(_ obj: ParaObject, type2: String, pager: Pager? = nil,
+	                             callback: @escaping ([ParaObject]) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback([])
 			return
@@ -702,7 +723,7 @@ public class ParaClient {
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
 			(pagerToParams(pager) as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -714,8 +735,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findLinkedObjects(obj: ParaObject, type2: String, field: String, query: String, pager: Pager? = nil,
-	                             callback: [ParaObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findLinkedObjects(_ obj: ParaObject, type2: String, field: String, query: String? = "*", pager: Pager? = nil,
+	                             callback: @escaping ([ParaObject]) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback([])
 			return
@@ -726,7 +747,7 @@ public class ParaClient {
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
 			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -736,15 +757,15 @@ public class ParaClient {
 	- parameter id2: the other id
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func isLinked(obj: ParaObject, type2: String, id2: String, callback: Bool -> Void,
-	                     error: (NSError -> Void)? = { _ in }) {
+	open func isLinked(_ obj: ParaObject, type2: String, id2: String, callback: @escaping (Bool) -> Void,
+	                     error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty || id2.isEmpty {
 			callback(false)
 			return
 		}
 		invokeGet("\(obj.getObjectURI())/links/\(type2)/\(id2)", callback: { res in
 			callback((res ?? "") == "true")
-		} as String? -> Void, error: error)
+		} as (String?) -> Void, error: error)
 	}
 	
 	/**
@@ -753,7 +774,7 @@ public class ParaClient {
 	- parameter toObj: the other object
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func isLinked(obj: ParaObject, toObj: ParaObject, callback: Bool -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func isLinked(_ obj: ParaObject, toObj: ParaObject, callback: @escaping (Bool) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || toObj.id.isEmpty {
 			callback(false)
 			return
@@ -769,7 +790,7 @@ public class ParaClient {
 	- parameter id2: link to the object with this id
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func link(obj: ParaObject, id2: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func link(_ obj: ParaObject, id2: String, callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || id2.isEmpty {
 			callback(nil)
 			return
@@ -784,8 +805,8 @@ public class ParaClient {
 	- parameter id2: the other id
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func unlink(obj: ParaObject, type2: String, id2: String, callback: Any? -> Void,
-	                   error: (NSError -> Void)? = { _ in }) {
+	open func unlink(_ obj: ParaObject, type2: String, id2: String, callback: @escaping (Any?) -> Void,
+	                   error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty || id2.isEmpty {
 			callback(nil)
 			return
@@ -798,7 +819,7 @@ public class ParaClient {
 	- parameter obj: the object to execute this method on
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func unlinkAll(obj: ParaObject, callback: Any? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func unlinkAll(_ obj: ParaObject, callback: @escaping (Any?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty {
 			callback(nil)
 			return
@@ -812,17 +833,17 @@ public class ParaClient {
 	- parameter type2: the type of the other object
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func countChildren(obj: ParaObject, type2: String, callback: UInt -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func countChildren(_ obj: ParaObject, type2: String, callback: @escaping (UInt) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback(0)
 			return
 		}
 		let params = ["count": "true", "childrenonly": "true"]
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params, callback: { res in
+		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params as [String : AnyObject]?, callback: { res in
 			let pager = Pager()
 			self.getItems(res?.dictionaryValue, pager: pager)
 			callback(pager.count)
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -832,8 +853,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func getChildren(obj: ParaObject, type2: String, pager: Pager? = nil,
-	                        callback: [ParaObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func getChildren(_ obj: ParaObject, type2: String, pager: Pager? = nil,
+	                        callback: @escaping ([ParaObject]) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback([])
 			return
@@ -855,8 +876,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func getChildren(obj: ParaObject, type2: String, field: String, term: String,
-	                        pager: Pager? = nil, callback: [ParaObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func getChildren(_ obj: ParaObject, type2: String, field: String, term: String,
+	                        pager: Pager? = nil, callback: @escaping ([ParaObject]) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback([])
 			return
@@ -880,8 +901,8 @@ public class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func findChildren(obj: ParaObject, type2: String, query: String, pager: Pager? = nil,
-	                        callback: [ParaObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func findChildren(_ obj: ParaObject, type2: String, query: String? = "*", pager: Pager? = nil,
+	                        callback: @escaping ([ParaObject]) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback([])
 			return
@@ -901,13 +922,13 @@ public class ParaClient {
 	- parameter type2: the type of the other object
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func deleteChildren(obj: ParaObject, type2: String, callback: Any? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func deleteChildren(_ obj: ParaObject, type2: String, callback: @escaping (Any?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || type2.isEmpty {
 			callback([])
 			return
 		}
 		let params = ["childrenonly": "true"]
-		invokeDelete("\(obj.getObjectURI())/links/\(type2)", params: params, callback: callback, error: error)
+		invokeDelete("\(obj.getObjectURI())/links/\(type2)", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
 	
 	/////////////////////////////////////////////
@@ -918,7 +939,7 @@ public class ParaClient {
 	Generates a new unique id.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func newId(callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func newId(_ callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("utils/newid", callback: callback, error: error)
 	}
 	
@@ -926,10 +947,10 @@ public class ParaClient {
 	Returns the current timestamp.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func getTimestamp(callback: UInt64 -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func getTimestamp(_ callback: @escaping (UInt64) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("utils/timestamp", callback: { res in
 			callback(UInt64(res ?? "0")!)
-		} as String? -> Void, error: error)
+		} as (String?) -> Void, error: error)
 	}
 	
 	/**
@@ -938,9 +959,9 @@ public class ParaClient {
 	- parameter locale: the locale, eg. "en_US"
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func formatDate(format: String, locale: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func formatDate(_ format: String, locale: String, callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = ["format": format, "locale": locale]
-		invokeGet("utils/formatdate", params: params, callback: callback, error: error)
+		invokeGet("utils/formatdate", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
 	
 	/**
@@ -949,9 +970,9 @@ public class ParaClient {
 	- parameter replaceWith: a string to replace spaces it with
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func noSpaces(str: String, replaceWith: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func noSpaces(_ str: String, replaceWith: String, callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = ["string": str, "replacement": replaceWith]
-		invokeGet("utils/nospaces", params: params, callback: callback, error: error)
+		invokeGet("utils/nospaces", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
 	
 	/**
@@ -959,9 +980,9 @@ public class ParaClient {
 	- parameter str: a dirty string
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func stripAndTrim(str: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func stripAndTrim(_ str: String, callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = ["string": str]
-		invokeGet("utils/nosymbols", params: params, callback: callback, error: error)
+		invokeGet("utils/nosymbols", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
 	
 	/**
@@ -969,9 +990,9 @@ public class ParaClient {
 	- parameter markdownString: Markdown
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func markdownToHtml(markdownString: String, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func markdownToHtml(_ markdownString: String, callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = ["md": markdownString]
-		invokeGet("utils/md2html", params: params, callback: callback, error: error)
+		invokeGet("utils/md2html", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
 	
 	/**
@@ -979,9 +1000,9 @@ public class ParaClient {
 	- parameter delta: the time delta between two events, in milliseconds
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func approximately(delta: UInt, callback: String? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func approximately(_ delta: UInt, callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params = ["delta": delta]
-		invokeGet("utils/timeago", params: params, callback: callback, error: error)
+		invokeGet("utils/timeago", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
 	
 	/////////////////////////////////////////////
@@ -992,31 +1013,31 @@ public class ParaClient {
 	Generates a new set of access/secret keys. Old keys are discarded and invalid after this.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func newKeys(callback: [String: AnyObject] -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func newKeys(_ callback: @escaping ([String: AnyObject]) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokePost("_newkeys", entity: nil, callback: { res in
 			var keys = res?.dictionaryObject ?? [:]
 			if keys.keys.contains("secretKey") {
-				self.secretKey = keys["secretKey"]!.description
+				self.secretKey = keys["secretKey"]! as! String
 			}
-			callback(keys)
-		} as JSON? -> Void, error: error)
+			callback(keys as [String : AnyObject])
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
 	Returns all registered types for this App.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func types(callback: [String: String]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func types(_ callback: @escaping ([String: String]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("_types", callback: { res in
 			callback(res?.dictionaryObject as? [String: String])
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
 	Returns a User or an App that is currently authenticated.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func me(callback: ParaObject? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func me(_ callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("_me", rawResult: false, callback: callback, error: error)
 	}
 	
@@ -1028,10 +1049,10 @@ public class ParaClient {
 	Returns the validation constraints map.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func validationConstraints(callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func validationConstraints(_ callback: @escaping ([String: AnyObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("_constraints", callback: { res in
-			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+			callback(res?.dictionaryObject as [String : AnyObject]?)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1039,11 +1060,11 @@ public class ParaClient {
 	- parameter type: a type
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func validationConstraints(type: String, callback: [String: AnyObject]? -> Void,
-	                                  error: (NSError -> Void)? = { _ in }) {
+	open func validationConstraints(_ type: String, callback: @escaping ([String: AnyObject]?) -> Void,
+	                                  error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("_constraints/\(type)", callback: { res in
-			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+			callback(res?.dictionaryObject as [String : AnyObject]?)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1053,15 +1074,15 @@ public class ParaClient {
 	- parameter constraint: a Constraint
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func addValidationConstraint(type: String, field: String, constraint: Constraint,
-	                                    callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func addValidationConstraint(_ type: String, field: String, constraint: Constraint,
+	                                    callback: @escaping ([String: AnyObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if type.isEmpty || field.isEmpty {
 			callback([:])
 			return
 		}
 		invokePut("_constraints/\(type)/\(field)/\(constraint.name)", entity: JSON(constraint.payload), callback: { res in
-			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+			callback(res?.dictionaryObject as [String : AnyObject]?)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1071,8 +1092,8 @@ public class ParaClient {
 	- parameter constraintName: the name of the constraint to remove
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func removeValidationConstraint(type: String, field: String, constraintName: String,
-	                                       callback: Any? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func removeValidationConstraint(_ type: String, field: String, constraintName: String,
+	                                       callback: @escaping (Any?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if type.isEmpty || field.isEmpty || constraintName.isEmpty {
 			callback([:])
 			return
@@ -1088,10 +1109,10 @@ public class ParaClient {
 	Returns the permissions for all subjects and resources for current app.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func resourcePermissions(callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func resourcePermissions(_ callback: @escaping ([String: AnyObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("_permissions", callback: { res in
-			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+			callback(res?.dictionaryObject as [String : AnyObject]?)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1099,11 +1120,11 @@ public class ParaClient {
 	- parameter subjectid: the subject id (user id)
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func resourcePermissions(subjectid: String, callback: [String: AnyObject]? -> Void,
-	                                error: (NSError -> Void)? = { _ in }) {
+	open func resourcePermissions(_ subjectid: String, callback: @escaping ([String: AnyObject]?) -> Void,
+	                                error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("_permissions/\(subjectid)", callback: { res in
-			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+			callback(res?.dictionaryObject as [String : AnyObject]?)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1114,9 +1135,9 @@ public class ParaClient {
 	- parameter allowGuestAccess: if true - all unauthenticated requests will go through, 'false' by default.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func grantResourcePermission(subjectid: String, resourcePath: String, permission: [String],
-	                                    allowGuestAccess: Bool = false, callback: [String: AnyObject]? -> Void,
-	                                    error: (NSError -> Void)? = { _ in }) {
+	open func grantResourcePermission(_ subjectid: String, resourcePath: String, permission: [String],
+	                                    allowGuestAccess: Bool = false, callback: @escaping ([String: AnyObject]?) -> Void,
+	                                    error: ((NSError) -> Void)? = { _ in }) {
 		if subjectid.isEmpty || resourcePath.isEmpty || permission.isEmpty {
 			callback([:])
 			return
@@ -1127,8 +1148,8 @@ public class ParaClient {
 		}
 		let resPath = Signer.encodeURIComponent(resourcePath)
 		invokePut("_permissions/\(subjectid)/\(resPath)", entity: JSON(permit), callback: { res in
-			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+			callback(res?.dictionaryObject as [String : AnyObject]?)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1137,8 +1158,8 @@ public class ParaClient {
 	- parameter resourcePath: resource path or object type
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func revokeResourcePermission(subjectid: String, resourcePath: String,
-	                                     callback: Any? -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func revokeResourcePermission(_ subjectid: String, resourcePath: String,
+	                                     callback: @escaping (Any?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if subjectid.isEmpty || resourcePath.isEmpty {
 			callback([:])
 			return
@@ -1146,7 +1167,7 @@ public class ParaClient {
 		let resPath = Signer.encodeURIComponent(resourcePath)
 		invokeDelete("_permissions/\(subjectid)/\(resPath)", callback: { res in
 			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1154,15 +1175,15 @@ public class ParaClient {
 	- parameter subjectid: the subject id (user id)
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func revokeAllResourcePermissions(subjectid: String, callback: [String: AnyObject]? -> Void,
-	                                         error: (NSError -> Void)? = { _ in }) {
+	open func revokeAllResourcePermissions(_ subjectid: String, callback: @escaping ([String: AnyObject]?) -> Void,
+	                                         error: ((NSError) -> Void)? = { _ in }) {
 		if subjectid.isEmpty {
 			callback([:])
 			return
 		}
 		invokeDelete("_permissions/\(subjectid)", callback: { res in
-			callback(res?.dictionaryObject)
-		} as JSON? -> Void, error: error)
+			callback(res?.dictionaryObject as [String : AnyObject]?)
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/**
@@ -1172,15 +1193,15 @@ public class ParaClient {
 	- parameter httpMethod: HTTP method name
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func isAllowedTo(subjectid: String, resourcePath: String, httpMethod: String,
-	                        callback: Bool -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func isAllowedTo(_ subjectid: String, resourcePath: String, httpMethod: String,
+	                        callback: @escaping (Bool) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if subjectid.isEmpty || resourcePath.isEmpty {
 			callback(false)
 			return
 		}
 		let resPath = Signer.encodeURIComponent(resourcePath)
 		invokeGet("_permissions/\(subjectid)/\(resPath)/\(httpMethod)",
-		          callback: { res in callback((res ?? "") == "true") } as String? -> Void,
+		          callback: { res in callback((res ?? "") == "true") } as (String?) -> Void,
 		          error: { _ in callback(false) })
 	}
 	
@@ -1193,16 +1214,16 @@ public class ParaClient {
 	- parameter key: a key
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func appSettings(key: String? = nil, callback: [String: AnyObject]? -> Void,
-	                        error: (NSError -> Void)? = { _ in }) {
-		if (key ?? "").stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()).isEmpty {
+	open func appSettings(_ key: String? = nil, callback: @escaping ([String: AnyObject]?) -> Void,
+	                        error: ((NSError) -> Void)? = { _ in }) {
+		if (key ?? "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
 			invokeGet("_settings", rawResult: true, callback: {
-				res in callback(res?.dictionaryObject)
-			} as JSON? -> Void, error: error)
+				res in callback(res?.dictionaryObject as [String : AnyObject]?)
+			} as (JSON?) -> Void, error: error)
 		} else {
 			invokeGet("_settings/\(key!)", rawResult: true, callback: {
-				res in callback(res?.dictionaryObject)
-			} as JSON? -> Void, error: error)
+				res in callback(res?.dictionaryObject as [String : AnyObject]?)
+			} as (JSON?) -> Void, error: error)
 		}
 	}
 	
@@ -1212,9 +1233,9 @@ public class ParaClient {
 	- parameter value: a value
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func addAppSetting(key: String, value: AnyObject, callback: [String: AnyObject]? -> Void,
-	                          error: (NSError -> Void)? = { _ in }) {
-		if !(key ?? "").isEmpty {
+	open func addAppSetting(_ key: String, value: AnyObject, callback: @escaping ([String: AnyObject]?) -> Void,
+	                          error: ((NSError) -> Void)? = { _ in }) {
+		if !key.isEmpty {
 			invokePut("_settings/\(key)", entity: JSON(["value": value]), callback: callback, error: error)
 		}
 	}
@@ -1224,8 +1245,8 @@ public class ParaClient {
 	- parameter key: a key
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func removeAppSetting(key: String, callback: [String: AnyObject]? -> Void, error: (NSError -> Void)? = { _ in }) {
-		if !(key ?? "").isEmpty {
+	open func removeAppSetting(_ key: String, callback: @escaping ([String: AnyObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
+		if !key.isEmpty {
 			invokeDelete("_settings/\(key)", callback: callback, error: error)
 		}
 	}
@@ -1246,8 +1267,8 @@ public class ParaClient {
 	- parameter providerToken: access token from a provider like Facebook, Google, Twitter
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func signIn(provider: String, providerToken: String, callback: ParaObject? -> Void,
-	                   error: (NSError -> Void)? = { _ in }) {
+	open func signIn(_ provider: String, providerToken: String, callback: @escaping (ParaObject?) -> Void,
+	                   error: ((NSError) -> Void)? = { _ in }) {
 		if !provider.isEmpty && !providerToken.isEmpty {
 			var credentials = [String:String]()
 			credentials["appid"] = self.accessKey
@@ -1266,7 +1287,7 @@ public class ParaClient {
 					self.clearAccessToken()
 					callback(nil)
 				}
-			} as JSON? -> Void, error: { e in
+			} as (JSON?) -> Void, error: { e in
 				self.clearAccessToken()
 				error!(e)
 			})
@@ -1279,7 +1300,7 @@ public class ParaClient {
 	Clears the JWT access token but token is not revoked.
 	Tokens can be revoked globally per user with revokeAllTokens().
 	*/
-	public func signOut() {
+	open func signOut() {
 		clearAccessToken()
 	}
 	
@@ -1287,7 +1308,7 @@ public class ParaClient {
 	Refreshes the JWT access token. This requires a valid existing token. Call link signIn() first.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func refreshToken(callback: Bool -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func refreshToken(_ callback: @escaping (Bool) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let now = currentTimeMillis()
 		let notExpired = self.tokenKeyExpires != nil && self.tokenKeyExpires! > now
 		let canRefresh = self.tokenKeyNextRefresh != nil &&
@@ -1303,7 +1324,7 @@ public class ParaClient {
 				} else {
 					callback(false)
 				}
-			} as JSON? -> Void, error: { e in
+			} as (JSON?) -> Void, error: { e in
 				self.clearAccessToken()
 				error!(e)
 			})
@@ -1319,7 +1340,7 @@ public class ParaClient {
 	Requires a valid existing token.
 	- parameter callback: called with response object when the request is completed
 	*/
-	public func revokeAllTokens(callback: Bool -> Void, error: (NSError -> Void)? = { _ in }) {
+	open func revokeAllTokens(_ callback: @escaping (Bool) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeDelete(JWT_PATH, callback: { res in callback(res != nil) }, error: error)
 	}
 	

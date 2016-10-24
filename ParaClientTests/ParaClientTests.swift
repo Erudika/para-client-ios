@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import ParaClient
+import ParaClient
 import SwiftyJSON
 import Alamofire
 

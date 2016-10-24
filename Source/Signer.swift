@@ -19,11 +19,31 @@ import Foundation
 import CryptoSwift
 import Alamofire
 import SwiftyJSON
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 /**
 Signs HTTP requests using the AWS V4 algorithm
 */
-public class Signer {
+open class Signer {
 	let regionName: String
 	let serviceName: String
 	
@@ -34,10 +54,10 @@ public class Signer {
 		self.serviceName = "para"
 	}
 	
-	func signedHeaders(accessKey: String, secretKey: String, url: NSURL, bodyDigest: String,
-	                   httpMethod: String = "GET", date: NSDate = NSDate()) -> [String: String] {
+	func signedHeaders(_ accessKey: String, secretKey: String, url: URL, bodyDigest: String,
+	                   httpMethod: String = "GET", date: Date = Date()) -> [String: String] {
 		let datetime = timestamp(date)
-		let port = (url.port != nil) ? ":" + String(url.port!) : ""
+		let port = ((url as NSURL).port != nil) ? ":" + String(describing: (url as NSURL).port!) : ""
 		var headers = ["x-amz-date": datetime, "Host": url.host! + port]		
 		headers["Authorization"] = authorization(accessKey, secretKey: secretKey, url: url, headers: headers,
 		                                         datetime: datetime, httpMethod: httpMethod, bodyDigest: bodyDigest)
@@ -47,52 +67,52 @@ public class Signer {
 	
 	// MARK: Utilities
 	
-	private func pathForURL(url: NSURL) -> String {
+	fileprivate func pathForURL(_ url: URL) -> String {
 		var path = url.path
-		if (path ?? "").isEmpty {
+		if path.isEmpty {
 			path = "/"
 		} else {
 			// do this to preserve encoded path fragments, like those containing encoded '/' (%2F)
 			// NSURL.path  decodes them and they are lost
 			var encodedPartsArray = [String]()
 			// get rid of 'http(s)://'
-			let fullURL = url.absoluteString!.substringFromIndex(url.absoluteString!.startIndex.advancedBy(8))
-			var rawPath = fullURL.substringFromIndex(fullURL.rangeOfString("/")!.startIndex)
+			let fullURL = url.absoluteString.substring(from: url.absoluteString.characters.index(url.absoluteString.startIndex, offsetBy: 8))
+			var rawPath = fullURL.substring(from: fullURL.range(of: "/")!.lowerBound)
 			if rawPath.characters.contains("?") {
-				rawPath = rawPath.substringToIndex(rawPath.rangeOfString("?")!.startIndex)
+				rawPath = rawPath.substring(to: rawPath.range(of: "?")!.lowerBound)
 			}
-			for part in rawPath.componentsSeparatedByString("/") {
+			for part in rawPath.components(separatedBy: "/") {
 				if !part.isEmpty {
 					encodedPartsArray.append(Signer.encodeURIComponent(part))
 				}
 			}
-			path = "/" + encodedPartsArray.joinWithSeparator("/")
+			path = "/" + encodedPartsArray.joined(separator: "/")
 		}
-		return path!
+		return path
 	}
 	
-	func sha256(str: String) -> String {
-		let data = str.dataUsingEncoding(NSUTF8StringEncoding)!
-		return data.sha256()!.toHexString()
+	func sha256(_ str: String) -> String {
+		let data = str.data(using: String.Encoding.utf8)!
+		return data.sha256().toHexString()
 	}
 	
-	private func hmac(string: NSString, key: NSData) -> NSData {
-		let msg = string.dataUsingEncoding(NSUTF8StringEncoding)!.arrayOfBytes()
-		let hmac:[UInt8] = try! Authenticator.HMAC(key: key.arrayOfBytes(), variant: .sha256).authenticate(msg)
-		return NSData(bytes: hmac)
+	fileprivate func hmac(_ string: NSString, key: Data) -> Data {
+		let msg = string.data(using: String.Encoding.utf8.rawValue)!.bytes
+		let hmac:[UInt8] = try! HMAC(key: key.bytes, variant: .sha256).authenticate(msg)
+		return Data(bytes: hmac)
 	}
 	
-	private func timestamp(date: NSDate) -> String {
-		let formatter = NSDateFormatter()
+	fileprivate func timestamp(_ date: Date) -> String {
+		let formatter = DateFormatter()
 		formatter.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
-		formatter.timeZone = NSTimeZone(name: "UTC")
-		formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-		return formatter.stringFromDate(date)
+		formatter.timeZone = TimeZone(identifier: "UTC")
+		formatter.locale = Locale(identifier: "en_US_POSIX")
+		return formatter.string(from: date)
 	}
 	
 	// MARK: Methods Ported from AWS SDK
 	
-	private func authorization(accessKey: String, secretKey: String, url: NSURL, headers: Dictionary<String, String>,
+	fileprivate func authorization(_ accessKey: String, secretKey: String, url: URL, headers: Dictionary<String, String>,
 	                           datetime: String, httpMethod: String, bodyDigest: String) -> String {
 		let cred = credential(accessKey, datetime: datetime)
 		let shead = signedHeaders(headers)
@@ -103,65 +123,65 @@ public class Signer {
 			"AWS4-HMAC-SHA256 Credential=\(cred)",
 			"SignedHeaders=\(shead)",
 			"Signature=\(sig)",
-			].joinWithSeparator(", ")
+			].joined(separator: ", ")
 	}
 	
-	private func credential(accessKey: String, datetime: String) -> String {
+	fileprivate func credential(_ accessKey: String, datetime: String) -> String {
 		return "\(accessKey)/\(credentialScope(datetime))"
 	}
 	
-	private func signedHeaders(headers: [String:String]) -> String {
-		var list = Array(headers.keys).map { $0.lowercaseString }.sort()
-		if let itemIndex = list.indexOf("authorization") {
-			list.removeAtIndex(itemIndex)
+	fileprivate func signedHeaders(_ headers: [String:String]) -> String {
+		var list = Array(headers.keys).map { $0.lowercased() }.sorted()
+		if let itemIndex = list.index(of: "authorization") {
+			list.remove(at: itemIndex)
 		}
-		return list.joinWithSeparator(";")
+		return list.joined(separator: ";")
 	}
 	
-	private func canonicalHeaders(headers: [String: String]) -> String {
+	fileprivate func canonicalHeaders(_ headers: [String: String]) -> String {
 		var list = [String]()
-		let keys = Array(headers.keys).sort {$0.localizedCompare($1) == NSComparisonResult.OrderedAscending}
+		let keys = Array(headers.keys).sorted {$0.localizedCompare($1) == ComparisonResult.orderedAscending}
 		
 		for key in keys {
-			if key.caseInsensitiveCompare("authorization") != NSComparisonResult.OrderedSame {
+			if key.caseInsensitiveCompare("authorization") != ComparisonResult.orderedSame {
 				// Note: This does not strip whitespace, but the spec says it should
-				list.append("\(key.lowercaseString):\(headers[key]!)")
+				list.append("\(key.lowercased()):\(headers[key]!)")
 			}
 		}
-		return list.joinWithSeparator("\n")
+		return list.joined(separator: "\n")
 	}
 	
-	private func signature(secretKey: String, url: NSURL, headers: [String: String],
+	fileprivate func signature(_ secretKey: String, url: URL, headers: [String: String],
 	                       datetime: String, httpMethod: String, bodyDigest: String) -> String {
-		let secret = NSString(format: "AWS4%@", secretKey).dataUsingEncoding(NSUTF8StringEncoding)!
-		let date = hmac(datetime.substringToIndex(datetime.startIndex.advancedBy(8)), key: secret)
-		let region = hmac(regionName, key: date)
-		let service = hmac(serviceName, key: region)
+		let secret = NSString(format: "AWS4%@", secretKey).data(using: String.Encoding.utf8.rawValue)!
+		let date = hmac(datetime.substring(to: datetime.characters.index(datetime.startIndex, offsetBy: 8)) as NSString, key: secret)
+		let region = hmac(regionName as NSString, key: date)
+		let service = hmac(serviceName as NSString, key: region)
 		let credentials = hmac("aws4_request", key: service)
 		let string = stringToSign(datetime, url: url, headers: headers, httpMethod: httpMethod, bodyDigest: bodyDigest)
-		return hmac(string, key: credentials).toHexString()
+		return hmac(string as NSString, key: credentials).toHexString()
 	}
 	
-	private func credentialScope(datetime: String) -> String {
+	fileprivate func credentialScope(_ datetime: String) -> String {
 		return [
-			datetime.substringToIndex(datetime.startIndex.advancedBy(8)),
+			datetime.substring(to: datetime.characters.index(datetime.startIndex, offsetBy: 8)),
 			regionName,
 			serviceName,
 			"aws4_request"
-			].joinWithSeparator("/")
+			].joined(separator: "/")
 	}
 	
-	private func stringToSign(datetime: String, url: NSURL, headers: [String: String],
+	fileprivate func stringToSign(_ datetime: String, url: URL, headers: [String: String],
 	                          httpMethod: String, bodyDigest: String) -> String {
 		return [
 			"AWS4-HMAC-SHA256",
 			datetime,
 			credentialScope(datetime),
 			sha256(canonicalRequest(url, headers: headers, httpMethod: httpMethod, bodyDigest: bodyDigest)),
-			].joinWithSeparator("\n")
+			].joined(separator: "\n")
 	}
 	
-	private func canonicalRequest(url: NSURL, headers: [String: String],
+	fileprivate func canonicalRequest(_ url: URL, headers: [String: String],
 	                              httpMethod: String, bodyDigest: String) -> String {
 		return [
 			httpMethod,                       // HTTP Method
@@ -170,15 +190,15 @@ public class Signer {
 			"\(canonicalHeaders(headers))\n", // Canonicalized Header String (Plus a newline for some reason)
 			signedHeaders(headers),           // Signed Headers String
 			bodyDigest,                       // Sha265 of Body
-			].joinWithSeparator("\n")
+			].joined(separator: "\n")
 	}
 	
 	// MARK: Methods added for ParaClient
 	
-	public func invokeSignedRequest<T>(accessKey: String, secretKey: String, httpMethod: String, endpointURL: String,
+	open func invokeSignedRequest<T>(_ accessKey: String, secretKey: String, httpMethod: String, endpointURL: String,
 	                                reqPath: String, headers: NSMutableDictionary? = [:],
 	                                params: [String: AnyObject]? = [:], body: JSON? = nil, rawResult: Bool? = true,
-	                                callback: T? -> Void, error: (NSError -> Void)? = { _ in })	{
+	                                callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in })	{
 		
 		if accessKey.isEmpty {
 			print("Blank access key: \(httpMethod) \(reqPath)")
@@ -196,18 +216,18 @@ public class Signer {
 		var urlForSigning = url
 		let isJWT = secretKey.hasPrefix("Bearer")
 		var bodyDigest = sha256("")
-		var signedHeaders = [:]
+		var signedHeaders = [String:String]()
 		if urlForSigning.characters.last == "/" {
 			urlForSigning = String(url.characters.dropLast())
 		}
 		
-		let request = NSMutableURLRequest.init(URL: NSURL(string: url)!)
-		request.HTTPMethod = httpMethod
+		let request = NSMutableURLRequest.init(url: URL(string: url)!)
+		request.httpMethod = httpMethod
 		
 		if params?.count > 0 {
 			var paramArrayForSigning = [String]()
 			var paramArray = [String]()
-			let sortedKeys = params!.sort { $0.0 < $1.0 }
+			let sortedKeys = params!.sorted { $0.0 < $1.0 }
 			for (k, _) in sortedKeys {
 				if let listValue = params![k] as? [String] {
 					if !listValue.isEmpty {
@@ -222,22 +242,22 @@ public class Signer {
 				}
 				
 			}
-			urlForSigning = urlForSigning + "?" + paramArrayForSigning.joinWithSeparator("&")
-			url = url + "?" + paramArray.joinWithSeparator("&")
-			request.URL = NSURL(string: url)
+			urlForSigning = urlForSigning + "?" + paramArrayForSigning.joined(separator: "&")
+			url = url + "?" + paramArray.joined(separator: "&")
+			request.url = URL(string: url)
 		}
 		
 		if body != nil {
 			let bodyString = body!.rawString() ?? ""
 			bodyDigest = sha256(bodyString)
 			request.setValue(JSON_TYPE, forHTTPHeaderField: "Content-Type")
-			request.HTTPBody = bodyString.dataUsingEncoding(NSUTF8StringEncoding)
+			request.httpBody = bodyString.data(using: String.Encoding.utf8)
 		}
 		
 		if isJWT {
 			headers!["Authorization"] = "Bearer \(secretKey)"
 		} else if doSign {
-			signedHeaders = self.signedHeaders(accessKey, secretKey: secretKey, url: NSURL(string: urlForSigning)!,
+			signedHeaders = self.signedHeaders(accessKey, secretKey: secretKey, url: URL(string: urlForSigning)!,
 			                                   bodyDigest: bodyDigest, httpMethod: httpMethod)
 			headers!["Authorization"] = signedHeaders["Authorization"]
 			headers!["x-amz-date"] = signedHeaders["x-amz-date"]
@@ -247,22 +267,22 @@ public class Signer {
 			request.setValue(v as? String, forHTTPHeaderField: k as! String)
 		}
 		
-		Alamofire.request(request).validate().responseData { response in
+		Alamofire.request(request as! URLRequestConvertible).validate().responseData { response in
 			switch response.result {
-				case .Success:
+				case .success:
 					if let value = response.result.value {
-						if value.length > 0 {
+						if value.count > 0 {
 							let json = JSON(data: value)
 							
 							if rawResult! {
-								if response.response?.MIMEType == self.JSON_TYPE {
+								if response.response?.mimeType == self.JSON_TYPE {
 									callback(json as? T)
 								} else {
-									callback(String(data: value, encoding: NSUTF8StringEncoding) as? T)
+									callback(String(data: value, encoding: String.Encoding.utf8) as? T)
 								}
 							} else {
 								let obj = ParaObject()
-								obj.setFields(json.dictionaryObject!)
+								obj.setFields(json.dictionaryObject! as [String : AnyObject]?)
 								callback(obj as? T)
 							}
 						} else {
@@ -271,23 +291,23 @@ public class Signer {
 					} else {
 						callback(nil)
 					}
-				case .Failure(let err):
+				case .failure(let err):
 					if response.response!.statusCode == 404 {
 						callback(nil)
 					} else {
 						print("Request '\(httpMethod) \(reqPath)' failed: \(err)")
-						error?(err)
+						error?(err as NSError)
 					}
 			}
 		}
 		
 	}
 
-	public static func encodeURIComponent(s: String) -> String {
-		let allowed = NSMutableCharacterSet.alphanumericCharacterSet()
-		allowed.addCharactersInString("-_.~")
+	open static func encodeURIComponent(_ s: String) -> String {
+		let allowed = NSMutableCharacterSet.alphanumeric()
+		allowed.addCharacters(in: "-_.~")
 		//allowed.addCharactersInString("-_.!~*'()")
-		return s.stringByAddingPercentEncodingWithAllowedCharacters(allowed) ?? ""
+		return s.addingPercentEncoding(withAllowedCharacters: allowed as CharacterSet) ?? ""
 	}
 //	
 //	public static func encodeURI(s: String) -> String {
