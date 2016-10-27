@@ -14,7 +14,6 @@
 //
 // For issues and patches go to: https://github.com/erudika
 
-import Foundation
 import SwiftyJSON
 
 /**
@@ -54,7 +53,7 @@ open class ParaObject : NSObject {
 
 	open var properties: [String: Any] = [:]
 
-	fileprivate static var _coreFields: [String: AnyObject?]?
+	fileprivate static var _coreFields: [String: Any]?
 
 	public convenience override init () {
 		self.init(id: "")
@@ -116,7 +115,7 @@ open class ParaObject : NSObject {
 			if self.value(forKey: name) == nil && !ParaObject.getCoreFields().keys.contains(name) {
 				self.properties[name] = newValue
 			} else {
-				self.setValue(newValue as AnyObject, forKey: name)
+				self.setValue(newValue, forKey: name)
 			}
 		}
 	}
@@ -129,7 +128,7 @@ open class ParaObject : NSObject {
 	Populates this object with data from a Dictionary.
 	- parameter map: a dictionary of data
 	*/
-	open func setFields(_ map: [String: AnyObject]? = [:]) {
+	open func setFields(_ map: [String: Any]? = [:]) {
 		for (key, val) in map! {
 			self[key] = val
 		}
@@ -139,36 +138,45 @@ open class ParaObject : NSObject {
 	Returns a dictionary of fields and values.
 	- returns: a dictionary of data
 	*/
-	open func getFields() -> [String: AnyObject] {
+	open func getFields() -> [String: Any] {
 		if self.plural.isEmpty {
 			self.plural = getPlural()
 		}
-		var props = [String: AnyObject]()
+		var props = [String: Any]()
 		let mirror = Mirror(reflecting: self)
 		for child in mirror.children {
 			if let key = child.label {
 				if key != "properties" {
 					if let po = child.value as? ParaObject {
-						props[key] = po.getFields() as AnyObject?
+						props[key] = po.getFields()
 					} else {
-						props[key] = child.value as AnyObject
+						let value:Any = child.value
+						let anyMirror = Mirror(reflecting: value)
+						if anyMirror.displayStyle == .optional {
+							if anyMirror.children.count > 0 {
+								let (_, unwrapped) = anyMirror.children.first!
+								props[key] = unwrapped
+							}
+						} else {
+							props[key] = value
+						}
 					}
 				}
 			}
 		}
 		for (key, val) in properties {
-			props[key] = val as AnyObject
+			props[key] = val
 		}
 		return props
 	}
 	
-	fileprivate static func getCoreFields() -> [String: AnyObject?] {
+	fileprivate static func getCoreFields() -> [String: Any] {
 		if ParaObject._coreFields == nil {
-			ParaObject._coreFields = [String: AnyObject?]()
+			ParaObject._coreFields = [String: Any]()
 			for child in Mirror(reflecting: ParaObject()).children {
 				if let key = child.label {
 					if key != "properties" {
-						ParaObject._coreFields![key] = child.value as AnyObject
+						ParaObject._coreFields![key] = child.value
 					}
 				}
 			}

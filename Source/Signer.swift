@@ -15,30 +15,9 @@
 // Created by Christopher Sexton, http://www.codeography.com
 // GitHub: https://github.com/csexton
 
-import Foundation
 import CryptoSwift
 import Alamofire
 import SwiftyJSON
-fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
-}
-
-fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l > r
-  default:
-    return rhs < lhs
-  }
-}
-
 
 /**
 Signs HTTP requests using the AWS V4 algorithm
@@ -221,10 +200,10 @@ open class Signer {
 			urlForSigning = String(url.characters.dropLast())
 		}
 		
-		let request = NSMutableURLRequest.init(url: URL(string: url)!)
+		var request = URLRequest(url: URL(string: url)!)
 		request.httpMethod = httpMethod
 		
-		if params?.count > 0 {
+		if (params?.count)! > 0 {
 			var paramArrayForSigning = [String]()
 			var paramArray = [String]()
 			let sortedKeys = params!.sorted { $0.0 < $1.0 }
@@ -267,7 +246,7 @@ open class Signer {
 			request.setValue(v as? String, forHTTPHeaderField: k as! String)
 		}
 		
-		Alamofire.request(request as! URLRequestConvertible).validate().responseData { response in
+		Alamofire.request(request).validate().responseData { response in
 			switch response.result {
 				case .success:
 					if let value = response.result.value {
@@ -292,7 +271,7 @@ open class Signer {
 						callback(nil)
 					}
 				case .failure(let err):
-					if response.response!.statusCode == 404 {
+					if response.response?.statusCode == 404 {
 						callback(nil)
 					} else {
 						print("Request '\(httpMethod) \(reqPath)' failed: \(err)")
