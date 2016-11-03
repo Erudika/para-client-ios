@@ -64,7 +64,7 @@ His code was used in this project and is also licensed under Apache 2.0.
 
 ## Documentation
 
-### [Read the Docs](http://paraio.org/docs)
+### [Read the Docs](https://paraio.org/docs)
 
 ## Contributing
 
