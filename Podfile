@@ -8,6 +8,8 @@ def para_pods
     pod 'Alamofire', '~> 4.4'
 end
 
+platform :ios, '9.3'
+
 target "ParaClient iOS" do
     para_pods
 end

@@ -102,7 +102,7 @@ open class ParaClient {
 			var parts = token.components(separatedBy: ".")
 			let decoded:JSON = JSON(data: NSData(base64Encoded: parts[1],
 				options: NSData.Base64DecodingOptions(rawValue: 0))! as Data)
-			if decoded != nil && decoded["exp"] != nil {
+			if decoded != JSON.null && decoded["exp"] != JSON.null {
 				self.tokenKeyExpires = decoded.dictionaryValue["exp"]?.uInt64Value
 				self.tokenKeyNextRefresh = decoded.dictionaryValue["refresh"]?.uInt64Value
 			} else {
