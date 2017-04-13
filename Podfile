@@ -4,8 +4,8 @@ use_frameworks!
 
 def para_pods
     pod 'CryptoSwift', '0.6.3'
-    pod 'SwiftyJSON', '~> 3.1'
-    pod 'Alamofire', '~> 4.4'
+    pod 'SwiftyJSON', '3.1.1'
+    pod 'Alamofire', '4.1.0'
 end
 
 platform :ios, '9.3'
