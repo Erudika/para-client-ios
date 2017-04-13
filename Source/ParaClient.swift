@@ -1,4 +1,4 @@
-// Copyright 2013-2016 Erudika. https://erudika.com
+// Copyright 2013-2017 Erudika. https://erudika.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -82,6 +82,18 @@ open class ParaClient {
 			}
 			return self.path
 		}
+	}
+	
+	/// Returns the version of Para server
+	open func getServerVersion(_ callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
+		invokeGet("", rawResult: true, callback: { res in
+			var ver = res?.dictionaryObject ?? [:]
+			if ver.isEmpty || !ver.keys.contains("version") {
+				callback("unknown")
+			} else {
+				callback(ver["version"] as? String)
+			}
+		} as (JSON?) -> Void, error: error)
 	}
 	
 	/// Sets the JWT access token.
@@ -1015,7 +1027,7 @@ open class ParaClient {
 	*/
 	open func newKeys(_ callback: @escaping ([String: AnyObject]) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokePost("_newkeys", entity: nil, callback: { res in
-			var keys = res?.dictionaryObject ?? [:]
+			let keys = res?.dictionaryObject ?? [:]
 			if keys.keys.contains("secretKey") {
 				self.secretKey = keys["secretKey"]! as! String
 			}
@@ -1035,10 +1047,55 @@ open class ParaClient {
 	
 	/**
 	Returns a User or an App that is currently authenticated.
+	- parameter accessToken: a valid JWT access token (optional)
 	- parameter callback: called with response object when the request is completed
 	*/
-	open func me(_ callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
-		invokeGet("_me", rawResult: false, callback: callback, error: error)
+	open func me(_ accessToken: String? = nil, _ callback: @escaping (ParaObject?) -> Void,
+	             error: ((NSError) -> Void)? = { _ in }) {
+		if (accessToken ?? "").isEmpty {
+			invokeGet("_me", rawResult: false, callback: callback, error: error)
+		} else {
+			var auth = accessToken;
+			if !accessToken!.hasPrefix("Bearer") {
+				auth = "Bearer \(accessToken)"
+			}
+			let headers:NSMutableDictionary = ["Authorization": auth]
+			signer.invokeSignedRequest(self.accessKey, secretKey: key(true), httpMethod: "GET",
+			                           endpointURL: getEndpoint(), reqPath: getFullPath("_me"), headers: headers,
+			                           rawResult: false, callback: callback, error: error)
+		}
+	}
+	
+	/**
+	Upvote an object and register the vote in DB. Returns true if vote was successful.
+	- parameter obj: the object to receive +1 votes
+	- parameter voterid: the userid of the voter
+	*/
+	open func voteUp(_ obj: ParaObject, voterid: String, callback: @escaping (Bool) -> Void,
+	                 error: ((NSError) -> Void)? = { _ in }) {
+		if obj.id.isEmpty || voterid.isEmpty {
+			callback(false)
+			return
+		}
+		invokePatch("\(obj.type)/\(obj.id)", entity: JSON(["_voteup": voterid]), callback: { res in
+			callback((res ?? "") == "true")
+		} as (String?) -> Void, error: error)
+	}
+	
+	/**
+	Downvote an object and register the vote in DB. Returns true if vote was successful.
+	- parameter obj: the object to receive -1 votes
+	- parameter voterid: the userid of the voter
+	*/
+	open func voteDown(_ obj: ParaObject, voterid: String, callback: @escaping (Bool) -> Void,
+	                   error: ((NSError) -> Void)? = { _ in }) {
+		if obj.id.isEmpty || voterid.isEmpty {
+			callback(false)
+			return
+		}
+		invokePatch("\(obj.type)/\(obj.id)", entity: JSON(["_votedown": voterid]), callback: { res in
+			callback((res ?? "") == "true")
+		} as (String?) -> Void, error: error)
 	}
 	
 	/////////////////////////////////////////////
@@ -1269,10 +1326,12 @@ open class ParaClient {
 	use that as the provider access token.</b>
 	- parameter provider: identity provider, e.g. 'facebook', 'google'...
 	- parameter providerToken: access token from a provider like Facebook, Google, Twitter
+	- parameter rememberJWT: if true the access token returned by Para will be stored locally and 
+	available through getAccessToken(). True by default.
 	- parameter callback: called with response object when the request is completed
 	*/
-	open func signIn(_ provider: String, providerToken: String, callback: @escaping (ParaObject?) -> Void,
-	                   error: ((NSError) -> Void)? = { _ in }) {
+	open func signIn(_ provider: String, providerToken: String, rememberJWT: Bool? = true,
+	                 callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if !provider.isEmpty && !providerToken.isEmpty {
 			var credentials = [String:String]()
 			credentials["appid"] = self.accessKey
@@ -1282,10 +1341,11 @@ open class ParaClient {
 				let result = res?.dictionaryObject
 				if result != nil && (result?.keys.contains("user"))! && (result?.keys.contains("jwt"))! {
 					let jwtData:NSDictionary = result!["jwt"] as! NSDictionary
-					let userData = result!["user"] as! [String: AnyObject]
-					self.saveAccessToken(jwtData)
+					if rememberJWT! {
+						self.saveAccessToken(jwtData)
+					}
 					let user = ParaObject()
-					user.setFields(userData)
+					user.setFields(result!["user"] as! [String: AnyObject])
 					callback(user)
 				} else {
 					self.clearAccessToken()

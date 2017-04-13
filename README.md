@@ -59,7 +59,7 @@ client.signIn("facebook", providerToken: "fb_access_token", callback: { user in
 ## Thanks
 
 Special thanks to [Christopher Sexton](https://github.com/csexton) for porting the 
-[AWS Signature 4 algorithm to Swift](http://www.codeography.com/2016/03/20/signing-aws-api-requests-in-swift.html).
+[AWS Signature 4 algorithm to Swift](http://www.codeography.com/2017/03/20/signing-aws-api-requests-in-swift.html).
 His code was used in this project and is also licensed under Apache 2.0.
 
 ## Documentation

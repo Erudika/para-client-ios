@@ -3,7 +3,7 @@
 //  ParaClientExample
 //
 //  Created by Alex on 19.04.16 г..
-//  Copyright © 2016 г. Erudika. All rights reserved.
+//  Copyright © 2017 г. Erudika. All rights reserved.
 //
 
 import UIKit

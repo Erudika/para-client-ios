@@ -3,7 +3,7 @@
 //  ParaClientTests
 //
 //  Created by Alex on 5.04.16 г..
-//  Copyright © 2016 г. Erudika. All rights reserved.
+//  Copyright © 2017 г. Erudika. All rights reserved.
 //
 
 import XCTest
