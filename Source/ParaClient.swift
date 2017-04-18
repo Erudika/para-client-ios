@@ -148,7 +148,7 @@ open class ParaClient {
 			if refresh {
 				refreshToken({ _ in })
 			}
-			return "Bearer \(self.tokenKey)"
+			return "Bearer \(self.tokenKey ?? "")"
 		}
 		return self.secretKey
 	}
@@ -1057,9 +1057,9 @@ open class ParaClient {
 		} else {
 			var auth = accessToken;
 			if !accessToken!.hasPrefix("Bearer") {
-				auth = "Bearer \(accessToken)"
+				auth = "Bearer \(accessToken ?? "")"
 			}
-			let headers:NSMutableDictionary = ["Authorization": auth]
+			let headers:NSMutableDictionary = ["Authorization": auth ?? ""]
 			signer.invokeSignedRequest(self.accessKey, secretKey: key(true), httpMethod: "GET",
 			                           endpointURL: getEndpoint(), reqPath: getFullPath("_me"), headers: headers,
 			                           rawResult: false, callback: callback, error: error)

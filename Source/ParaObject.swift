@@ -109,7 +109,7 @@ open class ParaObject : NSObject {
 	
 	subscript(name: String) -> Any {
 		get {
-			return self.properties[name] ?? self.value(forKey: name)
+			return self.properties[name] ?? self.value(forKey: name) as Any
 		}
 		set {
 			if self.value(forKey: name) == nil && !ParaObject.getCoreFields().keys.contains(name) {
