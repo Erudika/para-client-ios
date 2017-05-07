@@ -14,11 +14,8 @@
 //
 // For issues and patches go to: https://github.com/erudika
 
-//import PackageDescription
-//
-//let package = Package(
-//	name: "ParaClient",
-//	dependencies: [
-//		.Package(url: "https://github.com/Erudika/para-client-ios.git", majorVersion: 2),
-//	]
-//)
+import PackageDescription
+
+let package = Package(
+	name: "ParaClient"
+)
