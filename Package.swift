@@ -14,8 +14,8 @@
 //
 // For issues and patches go to: https://github.com/erudika
 
-import PackageDescription
+//import PackageDescription
 
-let package = Package(
-	name: "ParaClient"
-)
+//let package = Package(
+//	name: "ParaClient"
+//)
