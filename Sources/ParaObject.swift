@@ -135,41 +135,59 @@ open class ParaObject : NSObject {
 		}
 	}
 	
-	/**
-	Returns a dictionary of fields and values.
-	- returns: a dictionary of data
-	*/
-	open func getFields() -> [String: Any] {
-		if self.plural.isEmpty {
-			self.plural = getPlural()
-		}
-		var props = [String: Any]()
-		let mirror = Mirror(reflecting: self)
-		for child in mirror.children {
-			if let key = child.label {
-				if key != "properties" {
-					if let po = child.value as? ParaObject {
-						props[key] = po.getFields()
-					} else {
-						let value:Any = child.value
-						let anyMirror = Mirror(reflecting: value)
-						if anyMirror.displayStyle == .optional {
-							if anyMirror.children.count > 0 {
-								let (_, unwrapped) = anyMirror.children.first!
-								props[key] = unwrapped
-							}
-						} else {
-							props[key] = value
-						}
-					}
-				}
-			}
-		}
-		for (key, val) in properties {
-			props[key] = val
-		}
-		return props
-	}
+    /**
+     Returns a dictionary of fields and values.
+     - returns: a dictionary of data
+     */
+    open func getFields() -> [String: Any] {
+        if self.plural.isEmpty {
+            self.plural = getPlural()
+        }
+        var props = [String: Any]()
+        let mirror = Mirror(reflecting: self)
+        
+        
+        var allChidren: [Mirror.Child] = []
+        
+        // childrens of superclass:
+        if let superMirror = mirror.superclassMirror {
+            for child in superMirror.children {
+                allChidren.append(child)
+            }
+        }
+        
+        // childrens of this instance:
+        for child in mirror.children {
+            allChidren.append(child)
+        }
+        
+        // now process them
+        
+        for child in allChidren {
+            if let key = child.label {
+                if key != "properties" {
+                    if let po = child.value as? ParaObject {
+                        props[key] = po.getFields()
+                    } else {
+                        let value:Any = child.value
+                        let anyMirror = Mirror(reflecting: value)
+                        if anyMirror.displayStyle == .optional {
+                            if anyMirror.children.count > 0 {
+                                let (_, unwrapped) = anyMirror.children.first!
+                                props[key] = unwrapped
+                            }
+                        } else {
+                            props[key] = value
+                        }
+                    }
+                }
+            }
+        }
+        for (key, val) in properties {
+            props[key] = val
+        }
+        return props
+    }
 	
 	fileprivate static func getCoreFields() -> [String: Any] {
 		if ParaObject._coreFields == nil {
