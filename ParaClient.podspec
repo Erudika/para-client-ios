@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   
   s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.1' }
   s.source       = { :git => "https://github.com/erudika/para-client-ios.git", :tag => "#{s.version}" }
-  s.source_files = "Source/*.{h,swift}"
+  s.source_files = "Sources/*.{h,swift}"
   s.requires_arc = true
 
   s.dependency "CryptoSwift"

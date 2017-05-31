@@ -10,6 +10,7 @@ import XCTest
 import ParaClient
 import SwiftyJSON
 import Alamofire
+@testable import para_client_ios
 
 class ParaClientTests: XCTestCase {
 	

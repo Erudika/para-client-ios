@@ -14,6 +14,7 @@
 //
 // For issues and patches go to: https://github.com/erudika
 
+import Foundation
 import SwiftyJSON
 
 /**

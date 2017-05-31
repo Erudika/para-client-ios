@@ -16,24 +16,33 @@ by a search engine and finally, cached.
 
 This is the Swift client for Para for iOS, tvOS, macOS and watchOS.
 
-### Quick start
+## Quick start
 
-1. Add the library to your CocoaPods `Podfile`:
+### CocoaPods
 
-```
+For the latest release in CocoaPods add the following to your `Podfile`:
+
+```ruby
 use_frameworks!
 
-target "ParaClient iOS" do
-    pod 'ParaClient'
-end
+pod 'ParaClient'
 ```
-
-2. Install it:
-
+And install it with:
 ```sh
 $ pod install
 ```
-To edit the project in Xcode, open the file `ParaClient.xcworkspace`.
+
+### Swift Package Manager
+Add ParaClient as a dependency to your `Package.swift`. For example:
+
+```swift
+let package = Package(
+    name: "YourPackageName",
+    dependencies: [
+        .Package(url: "https://github.com/Erudika/para-client-ios.git", majorVersion: 1)
+    ]
+)
+```
 
 ## Usage
 

@@ -3,9 +3,9 @@ project 'ParaClient.xcodeproj'
 use_frameworks!
 
 def para_pods
-    pod 'CryptoSwift', '0.6.7'
+    pod 'CryptoSwift', '0.6.9'
     pod 'SwiftyJSON', '3.1.4'
-    pod 'Alamofire', '4.1.0'
+    pod 'Alamofire', '4.4.0'
 end
 
 target "ParaClient iOS" do
@@ -22,7 +22,4 @@ target "ParaClient watchOS" do
 end
 target "ParaClientTests" do
     para_pods
-end
-target "ParaClientExample" do
-	para_pods
 end

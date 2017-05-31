@@ -15,6 +15,7 @@
 // Created by Christopher Sexton, http://www.codeography.com
 // GitHub: https://github.com/csexton
 
+import Foundation
 import CryptoSwift
 import Alamofire
 import SwiftyJSON

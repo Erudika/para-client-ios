@@ -14,8 +14,15 @@
 //
 // For issues and patches go to: https://github.com/erudika
 
-//import PackageDescription
+// swift-tools-version:3.1
 
-//let package = Package(
-//	name: "ParaClient"
-//)
+import PackageDescription
+
+let package = Package(
+    name: "ParaClient",
+    dependencies: [
+    	.Package(url: "https://github.com/Alamofire/Alamofire.git", majorVersion: 4),
+    	.Package(url: "https://github.com/SwiftyJSON/SwiftyJSON", versions: Version(1, 0, 0)..<Version(3, .max, .max)),
+    	.Package(url: "https://github.com/krzyzanowskim/CryptoSwift", majorVersion: 0)
+    ]
+)

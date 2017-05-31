@@ -14,6 +14,7 @@
 //
 // For issues and patches go to: https://github.com/erudika
 
+import Foundation
 import SwiftyJSON
 import Alamofire
 
@@ -230,6 +231,13 @@ open class ParaClient {
 			return objects
 		}
 		return []
+	}
+	
+	fileprivate func getTotalHits(_ result: [String: JSON]? = [:]) -> UInt {
+		if result != nil && !result!.isEmpty && result!.keys.contains("totalHits") {
+			return result!["totalHits"]?.uIntValue ?? 0
+		}
+		return 0
 	}
 	
 	fileprivate func getItems(_ result: [String: JSON]? = [:], pager: Pager? = nil) -> [ParaObject] {
@@ -639,9 +647,7 @@ open class ParaClient {
 	open func getCount(_ type: String, callback: @escaping (UInt) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		let params:NSMutableDictionary = ["type": type]
 		find("count", params: params, callback: { res in
-			let pager = Pager()
-			self.getItems(res, pager: pager)
-			callback(pager.count)
+			callback(self.getTotalHits(res))
 		}, error: error)
 	}
 	
@@ -670,9 +676,7 @@ open class ParaClient {
 		params["type"] = type
 		params["count"] = "true"
 		find("terms", params: params, callback: { res in
-			let pager = Pager()
-			self.getItems(res, pager: pager)
-			callback(pager.count)
+			callback(self.getTotalHits(res))
 		}, error: error)
 	}
 	
@@ -705,9 +709,7 @@ open class ParaClient {
 		}
 		let params = ["count": "true"]
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params as [String : AnyObject]?, callback: { res in
-			let pager = Pager()
-			self.getItems(res?.dictionaryValue, pager: pager)
-			callback(pager.count)
+			callback(self.getTotalHits(res?.dictionaryValue))
 		} as (JSON?) -> Void, error: error)
 	}
 	
@@ -847,9 +849,7 @@ open class ParaClient {
 		}
 		let params = ["count": "true", "childrenonly": "true"]
 		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params as [String : AnyObject]?, callback: { res in
-			let pager = Pager()
-			self.getItems(res?.dictionaryValue, pager: pager)
-			callback(pager.count)
+			callback(self.getTotalHits(res?.dictionaryValue))
 		} as (JSON?) -> Void, error: error)
 	}
 	
