@@ -134,7 +134,7 @@ open class ParaClient {
 	/// Saves JWT tokens to disk
 	fileprivate func saveAccessToken(_ jwtData: NSDictionary?) {
 		if jwtData != nil && jwtData!.count > 0 {
-			self.tokenKey = String(describing: jwtData!["access_token"])
+			self.tokenKey = String(describing: jwtData!["access_token"]!)
 			self.tokenKeyExpires = jwtData!["expires"] as? UInt64
 			self.tokenKeyNextRefresh = jwtData!["refresh"] as? UInt64
 			self.savePref("tokenKey", value: self.tokenKey)
