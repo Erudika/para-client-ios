@@ -235,7 +235,7 @@ open class Signer {
 		}
 		
 		if isJWT {
-			headers!["Authorization"] = "Bearer \(secretKey)"
+			headers!["Authorization"] = secretKey
 		} else if doSign {
 			signedHeaders = self.signedHeaders(accessKey, secretKey: secretKey, url: URL(string: urlForSigning)!,
 			                                   bodyDigest: bodyDigest, httpMethod: httpMethod)
