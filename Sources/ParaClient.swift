@@ -75,7 +75,7 @@ open class ParaClient {
 	
 	/// Returns the API request path
 	open func getApiPath() -> String {
-		if (tokenKey ?? "").isEmpty {
+		if (self.tokenKey ?? "").isEmpty {
 			return DEFAULT_PATH
 		} else {
 			if !self.path.hasSuffix("/") {
