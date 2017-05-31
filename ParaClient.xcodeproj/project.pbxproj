@@ -95,7 +95,6 @@
 		OBJ_220 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_106 /* Alamofire.framework */; };
 		OBJ_221 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_107 /* SwiftyJSON.framework */; };
 		OBJ_222 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_108 /* CryptoSwift.framework */; };
-		OBJ_231 /* para_client_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* para_client_iosTests.swift */; };
 		OBJ_232 /* ParaClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_16 /* ParaClientTests.swift */; };
 		OBJ_234 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_106 /* Alamofire.framework */; };
 		OBJ_235 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_107 /* SwiftyJSON.framework */; };
@@ -169,7 +168,6 @@
 		OBJ_11 /* ParaObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParaObject.swift; sourceTree = "<group>"; };
 		OBJ_110 /* ParaClientTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = ParaClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_12 /* Signer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signer.swift; sourceTree = "<group>"; };
-		OBJ_15 /* para_client_iosTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = para_client_iosTests.swift; sourceTree = "<group>"; };
 		OBJ_16 /* ParaClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParaClientTests.swift; sourceTree = "<group>"; };
 		OBJ_20 /* AES.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.swift; sourceTree = "<group>"; };
 		OBJ_21 /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
@@ -320,7 +318,6 @@
 		OBJ_14 /* ParaClientTests */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_15 /* para_client_iosTests.swift */,
 				OBJ_16 /* ParaClientTests.swift */,
 			);
 			name = ParaClientTests;
@@ -396,7 +393,7 @@
 			path = ".build/checkouts/CryptoSwift--5560562967812595289/Sources/CryptoSwift";
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -405,7 +402,6 @@
 				OBJ_17 /* Dependencies */,
 				OBJ_105 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_60 /* BlockMode */ = {
@@ -602,7 +598,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_105 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -734,7 +730,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_231 /* para_client_iosTests.swift in Sources */,
 				OBJ_232 /* ParaClientTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
