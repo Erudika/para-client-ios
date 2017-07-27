@@ -683,9 +683,14 @@ open class ParaClient {
 	fileprivate func find(_ queryType: String, params: NSMutableDictionary,
 	                  callback: @escaping ([String: JSON]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if params.count > 0 {
-			let qType = queryType.isEmpty ? "" : "/" + queryType
-			invokeGet("search" + qType, params: (params as NSDictionary) as? [String: AnyObject], rawResult: true,
-			          callback: { res in callback(res?.dictionaryValue) } as (JSON?) -> Void, error: error)
+			let qType = queryType.isEmpty ? "/default" : "/" + queryType
+			if ((params["type"] ?? "") as! String).isEmpty {
+				invokeGet("search" + qType, params: (params as NSDictionary) as? [String: AnyObject], rawResult: true,
+				          callback: { res in callback(res?.dictionaryValue) } as (JSON?) -> Void, error: error)
+			} else {
+				invokeGet("\(params["type"] ?? "")/search" + qType, params: (params as NSDictionary) as? [String: AnyObject],
+				          rawResult: true, callback: { res in callback(res?.dictionaryValue) } as (JSON?) -> Void, error: error)
+			}
 			return
 		}
 		callback(["items": [:], "totalHits": 0])
@@ -1297,6 +1302,19 @@ open class ParaClient {
 	                          error: ((NSError) -> Void)? = { _ in }) {
 		if !key.isEmpty {
 			invokePut("_settings/\(key)", entity: JSON(["value": value]), callback: callback, error: error)
+		}
+	}
+	
+	
+	/**
+	Overwrites all app-specific settings.
+	- parameter settings: a key-value map of properties
+	- parameter callback: called with response object when the request is completed
+	*/
+	open func setAppSettings(_ settings: [String: AnyObject], callback: @escaping ([String: AnyObject]?) -> Void,
+	                        error: ((NSError) -> Void)? = { _ in }) {
+		if !settings.isEmpty {
+			invokePut("_settings", entity: JSON(settings), callback: callback, error: error)
 		}
 	}
 

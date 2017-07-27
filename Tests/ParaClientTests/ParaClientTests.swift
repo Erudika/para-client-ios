@@ -122,7 +122,7 @@ class ParaClientTests: XCTestCase {
 	private func s1() -> ParaObject {
 		if (_s1 == nil) {
 			_s1 = ParaObject(id: "s1")
-			_s1!.name = "This is a little test sentence. Testing, one, two, three."
+			_s1!.properties["text"] = "This is a little test sentence. Testing, one, two, three."
 			_s1!.timestamp = currentTimeMillis()
 		}
 		return _s1!
@@ -131,7 +131,7 @@ class ParaClientTests: XCTestCase {
 	private func s2() -> ParaObject {
 		if (_s2 == nil) {
 			_s2 = ParaObject(id: "s2")
-			_s2!.name = "We are testing this thing. This sentence is a test. One, two."
+			_s2!.properties["text"] = "We are testing this thing. This sentence is a test. One, two."
 			_s2!.timestamp = currentTimeMillis()
 		}
 		return _s2!
@@ -147,7 +147,7 @@ class ParaClientTests: XCTestCase {
 			ParaClientTests.ranOnce = true
 			let _1 = self.expectation(description: "")
 			
-			pc().me({ res in
+			pc().me(nil, { res in
 				assert(res != nil, "Para server must be running before testing!")
 				self.pc().createAll([self.u(), self.u1(), self.u2(), self.t(),
 					self.s1(), self.s2(), self.a1(), self.a2()], callback: { res in
@@ -350,7 +350,7 @@ class ParaClientTests: XCTestCase {
 						_3.fulfill()
 					})
 					
-					self.pc().me({ res in
+					self.pc().me(nil, { res in
 						let datatypes = res!.properties["datatypes"] as? [String: String]
 						XCTAssertTrue(datatypes!.values.contains(self.dogsType))
 						_4.fulfill()
@@ -414,7 +414,7 @@ class ParaClientTests: XCTestCase {
 				let nl = [cats[0].id, cats[1].id, cats[2].id]
 				
 				self.pc().deleteAll(nl, callback: { _ in
-					self.pc().me({ res in
+					self.pc().me(nil, { res in
 						let datatypes = res!.properties["datatypes"] as? [String: String]
 						XCTAssertTrue(datatypes!.values.contains(self.catsType))
 						_3.fulfill()
@@ -527,7 +527,7 @@ class ParaClientTests: XCTestCase {
 			_10.fulfill()
 		})
 		
-		pc().findPrefix(u().type, field: "name", prefix: "ann", callback: { res in
+		pc().findPrefix(u().type, field: "name", prefix: "Ann", callback: { res in
 			XCTAssertFalse((res?.count)! == 0)
 			_11.fulfill()
 		})
@@ -544,11 +544,11 @@ class ParaClientTests: XCTestCase {
 			XCTAssertEqual(2, (res?.count)!)
 			_14.fulfill()
 		})
-		pc().findQuery(u().type, query: "ann", callback: { res in
+		pc().findQuery(u().type, query: "Ann*", callback: { res in
 			XCTAssertFalse((res?.count)! == 0)
 			_15.fulfill()
 		})
-		pc().findQuery(u().type, query: "Ann", callback: { res in
+		pc().findQuery(u().type, query: "Ann*", callback: { res in
 			XCTAssertFalse((res?.count)! == 0)
 			_16.fulfill()
 		})
@@ -573,7 +573,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! == 0)
 			_20.fulfill()
 		})
-		pc().findSimilar(s1().type, filterKey: s1().id, fields: ["name"], liketext: s1().name, callback: { res in
+		pc().findSimilar(s1().type, filterKey: s1().id, fields: ["properties.text"], liketext: s1().properties["text"] as! String, callback: { res in
 			assert((res?.count)! > 0)
 			XCTAssertEqual(self.s2().id, res![0].id)
 			XCTAssertEqual(self.s2().name, res![0].name)
@@ -671,7 +671,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! == 0)
 			_41.fulfill()
 		})
-		pc().findWildcard(u().type, field: "name", wildcard: "an*", callback: { res in
+		pc().findWildcard(u().type, field: "name", wildcard: "An*", callback: { res in
 			XCTAssertFalse((res?.count)! == 0)
 			_42.fulfill()
 		})
@@ -873,7 +873,7 @@ class ParaClientTests: XCTestCase {
 			_1.fulfill()
 		})
 		
-		pc().me({ app in
+		pc().me(nil, { app in
 			XCTAssertEqual(self.APP_ID, app?.id)
 			_2.fulfill()
 		})
