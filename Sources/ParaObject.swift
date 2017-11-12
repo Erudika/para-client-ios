@@ -87,11 +87,11 @@ open class ParaObject : NSObject {
 		if !self.plural.isEmpty {
 			return self.plural
 		}
-		if self.type.isEmpty || self.type.characters.count < 2 {
+		if self.type.isEmpty || self.type.count < 2 {
 			self.type = "sysprop"
 		}
-		let last = self.type.substring(from: self.type.characters.index(self.type.endIndex, offsetBy: -1))
-		let lastStripped = self.type.substring(to: self.type.characters.index(self.type.endIndex, offsetBy: -1))
+		let last = String(self.type[self.type.index(self.type.endIndex, offsetBy: -1)...])
+		let lastStripped = String(self.type[..<self.type.index(self.type.endIndex, offsetBy: -1)])
 		return (self.type.isEmpty ? self.type :
 			(last == "s" ? self.type + "es" :
 			(last == "y") ? lastStripped + "ies" : self.type + "s"))

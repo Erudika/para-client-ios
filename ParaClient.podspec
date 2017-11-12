@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.2"
   s.tvos.deployment_target = "9.2"
   
-  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.1' }
+  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '4.0' }
   s.source       = { :git => "https://github.com/erudika/para-client-ios.git", :tag => "#{s.version}" }
   s.source_files = "Source/*.{h,swift}", "Sources/*.{h,swift}"
   s.requires_arc = true

@@ -56,10 +56,10 @@ open class Signer {
 			// NSURL.path  decodes them and they are lost
 			var encodedPartsArray = [String]()
 			// get rid of 'http(s)://'
-			let fullURL = url.absoluteString.substring(from: url.absoluteString.characters.index(url.absoluteString.startIndex, offsetBy: 8))
-			var rawPath = fullURL.substring(from: fullURL.range(of: "/")!.lowerBound)
-			if rawPath.characters.contains("?") {
-				rawPath = rawPath.substring(to: rawPath.range(of: "?")!.lowerBound)
+			let fullURL = String(url.absoluteString[url.absoluteString.index(url.absoluteString.startIndex, offsetBy: 8)...])
+			var rawPath = String(fullURL[fullURL.range(of: "/")!.lowerBound...])
+			if rawPath.contains("?") {
+				rawPath = String(rawPath[..<rawPath.range(of: "?")!.lowerBound])
 			}
 			for part in rawPath.components(separatedBy: "/") {
 				if !part.isEmpty {
@@ -134,7 +134,7 @@ open class Signer {
 	fileprivate func signature(_ secretKey: String, url: URL, headers: [String: String],
 	                       datetime: String, httpMethod: String, bodyDigest: String) -> String {
 		let secret = NSString(format: "AWS4%@", secretKey).data(using: String.Encoding.utf8.rawValue)!
-		let date = hmac(datetime.substring(to: datetime.characters.index(datetime.startIndex, offsetBy: 8)) as NSString, key: secret)
+		let date = hmac(String(datetime[..<datetime.index(datetime.startIndex, offsetBy: 8)]) as NSString, key: secret)
 		let region = hmac(regionName as NSString, key: date)
 		let service = hmac(serviceName as NSString, key: region)
 		let credentials = hmac("aws4_request", key: service)
@@ -144,7 +144,7 @@ open class Signer {
 	
 	fileprivate func credentialScope(_ datetime: String) -> String {
 		return [
-			datetime.substring(to: datetime.characters.index(datetime.startIndex, offsetBy: 8)),
+			String(datetime[..<datetime.index(datetime.startIndex, offsetBy: 8)]),
 			regionName,
 			serviceName,
 			"aws4_request"
@@ -197,8 +197,8 @@ open class Signer {
 		let isJWT = secretKey.hasPrefix("Bearer")
 		var bodyDigest = sha256("")
 		var signedHeaders = [String:String]()
-		if urlForSigning.characters.last == "/" {
-			urlForSigning = String(url.characters.dropLast())
+		if urlForSigning.last == "/" {
+			urlForSigning = String(url.dropLast())
 		}
 		
 		var request = URLRequest(url: URL(string: url)!)
@@ -252,18 +252,22 @@ open class Signer {
 				case .success:
 					if let value = response.result.value {
 						if value.count > 0 {
-							let json = JSON(data: value)
+							do {
+								let json = try JSON(data: value)
 							
-							if rawResult! {
-								if response.response?.mimeType == self.JSON_TYPE {
-									callback(json as? T)
+								if rawResult! {
+									if response.response?.mimeType == self.JSON_TYPE {
+										callback(json as? T)
+									} else {
+										callback(String(data: value, encoding: String.Encoding.utf8) as? T)
+									}
 								} else {
-									callback(String(data: value, encoding: String.Encoding.utf8) as? T)
+									let obj = ParaObject()
+									obj.setFields(json.dictionaryObject! as [String : AnyObject]?)
+									callback(obj as? T)
 								}
-							} else {
-								let obj = ParaObject()
-								obj.setFields(json.dictionaryObject! as [String : AnyObject]?)
-								callback(obj as? T)
+							} catch {
+								print("Error \(error)")
 							}
 						} else {
 							callback(nil)

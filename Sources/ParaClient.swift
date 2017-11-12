@@ -101,14 +101,18 @@ open class ParaClient {
 	open func setAccessToken(_ token: String) {
 		if !token.isEmpty {
 			var parts = token.components(separatedBy: ".")
-			let decoded:JSON = JSON(data: NSData(base64Encoded: parts[1],
-				options: NSData.Base64DecodingOptions(rawValue: 0))! as Data)
-			if decoded != JSON.null && decoded["exp"] != JSON.null {
-				self.tokenKeyExpires = decoded.dictionaryValue["exp"]?.uInt64Value
-				self.tokenKeyNextRefresh = decoded.dictionaryValue["refresh"]?.uInt64Value
-			} else {
-				self.tokenKeyExpires = nil
-				self.tokenKeyNextRefresh = nil
+			do {
+				let decoded:JSON = try JSON(data: NSData(base64Encoded: parts[1],
+														 options: NSData.Base64DecodingOptions(rawValue: 0))! as Data)
+				if decoded != JSON.null && decoded["exp"] != JSON.null {
+					self.tokenKeyExpires = decoded.dictionaryValue["exp"]?.uInt64Value
+					self.tokenKeyNextRefresh = decoded.dictionaryValue["refresh"]?.uInt64Value
+				} else {
+					self.tokenKeyExpires = nil
+					self.tokenKeyNextRefresh = nil
+				}
+			} catch {
+				print("Error \(error)")
 			}
 		}
 		self.tokenKey = token
@@ -159,8 +163,7 @@ open class ParaClient {
 			return resourcePath
 		}
 		if resourcePath.hasPrefix("/") {
-			return getApiPath() + resourcePath.substring(from:
-				resourcePath.characters.index(resourcePath.startIndex, offsetBy: 1))
+			return getApiPath() + String(resourcePath[resourcePath.index(resourcePath.startIndex, offsetBy: 1)...])
 		} else {
 			return getApiPath() + resourcePath
 		}
