@@ -22,12 +22,12 @@ import Alamofire
 The Swift REST client for communicating with a Para API server.
 */
 open class ParaClient {
-	
+
 	let DEFAULT_ENDPOINT: String = "https://paraio.com"
 	let DEFAULT_PATH: String = "/v1/"
 	let JWT_PATH: String = "/jwt_auth"
 	let SEPARATOR: String = ":"
-	
+
 	var endpoint: String
 	var path: String
 	var tokenKey: String?
@@ -35,9 +35,9 @@ open class ParaClient {
 	var tokenKeyNextRefresh: UInt64?
 	var accessKey: String
 	var secretKey: String
-	
+
 	fileprivate final let signer = Signer()
-	
+
 	public required init (accessKey: String, secretKey: String?) {
 		self.accessKey = accessKey
 		self.secretKey = secretKey ?? ""
@@ -52,13 +52,13 @@ open class ParaClient {
 			print("Secret key not provided. Make sure you call 'signIn()' first.")
 		}
 	}
-	
+
 	// MARK: Public methods
-	
+
 	open func setEndpoint(_ endpoint: String) {
 		self.endpoint = endpoint
 	}
-	
+
 	/// Returns the endpoint URL
 	open func getEndpoint() -> String {
 		if self.endpoint.isEmpty {
@@ -67,12 +67,12 @@ open class ParaClient {
 			return self.endpoint
 		}
 	}
-	
+
 	/// Sets the API request path
 	open func setApiPath(_ path: String) {
 		self.path = path
 	}
-	
+
 	/// Returns the API request path
 	open func getApiPath() -> String {
 		if (self.tokenKey ?? "").isEmpty {
@@ -84,7 +84,7 @@ open class ParaClient {
 			return self.path
 		}
 	}
-	
+
 	/// Returns the version of Para server
 	open func getServerVersion(_ callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("", rawResult: true, callback: { res in
@@ -96,7 +96,7 @@ open class ParaClient {
 			}
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/// Sets the JWT access token.
 	open func setAccessToken(_ token: String) {
 		if !token.isEmpty {
@@ -113,14 +113,14 @@ open class ParaClient {
 		}
 		self.tokenKey = token
 	}
-	
+
 	/// Returns the JWT access token, or null if not signed in
 	open func getAccessToken() -> String? {
 		return self.tokenKey
 	}
-	
+
 	// MARK: Private methods
-	
+
 	/// Clears the JWT token from memory, if such exists.
 	fileprivate func clearAccessToken() {
 		self.tokenKey = nil
@@ -130,7 +130,7 @@ open class ParaClient {
 		self.clearPref("tokenKeyExpires")
 		self.clearPref("tokenKeyNextRefresh")
 	}
-	
+
 	/// Saves JWT tokens to disk
 	fileprivate func saveAccessToken(_ jwtData: NSDictionary?) {
 		if jwtData != nil && jwtData!.count > 0 {
@@ -142,7 +142,7 @@ open class ParaClient {
 			self.savePref("tokenKeyNextRefresh", value: String(describing: self.tokenKeyNextRefresh))
 		}
 	}
-	
+
 	/// Clears the JWT token from memory, if such exists.
 	fileprivate func key(_ refresh: Bool) -> String {
 		if self.tokenKey != nil {
@@ -153,8 +153,8 @@ open class ParaClient {
 		}
 		return self.secretKey
 	}
-	
-	fileprivate func getFullPath(_ resourcePath: String) -> String {
+
+	internal func getFullPath(_ resourcePath: String) -> String {
 		if !resourcePath.isEmpty && resourcePath.hasPrefix(JWT_PATH) {
 			return resourcePath
 		}
@@ -165,62 +165,65 @@ open class ParaClient {
 			return getApiPath() + resourcePath
 		}
 	}
-	
+
 	fileprivate func currentTimeMillis() -> UInt64 {
 		return UInt64(Date().timeIntervalSince1970 * 1000)
 	}
-	
-	fileprivate func invokeGet<T>(_ resourcePath: String, params: [String: AnyObject]? = [:],
+
+	open func invokeGet<T>(_ resourcePath: String, params: [String: AnyObject]? = [:],
 	                       rawResult: Bool? = true, callback: @escaping (T?) -> Void,
 	                       error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(JWT_PATH != resourcePath), httpMethod: "GET",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                params: params, rawResult: rawResult, callback: callback, error: error)
 	}
-	
-	fileprivate func invokePost<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
+
+	open func invokePost<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
 	                        callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "POST",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
-	
-	fileprivate func invokePut<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
+
+	open func invokePut<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
 	                       callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "PUT",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
-	
-	fileprivate func invokePatch<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
+
+	open func invokePatch<T>(_ resourcePath: String, entity: JSON?, rawResult: Bool? = true,
 	                         callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "PATCH",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                body: entity, rawResult: rawResult, callback: callback, error: error)
 	}
-	
-	fileprivate func invokeDelete<T>(_ resourcePath: String, params: [String: AnyObject]? = [:],
+
+	open func invokeDelete<T>(_ resourcePath: String, params: [String: AnyObject]? = [:],
 	                          rawResult: Bool? = true, callback: @escaping (T?) -> Void,
 	                          error: ((NSError) -> Void)? = { _ in }) {
 		signer.invokeSignedRequest(self.accessKey, secretKey: key(false), httpMethod: "DELETE",
 		                                endpointURL: getEndpoint(), reqPath: getFullPath(resourcePath),
 		                                params: params, rawResult: rawResult, callback: callback, error: error)
 	}
-	
-	fileprivate func pagerToParams(_ pager: Pager? = nil) -> NSMutableDictionary {
+
+	open func pagerToParams(_ pager: Pager? = nil) -> NSMutableDictionary {
 		let map:NSMutableDictionary = [:]
 		if pager != nil {
 			map["page"] = String(pager!.page)
 			map["desc"] = String(pager!.desc)
 			map["limit"] = String(pager!.limit)
+            if let lastKey = pager?.lastKey {
+				map["lastKey"] = lastKey
+			}
 			if let sortby = pager?.sortby {
 				map["sort"] = sortby
 			}
 		}
 		return map
 	}
-	
-	fileprivate func getItemsFromList(_ result: [JSON]? = []) -> [ParaObject] {
+
+	open func getItemsFromList(_ result: [JSON]? = []) -> [ParaObject] {
 		if result != nil && !result!.isEmpty {
 			var objects = [ParaObject]()
 			for map in result! {
@@ -232,40 +235,47 @@ open class ParaClient {
 		}
 		return []
 	}
-	
+
 	fileprivate func getTotalHits(_ result: [String: JSON]? = [:]) -> UInt {
 		if result != nil && !result!.isEmpty && result!.keys.contains("totalHits") {
 			return result!["totalHits"]?.uIntValue ?? 0
 		}
 		return 0
 	}
-	
-	fileprivate func getItems(_ result: [String: JSON]? = [:], pager: Pager? = nil) -> [ParaObject] {
-		if result != nil && !result!.isEmpty && result!.keys.contains("items") {
+
+	open func getItems(_ result: [String: JSON]? = [:], at: String, pager: Pager? = nil) -> [ParaObject] {
+		if result != nil && !result!.isEmpty && result!.keys.contains(at) {
 			if pager != nil && result!.keys.contains("totalHits") {
 				pager?.count = result!["totalHits"]?.uIntValue ?? 0
 			}
-			return getItemsFromList(result!["items"]?.arrayValue)
+            if pager != nil && result!.keys.contains("lastKey") {
+				pager?.lastKey = result!["lastKey"]?.stringValue
+			}
+			return getItemsFromList(result![at]?.arrayValue)
 		}
 		return []
 	}
-		
+
+    fileprivate func getItems(_ result: [String: JSON]? = [:], pager: Pager? = nil) -> [ParaObject] {
+        return getItems(result, at: "items", pager: pager)
+    }
+
 	fileprivate func savePref(_ key: String, value: String?) {
 		let defaults = UserDefaults.standard
 		defaults.setValue(value, forKey: key)
 		defaults.synchronize()
 	}
-	
+
 	fileprivate func loadPref(_ key: String) -> String? {
 		let defaults = UserDefaults.standard
 		return defaults.string(forKey: key)
 	}
-	
+
 	fileprivate func clearPref(_ key: String) {
 		let defaults = UserDefaults.standard
 		defaults.removeObject(forKey: key)
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: PERSISTENCE
 	/////////////////////////////////////////////
@@ -285,7 +295,7 @@ open class ParaClient {
 			          callback: callback, error: error)
 		}
 	}
-	
+
 	/**
 	Retrieves an object from the data store.
 	- parameter type: the type of the object to read
@@ -300,7 +310,7 @@ open class ParaClient {
 			invokeGet("\(type!)/\(id)", rawResult: false, callback: callback, error: error)
 		}
 	}
-	
+
 	/**
 	Updates an object permanently. Supports partial updates.
 	- parameter obj: the object to update
@@ -309,7 +319,7 @@ open class ParaClient {
 	open func update(_ obj: ParaObject, callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokePatch(obj.getObjectURI(), entity: JSON(obj.getFields()), rawResult: false, callback: callback, error: error)
 	}
-	
+
 	/**
 	Deletes an object permanently.
 	- parameter obj: tobject to delete
@@ -318,7 +328,7 @@ open class ParaClient {
 	open func delete(_ obj: ParaObject, callback: ((Any?) -> Void)? = { _ in }, error: ((NSError) -> Void)? = { _ in }) {
 		invokeDelete(obj.getObjectURI(), rawResult: false, callback: callback!, error: error)
 	}
-	
+
 	/**
 	Saves multiple objects to the data store.
 	- parameter objects: the list of objects to save
@@ -338,7 +348,7 @@ open class ParaClient {
 			callback(self.getItemsFromList(res?.arrayValue))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Retrieves multiple objects from the data store.
 	- parameter keys: a list of object ids
@@ -354,7 +364,7 @@ open class ParaClient {
 			callback(self.getItemsFromList(res?.arrayValue))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Updates multiple objects.
 	- parameter objects: the objects to update
@@ -374,7 +384,7 @@ open class ParaClient {
 			callback(self.getItemsFromList(res?.arrayValue))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Deletes multiple objects.
 	- parameter keys: the ids of the objects to delete
@@ -388,7 +398,7 @@ open class ParaClient {
 		}
 		invokeDelete("_batch", params: ["ids": keys as AnyObject], callback: callback, error: error)
 	}
-	
+
 	/**
 	Returns a list all objects found for the given type.
 	The result is paginated so only one page of items is returned, at a time.
@@ -406,7 +416,7 @@ open class ParaClient {
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: SEARCH
 	/////////////////////////////////////////////
@@ -423,7 +433,7 @@ open class ParaClient {
 			callback(list.isEmpty ? nil : list[0])
 		}, error: error)
 	}
-	
+
 	/**
 	Simple multi id search.
 	- parameter ids: a list of ids to search for
@@ -436,7 +446,7 @@ open class ParaClient {
 			callback(self.getItems(res))
 		}, error: error)
 	}
-	
+
 	/**
 	Search through all Address objects in a radius of X km from a given point.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -459,7 +469,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Searches for objects that have a property which value starts with a given prefix.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -479,7 +489,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Simple query string search. This is the basic search method.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -496,7 +506,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Searches within a nested field. The objects of the given type must contain a nested field "nstd".
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -515,7 +525,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Searches for objects that have similar property values to a given text.
 	A "find like this" query.
@@ -538,7 +548,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Searches for objects tagged with one or more tags.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -555,7 +565,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Searches for Tag objects. This method might be deprecated in the future.
 	- parameter keyword: the tag keyword to search for
@@ -567,7 +577,7 @@ open class ParaClient {
 		let kword = (keyword ?? "").isEmpty ? "*" : "\(keyword!)*"
 		findWildcard("tag", field: "tag", wildcard: kword, pager: pager, callback: callback, error: error)
 	}
-	
+
 	/**
 	Searches for objects having a property value that is in list of possible values.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -587,7 +597,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Searches for objects that have properties matching some given values. A terms query.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -638,7 +648,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Counts indexed objects.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -650,7 +660,7 @@ open class ParaClient {
 			callback(self.getTotalHits(res))
 		}, error: error)
 	}
-	
+
 	/**
 	Counts indexed objects matching a set of terms/values.
 	- parameter type: the type of object to search for. See ParaObject.getType()
@@ -679,7 +689,7 @@ open class ParaClient {
 			callback(self.getTotalHits(res))
 		}, error: error)
 	}
-	
+
 	fileprivate func find(_ queryType: String, params: NSMutableDictionary,
 	                  callback: @escaping ([String: JSON]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if params.count > 0 {
@@ -695,7 +705,7 @@ open class ParaClient {
 		}
 		callback(["items": [:], "totalHits": 0])
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: LINKS
 	/////////////////////////////////////////////
@@ -717,7 +727,7 @@ open class ParaClient {
 			callback(self.getTotalHits(res?.dictionaryValue))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Returns all objects linked to the given one. Only applicable to many-to-many relationships.
 	- parameter obj: the object to execute this method on
@@ -736,7 +746,7 @@ open class ParaClient {
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Searches through all linked objects in many-to-many relationships.
 	- parameter obj: the object to execute this method on
@@ -760,7 +770,7 @@ open class ParaClient {
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Checks if an object is linked to another.
 	- parameter obj: the object to execute this method on
@@ -778,7 +788,7 @@ open class ParaClient {
 			callback((res ?? "") == "true")
 		} as (String?) -> Void, error: error)
 	}
-	
+
 	/**
 	Checks if a given object is linked to this one.
 	- parameter obj: the object to execute this method on
@@ -793,7 +803,7 @@ open class ParaClient {
 		}
 		isLinked(obj, type2: toObj.type, id2: toObj.id, callback: callback, error: error)
 	}
-	
+
 	/**
 	Links an object to this one in a many-to-many relationship.
 	Only a link is created. Objects are left untouched.
@@ -810,7 +820,7 @@ open class ParaClient {
 		}
 		invokePost("\(obj.getObjectURI())/links/\(id2)", entity: nil, callback: callback, error: error)
 	}
-	
+
 	/**
 	Unlinks an object from this one. Only a link is deleted. Objects are left untouched.
 	- parameter obj: the object to execute this method on
@@ -826,7 +836,7 @@ open class ParaClient {
 		}
 		invokeDelete("\(obj.getObjectURI())/links/\(type2)/\(id2)", callback: callback, error: error)
 	}
-	
+
 	/**
 	Unlinks all objects that are linked to this one.
 	- parameter obj: the object to execute this method on
@@ -839,7 +849,7 @@ open class ParaClient {
 		}
 		invokeDelete("\(obj.getObjectURI())/links", callback: callback, error: error)
 	}
-	
+
 	/**
 	Count the total number of child objects for this object.
 	- parameter obj: the object to execute this method on
@@ -857,7 +867,7 @@ open class ParaClient {
 			callback(self.getTotalHits(res?.dictionaryValue))
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Returns all child objects linked to this object.
 	- parameter obj: the object to execute this method on
@@ -878,7 +888,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Returns all child objects linked to this object.
 	- parameter obj: the object to execute this method on
@@ -904,7 +914,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Search through all child objects. Only searches child objects directly
 	connected to this parent via the {@code parentid} field.
@@ -928,7 +938,7 @@ open class ParaClient {
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
 	}
-	
+
 	/**
 	Deletes all child objects permanently.
 	- parameter obj: the object to execute this method on
@@ -944,7 +954,7 @@ open class ParaClient {
 		invokeDelete("\(obj.getObjectURI())/links/\(type2)", params: ["childrenonly": "true" as AnyObject],
 		             callback: callback, error: error)
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: UTILS
 	/////////////////////////////////////////////
@@ -956,7 +966,7 @@ open class ParaClient {
 	open func newId(_ callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("utils/newid", callback: callback, error: error)
 	}
-	
+
 	/**
 	Returns the current timestamp.
 	- parameter callback: called with response object when the request is completed
@@ -966,7 +976,7 @@ open class ParaClient {
 			callback(UInt64(res ?? "0")!)
 		} as (String?) -> Void, error: error)
 	}
-	
+
 	/**
 	Formats a date in a specific format.
 	- parameter format: the date format eg. "yyyy MMM dd"
@@ -978,7 +988,7 @@ open class ParaClient {
 		let params = ["format": format, "locale": locale]
 		invokeGet("utils/formatdate", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
-	
+
 	/**
 	Converts spaces to dashes.
 	- parameter str: a string with spaces
@@ -990,7 +1000,7 @@ open class ParaClient {
 		let params = ["string": str, "replacement": replaceWith]
 		invokeGet("utils/nospaces", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
-	
+
 	/**
 	Strips all symbols, punctuation, whitespace and control chars from a string.
 	- parameter str: a dirty string
@@ -1000,7 +1010,7 @@ open class ParaClient {
 		let params = ["string": str]
 		invokeGet("utils/nosymbols", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
-	
+
 	/**
 	Converts Markdown to HTML
 	- parameter markdownString: Markdown
@@ -1011,7 +1021,7 @@ open class ParaClient {
 		let params = ["md": markdownString]
 		invokeGet("utils/md2html", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
-	
+
 	/**
 	Returns the number of minutes, hours, months elapsed for a time delta (milliseconds).
 	- parameter delta: the time delta between two events, in milliseconds
@@ -1021,7 +1031,7 @@ open class ParaClient {
 		let params = ["delta": delta]
 		invokeGet("utils/timeago", params: params as [String : AnyObject]?, callback: callback, error: error)
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: MISC
 	/////////////////////////////////////////////
@@ -1039,7 +1049,7 @@ open class ParaClient {
 			callback(keys as [String : AnyObject])
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Returns all registered types for this App.
 	- parameter callback: called with response object when the request is completed
@@ -1049,7 +1059,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as? [String: String])
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Returns a User or an App that is currently authenticated.
 	- parameter accessToken: a valid JWT access token (optional)
@@ -1070,7 +1080,7 @@ open class ParaClient {
 			                           rawResult: false, callback: callback, error: error)
 		}
 	}
-	
+
 	/**
 	Upvote an object and register the vote in DB. Returns true if vote was successful.
 	- parameter obj: the object to receive +1 votes
@@ -1086,7 +1096,7 @@ open class ParaClient {
 			callback((res ?? "") == "true")
 		} as (String?) -> Void, error: error)
 	}
-	
+
 	/**
 	Downvote an object and register the vote in DB. Returns true if vote was successful.
 	- parameter obj: the object to receive -1 votes
@@ -1102,7 +1112,7 @@ open class ParaClient {
 			callback((res ?? "") == "true")
 		} as (String?) -> Void, error: error)
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: VALIDATION CONSTRAINTS
 	/////////////////////////////////////////////
@@ -1117,7 +1127,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Returns the validation constraints map for a given type.
 	- parameter type: a type
@@ -1129,7 +1139,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Add a new constraint for a given field.
 	- parameter type: a type
@@ -1148,7 +1158,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Removes a validation constraint for a given field.
 	- parameter type: a type
@@ -1164,7 +1174,7 @@ open class ParaClient {
 		}
 		invokeDelete("_constraints/\(type)/\(field)/\(constraintName)", callback: callback, error: error)
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: RESOURCE PERMISSIONS
 	/////////////////////////////////////////////
@@ -1179,7 +1189,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Returns only the permissions for a given subject (user) of the current app.
 	- parameter subjectid: the subject id (user id)
@@ -1191,7 +1201,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Grants a permission to a subject that allows them to call the specified HTTP methods on a given resource.
 	- parameter subjectid: the subject id (user id)
@@ -1216,7 +1226,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Revokes a permission for a subject, meaning they no longer will be able to access the given resource.
 	- parameter subjectid: the subject id (user id)
@@ -1234,7 +1244,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Revokes all permission for a subject.
 	- parameter subjectid: the subject id (user id)
@@ -1250,7 +1260,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Checks if a subject is allowed to call method X on resource Y.
 	- parameter subjectid: the subject id (user id)
@@ -1269,7 +1279,7 @@ open class ParaClient {
 		          callback: { res in callback((res ?? "") == "true") } as (String?) -> Void,
 		          error: { _ in callback(false) })
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: APP SETTINGS
 	/////////////////////////////////////////////
@@ -1291,7 +1301,7 @@ open class ParaClient {
 			} as (JSON?) -> Void, error: error)
 		}
 	}
-	
+
 	/**
 	Adds or overwrites an app-specific setting.
 	- parameter key: a key
@@ -1304,8 +1314,8 @@ open class ParaClient {
 			invokePut("_settings/\(key)", entity: JSON(["value": value]), callback: callback, error: error)
 		}
 	}
-	
-	
+
+
 	/**
 	Overwrites all app-specific settings.
 	- parameter settings: a key-value map of properties
@@ -1329,7 +1339,7 @@ open class ParaClient {
 			invokeDelete("_settings/\(key)", callback: callback, error: error)
 		}
 	}
-	
+
 	/////////////////////////////////////////////
 	// MARK: ACCESS TOKENS
 	/////////////////////////////////////////////
@@ -1344,7 +1354,7 @@ open class ParaClient {
 	use that as the provider access token.</b>
 	- parameter provider: identity provider, e.g. 'facebook', 'google'...
 	- parameter providerToken: access token from a provider like Facebook, Google, Twitter
-	- parameter rememberJWT: if true the access token returned by Para will be stored locally and 
+	- parameter rememberJWT: if true the access token returned by Para will be stored locally and
 	available through getAccessToken(). True by default.
 	- parameter callback: called with response object when the request is completed
 	*/
@@ -1377,7 +1387,7 @@ open class ParaClient {
 			callback(nil)
 		}
 	}
-	
+
 	/**
 	Clears the JWT access token but token is not revoked.
 	Tokens can be revoked globally per user with revokeAllTokens().
@@ -1385,7 +1395,7 @@ open class ParaClient {
 	open func signOut() {
 		clearAccessToken()
 	}
-	
+
 	/**
 	Refreshes the JWT access token. This requires a valid existing token. Call link signIn() first.
 	- parameter callback: called with response object when the request is completed
@@ -1414,7 +1424,7 @@ open class ParaClient {
 			callback(false)
 		}
 	}
-	
+
 	/**
 	Revokes all user tokens for a given user id.
 	This would be equivalent to "logout everywhere".
@@ -1425,6 +1435,6 @@ open class ParaClient {
 	open func revokeAllTokens(_ callback: @escaping (Bool) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeDelete(JWT_PATH, callback: { res in callback(res != nil) }, error: error)
 	}
-	
+
 }
 
