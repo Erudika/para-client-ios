@@ -45,6 +45,8 @@ open class ParaObject : NSObject {
 	open var tags: [String]
 	/// Returns the total sum of all votes for this object (score, weight etc.).
 	open var votes: Int = 0
+	/// Returns the version of this object.
+	open var version: Int = 0
 	/// Gets or sets a value indicating whether this object must be stored in DB.
 	open var stored: Bool
 	/// Gets or sets a value indicating whether this object must be indexed.
@@ -68,6 +70,7 @@ open class ParaObject : NSObject {
 		self.id = id
 		self.type = type
 		self.votes = 0
+		self.version = 0
 		self.name = "ParaObject"
 		self.stored = true
 		self.indexed = true
