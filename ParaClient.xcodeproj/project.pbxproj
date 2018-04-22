@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		"ParaClient::ParaClientPackageTests::ProductTarget" /* ParaClientPackageTests */ = {
+		ParaClient::ParaClientPackageTests::ProductTarget /* ParaClientPackageTests */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = OBJ_271 /* Build configuration list for PBXAggregateTarget "ParaClientPackageTests" */;
 			buildPhases = (
@@ -21,23 +21,25 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		7BE42D7893EAA8DBC8301E19 /* Pods_ParaClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C1BD370A3BC82DCD7A8C8BE /* Pods_ParaClient.framework */; };
+		B2845CBCE4D05EF829E10FA4 /* Pods_ParaClientTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADAD4FD640ED4F3ADAAFC8FE /* Pods_ParaClientTests.framework */; };
 		OBJ_120 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_126 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_86 /* Package.swift */; };
 		OBJ_132 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_88 /* Package.swift */; };
 		OBJ_138 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_91 /* Package.swift */; };
 		OBJ_144 /* ParaClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* ParaClientTests.swift */; };
-		OBJ_146 /* ParaClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ParaClient::ParaClient::Product" /* ParaClient.framework */; };
-		OBJ_147 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */; };
-		OBJ_148 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftyJSON::SwiftyJSON::Product" /* SwiftyJSON.framework */; };
-		OBJ_149 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "Alamofire::Alamofire::Product" /* Alamofire.framework */; };
+		OBJ_146 /* ParaClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ParaClient::ParaClient::Product /* ParaClient.framework */; };
+		OBJ_147 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CryptoSwift::CryptoSwift::Product /* CryptoSwift.framework */; };
+		OBJ_148 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = SwiftyJSON::SwiftyJSON::Product /* SwiftyJSON.framework */; };
+		OBJ_149 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = Alamofire::Alamofire::Product /* Alamofire.framework */; };
 		OBJ_162 /* Constraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Constraint.swift */; };
 		OBJ_163 /* Pager.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Pager.swift */; };
 		OBJ_164 /* ParaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* ParaClient.swift */; };
 		OBJ_165 /* ParaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* ParaObject.swift */; };
 		OBJ_166 /* Signer.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* Signer.swift */; };
-		OBJ_168 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */; };
-		OBJ_169 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftyJSON::SwiftyJSON::Product" /* SwiftyJSON.framework */; };
-		OBJ_170 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "Alamofire::Alamofire::Product" /* Alamofire.framework */; };
+		OBJ_168 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CryptoSwift::CryptoSwift::Product /* CryptoSwift.framework */; };
+		OBJ_169 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = SwiftyJSON::SwiftyJSON::Product /* SwiftyJSON.framework */; };
+		OBJ_170 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = Alamofire::Alamofire::Product /* Alamofire.framework */; };
 		OBJ_178 /* AES.Cryptors.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_20 /* AES.Cryptors.swift */; };
 		OBJ_179 /* AES.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_21 /* AES.swift */; };
 		OBJ_180 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_22 /* Array+Extension.swift */; };
@@ -181,8 +183,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		"Alamofire::Alamofire::Product" /* Alamofire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Alamofire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		06F2D05625DC423EFA0FCF8A /* Pods-ParaClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParaClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-ParaClient/Pods-ParaClient.release.xcconfig"; sourceTree = "<group>"; };
+		704C5FBD1687FBB13B6A532F /* Pods-ParaClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParaClientTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ParaClientTests/Pods-ParaClientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		7C1BD370A3BC82DCD7A8C8BE /* Pods_ParaClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ParaClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADAD4FD640ED4F3ADAAFC8FE /* Pods_ParaClientTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ParaClientTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		Alamofire::Alamofire::Product /* Alamofire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Alamofire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD210C4ED8D432456AC285FE /* Pods-ParaClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParaClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ParaClientTests/Pods-ParaClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		CryptoSwift::CryptoSwift::Product /* CryptoSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E18DB058E0E61B5FC746C5E8 /* Pods-ParaClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ParaClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ParaClient/Pods-ParaClient.debug.xcconfig"; sourceTree = "<group>"; };
 		OBJ_10 /* ParaClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParaClient.swift; sourceTree = "<group>"; };
 		OBJ_100 /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		OBJ_101 /* ResponseSerialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseSerialization.swift; sourceTree = "<group>"; };
@@ -196,7 +204,6 @@
 		OBJ_11 /* ParaObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParaObject.swift; sourceTree = "<group>"; };
 		OBJ_12 /* Signer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signer.swift; sourceTree = "<group>"; };
 		OBJ_15 /* ParaClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParaClientTests.swift; sourceTree = "<group>"; };
-		OBJ_16 /* Pods */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Pods; sourceTree = SOURCE_ROOT; };
 		OBJ_20 /* AES.Cryptors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.Cryptors.swift; sourceTree = "<group>"; };
 		OBJ_21 /* AES.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.swift; sourceTree = "<group>"; };
 		OBJ_22 /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
@@ -275,12 +282,40 @@
 		OBJ_97 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		OBJ_98 /* ParameterEncoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterEncoding.swift; sourceTree = "<group>"; };
 		OBJ_99 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
-		"ParaClient::ParaClient::Product" /* ParaClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ParaClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"ParaClient::ParaClientTests::Product" /* ParaClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = ParaClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		"SwiftyJSON::SwiftyJSON::Product" /* SwiftyJSON.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyJSON.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ParaClient::ParaClient::Product /* ParaClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ParaClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ParaClient::ParaClientTests::Product /* ParaClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = ParaClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		SwiftyJSON::SwiftyJSON::Product /* SwiftyJSON.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyJSON.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		476087B7B39D9BE8B6C75CA1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5C2BE2CC0E2B82696F4256F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF8A67F56E922351EC0B97C4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DB2C2A6505C879A9232EECDE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		OBJ_145 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
@@ -289,6 +324,7 @@
 				OBJ_147 /* CryptoSwift.framework in Frameworks */,
 				OBJ_148 /* SwiftyJSON.framework in Frameworks */,
 				OBJ_149 /* Alamofire.framework in Frameworks */,
+				B2845CBCE4D05EF829E10FA4 /* Pods_ParaClientTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +335,7 @@
 				OBJ_168 /* CryptoSwift.framework in Frameworks */,
 				OBJ_169 /* SwiftyJSON.framework in Frameworks */,
 				OBJ_170 /* Alamofire.framework in Frameworks */,
+				7BE42D7893EAA8DBC8301E19 /* Pods_ParaClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,14 +363,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		939A1E4FBA3618B4CA91EB89 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E18DB058E0E61B5FC746C5E8 /* Pods-ParaClient.debug.xcconfig */,
+				06F2D05625DC423EFA0FCF8A /* Pods-ParaClient.release.xcconfig */,
+				704C5FBD1687FBB13B6A532F /* Pods-ParaClientTests.debug.xcconfig */,
+				CD210C4ED8D432456AC285FE /* Pods-ParaClientTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		E5B7948ED6E1829A28DEFB55 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7C1BD370A3BC82DCD7A8C8BE /* Pods_ParaClient.framework */,
+				ADAD4FD640ED4F3ADAAFC8FE /* Pods_ParaClientTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		OBJ_109 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				"ParaClient::ParaClientTests::Product" /* ParaClientTests.xctest */,
-				"ParaClient::ParaClient::Product" /* ParaClient.framework */,
-				"CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */,
-				"SwiftyJSON::SwiftyJSON::Product" /* SwiftyJSON.framework */,
-				"Alamofire::Alamofire::Product" /* Alamofire.framework */,
+				ParaClient::ParaClientTests::Product /* ParaClientTests.xctest */,
+				ParaClient::ParaClient::Product /* ParaClient.framework */,
+				CryptoSwift::CryptoSwift::Product /* CryptoSwift.framework */,
+				SwiftyJSON::SwiftyJSON::Product /* SwiftyJSON.framework */,
+				Alamofire::Alamofire::Product /* Alamofire.framework */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -457,17 +514,17 @@
 			path = Foundation;
 			sourceTree = "<group>";
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
 				OBJ_13 /* Tests */,
-				OBJ_16 /* Pods */,
 				OBJ_17 /* Dependencies */,
 				OBJ_109 /* Products */,
+				939A1E4FBA3618B4CA91EB89 /* Pods */,
+				E5B7948ED6E1829A28DEFB55 /* Frameworks */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_63 /* PKCS */ = {
@@ -533,7 +590,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		"Alamofire::Alamofire" /* Alamofire */ = {
+		Alamofire::Alamofire /* Alamofire */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_248 /* Build configuration list for PBXNativeTarget "Alamofire" */;
 			buildPhases = (
@@ -546,14 +603,15 @@
 			);
 			name = Alamofire;
 			productName = Alamofire;
-			productReference = "Alamofire::Alamofire::Product" /* Alamofire.framework */;
+			productReference = Alamofire::Alamofire::Product /* Alamofire.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"Alamofire::SwiftPMPackageDescription" /* AlamofirePackageDescription */ = {
+		Alamofire::SwiftPMPackageDescription /* AlamofirePackageDescription */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_134 /* Build configuration list for PBXNativeTarget "AlamofirePackageDescription" */;
 			buildPhases = (
 				OBJ_137 /* Sources */,
+				CF8A67F56E922351EC0B97C4 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -563,7 +621,7 @@
 			productName = AlamofirePackageDescription;
 			productType = "com.apple.product-type.framework";
 		};
-		"CryptoSwift::CryptoSwift" /* CryptoSwift */ = {
+		CryptoSwift::CryptoSwift /* CryptoSwift */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_174 /* Build configuration list for PBXNativeTarget "CryptoSwift" */;
 			buildPhases = (
@@ -576,14 +634,15 @@
 			);
 			name = CryptoSwift;
 			productName = CryptoSwift;
-			productReference = "CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */;
+			productReference = CryptoSwift::CryptoSwift::Product /* CryptoSwift.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"CryptoSwift::SwiftPMPackageDescription" /* CryptoSwiftPackageDescription */ = {
+		CryptoSwift::SwiftPMPackageDescription /* CryptoSwiftPackageDescription */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_122 /* Build configuration list for PBXNativeTarget "CryptoSwiftPackageDescription" */;
 			buildPhases = (
 				OBJ_125 /* Sources */,
+				476087B7B39D9BE8B6C75CA1 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -593,10 +652,11 @@
 			productName = CryptoSwiftPackageDescription;
 			productType = "com.apple.product-type.framework";
 		};
-		"ParaClient::ParaClient" /* ParaClient */ = {
+		ParaClient::ParaClient /* ParaClient */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_158 /* Build configuration list for PBXNativeTarget "ParaClient" */;
 			buildPhases = (
+				3DBA245B4C8C36FBD0B238B3 /* [CP] Check Pods Manifest.lock */,
 				OBJ_161 /* Sources */,
 				OBJ_167 /* Frameworks */,
 			);
@@ -609,15 +669,17 @@
 			);
 			name = ParaClient;
 			productName = ParaClient;
-			productReference = "ParaClient::ParaClient::Product" /* ParaClient.framework */;
+			productReference = ParaClient::ParaClient::Product /* ParaClient.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"ParaClient::ParaClientTests" /* ParaClientTests */ = {
+		ParaClient::ParaClientTests /* ParaClientTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_140 /* Build configuration list for PBXNativeTarget "ParaClientTests" */;
 			buildPhases = (
+				22C696C7D53EA4FEF1576D72 /* [CP] Check Pods Manifest.lock */,
 				OBJ_143 /* Sources */,
 				OBJ_145 /* Frameworks */,
+				172F43D579A93219C33319FD /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -629,14 +691,15 @@
 			);
 			name = ParaClientTests;
 			productName = ParaClientTests;
-			productReference = "ParaClient::ParaClientTests::Product" /* ParaClientTests.xctest */;
+			productReference = ParaClient::ParaClientTests::Product /* ParaClientTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		"ParaClient::SwiftPMPackageDescription" /* ParaClientPackageDescription */ = {
+		ParaClient::SwiftPMPackageDescription /* ParaClientPackageDescription */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_116 /* Build configuration list for PBXNativeTarget "ParaClientPackageDescription" */;
 			buildPhases = (
 				OBJ_119 /* Sources */,
+				DB2C2A6505C879A9232EECDE /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -646,11 +709,12 @@
 			productName = ParaClientPackageDescription;
 			productType = "com.apple.product-type.framework";
 		};
-		"SwiftyJSON::SwiftPMPackageDescription" /* SwiftyJSONPackageDescription */ = {
+		SwiftyJSON::SwiftPMPackageDescription /* SwiftyJSONPackageDescription */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_128 /* Build configuration list for PBXNativeTarget "SwiftyJSONPackageDescription" */;
 			buildPhases = (
 				OBJ_131 /* Sources */,
+				5C2BE2CC0E2B82696F4256F9 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -660,7 +724,7 @@
 			productName = SwiftyJSONPackageDescription;
 			productType = "com.apple.product-type.framework";
 		};
-		"SwiftyJSON::SwiftyJSON" /* SwiftyJSON */ = {
+		SwiftyJSON::SwiftyJSON /* SwiftyJSON */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_242 /* Build configuration list for PBXNativeTarget "SwiftyJSON" */;
 			buildPhases = (
@@ -673,7 +737,7 @@
 			);
 			name = SwiftyJSON;
 			productName = SwiftyJSON;
-			productReference = "SwiftyJSON::SwiftyJSON::Product" /* SwiftyJSON.framework */;
+			productReference = SwiftyJSON::SwiftyJSON::Product /* SwiftyJSON.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -705,24 +769,85 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_109 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				"ParaClient::SwiftPMPackageDescription" /* ParaClientPackageDescription */,
-				"CryptoSwift::SwiftPMPackageDescription" /* CryptoSwiftPackageDescription */,
-				"SwiftyJSON::SwiftPMPackageDescription" /* SwiftyJSONPackageDescription */,
-				"Alamofire::SwiftPMPackageDescription" /* AlamofirePackageDescription */,
-				"ParaClient::ParaClientTests" /* ParaClientTests */,
-				"ParaClient::ParaClient" /* ParaClient */,
-				"CryptoSwift::CryptoSwift" /* CryptoSwift */,
-				"SwiftyJSON::SwiftyJSON" /* SwiftyJSON */,
-				"Alamofire::Alamofire" /* Alamofire */,
-				"ParaClient::ParaClientPackageTests::ProductTarget" /* ParaClientPackageTests */,
+				ParaClient::SwiftPMPackageDescription /* ParaClientPackageDescription */,
+				CryptoSwift::SwiftPMPackageDescription /* CryptoSwiftPackageDescription */,
+				SwiftyJSON::SwiftPMPackageDescription /* SwiftyJSONPackageDescription */,
+				Alamofire::SwiftPMPackageDescription /* AlamofirePackageDescription */,
+				ParaClient::ParaClientTests /* ParaClientTests */,
+				ParaClient::ParaClient /* ParaClient */,
+				CryptoSwift::CryptoSwift /* CryptoSwift */,
+				SwiftyJSON::SwiftyJSON /* SwiftyJSON */,
+				Alamofire::Alamofire /* Alamofire */,
+				ParaClient::ParaClientPackageTests::ProductTarget /* ParaClientPackageTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		172F43D579A93219C33319FD /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-ParaClientTests/Pods-ParaClientTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ParaClientTests/Pods-ParaClientTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		22C696C7D53EA4FEF1576D72 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ParaClientTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3DBA245B4C8C36FBD0B238B3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ParaClient-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		OBJ_119 /* Sources */ = {
@@ -884,42 +1009,42 @@
 /* Begin PBXTargetDependency section */
 		OBJ_150 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "ParaClient::ParaClient" /* ParaClient */;
+			target = ParaClient::ParaClient /* ParaClient */;
 			targetProxy = EA7A544A1FB8FCC4004A2085 /* PBXContainerItemProxy */;
 		};
 		OBJ_152 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
+			target = CryptoSwift::CryptoSwift /* CryptoSwift */;
 			targetProxy = EA7A544B1FB8FCC4004A2085 /* PBXContainerItemProxy */;
 		};
 		OBJ_154 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "SwiftyJSON::SwiftyJSON" /* SwiftyJSON */;
+			target = SwiftyJSON::SwiftyJSON /* SwiftyJSON */;
 			targetProxy = EA7A544C1FB8FCC4004A2085 /* PBXContainerItemProxy */;
 		};
 		OBJ_156 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "Alamofire::Alamofire" /* Alamofire */;
+			target = Alamofire::Alamofire /* Alamofire */;
 			targetProxy = EA7A544D1FB8FCC4004A2085 /* PBXContainerItemProxy */;
 		};
 		OBJ_171 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
+			target = CryptoSwift::CryptoSwift /* CryptoSwift */;
 			targetProxy = EA7A54471FB8FCC4004A2085 /* PBXContainerItemProxy */;
 		};
 		OBJ_172 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "SwiftyJSON::SwiftyJSON" /* SwiftyJSON */;
+			target = SwiftyJSON::SwiftyJSON /* SwiftyJSON */;
 			targetProxy = EA7A54481FB8FCC4004A2085 /* PBXContainerItemProxy */;
 		};
 		OBJ_173 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "Alamofire::Alamofire" /* Alamofire */;
+			target = Alamofire::Alamofire /* Alamofire */;
 			targetProxy = EA7A54491FB8FCC4004A2085 /* PBXContainerItemProxy */;
 		};
 		OBJ_274 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "ParaClient::ParaClientTests" /* ParaClientTests */;
+			target = ParaClient::ParaClientTests /* ParaClientTests */;
 			targetProxy = EA7A544E1FB8FCC5004A2085 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -999,6 +1124,7 @@
 		};
 		OBJ_141 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 704C5FBD1687FBB13B6A532F /* Pods-ParaClientTests.debug.xcconfig */;
 			buildSettings = {
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1018,6 +1144,7 @@
 		};
 		OBJ_142 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CD210C4ED8D432456AC285FE /* Pods-ParaClientTests.release.xcconfig */;
 			buildSettings = {
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1037,6 +1164,7 @@
 		};
 		OBJ_159 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E18DB058E0E61B5FC746C5E8 /* Pods-ParaClient.debug.xcconfig */;
 			buildSettings = {
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1060,6 +1188,7 @@
 		};
 		OBJ_160 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 06F2D05625DC423EFA0FCF8A /* Pods-ParaClient.release.xcconfig */;
 			buildSettings = {
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (

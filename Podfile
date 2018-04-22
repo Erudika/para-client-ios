@@ -11,15 +11,6 @@ end
 target "ParaClient" do
     para_pods
 end
-target "ParaClient tvOS" do
-    para_pods
-end
-target "ParaClient OSX" do
-    para_pods
-end
-target "ParaClient watchOS" do
-    para_pods
-end
 target "ParaClientTests" do
     para_pods
 end
