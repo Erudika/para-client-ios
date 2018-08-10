@@ -19,8 +19,8 @@ import PackageDescription
 let package = Package(
     name: "ParaClient",
     dependencies: [
-    	.Package(url: "https://github.com/Alamofire/Alamofire.git", versions: Version(4, 5, 1)..<Version(5, 0, 0)),
-		.Package(url: "https://github.com/SwiftyJSON/SwiftyJSON", versions: Version(4, 0, 0)..<Version(5, 0, 0)),
-		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift",  versions: Version(0, 8, 0)..<Version(1, 0, 0))
+    	.Package(url: "https://github.com/Alamofire/Alamofire.git", versions: Version(4, 7, 3)..<Version(5, 0, 0)),
+		.Package(url: "https://github.com/SwiftyJSON/SwiftyJSON", versions: Version(4, 1, 0)..<Version(5, 0, 0)),
+		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift",  versions: Version(0, 11, 0)..<Version(1, 0, 0))
     ]
 )

@@ -1115,6 +1115,27 @@ open class ParaClient {
 			callback((res ?? "") == "true")
 		} as (String?) -> Void, error: error)
 	}
+	
+	/**
+	Rebuilds the entire search index.
+	*/
+	open func rebuildIndex(_ callback: @escaping ([String: AnyObject]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
+		invokePost("_reindex", entity: nil, callback: { res in
+			callback(res?.dictionaryObject as [String: AnyObject]?)
+			} as (JSON?) -> Void, error: error)
+	}
+	
+	/**
+	Rebuilds the entire search index.
+	- parameter destinationIndex: an existing index as destination
+	*/
+	open func rebuildIndex(_ destinationIndex: String, callback: @escaping ([String: AnyObject]?) -> Void,
+						   error: ((NSError) -> Void)? = { _ in }) {
+		let params = ["destinationIndex": destinationIndex as AnyObject]
+		signer.invokeSignedRequest(self.accessKey, secretKey: key(true), httpMethod: "POST",
+								   endpointURL: getEndpoint(), reqPath: getFullPath("_reindex"), params: params,
+								   rawResult: true, callback: callback, error: error)
+	}
 
 	/////////////////////////////////////////////
 	// MARK: VALIDATION CONSTRAINTS
