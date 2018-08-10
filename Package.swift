@@ -21,6 +21,6 @@ let package = Package(
     dependencies: [
     	.Package(url: "https://github.com/Alamofire/Alamofire.git", versions: Version(4, 7, 3)..<Version(5, 0, 0)),
 		.Package(url: "https://github.com/SwiftyJSON/SwiftyJSON", versions: Version(4, 1, 0)..<Version(5, 0, 0)),
-		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift",  versions: Version(0, 8, 0)..<Version(1, 0, 0))
+		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift",  versions: Version(0, 7, 0)..<Version(1, 0, 0))
     ]
 )
