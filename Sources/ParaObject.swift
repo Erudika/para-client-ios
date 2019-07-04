@@ -81,36 +81,18 @@ open class ParaObject : NSObject {
 		self.appid = ""
 		self.tags = []
 	}
-	
-	/**
-	The plural name of the object. For example: user -> users.
-	- returns: a string
-	*/
-	public final func getPlural() -> String {
-		if !self.plural.isEmpty {
-			return self.plural
-		}
-		if self.type.isEmpty || self.type.count < 2 {
-			self.type = "sysprop"
-		}
-		let last = String(self.type[self.type.index(self.type.endIndex, offsetBy: -1)...])
-		let lastStripped = String(self.type[..<self.type.index(self.type.endIndex, offsetBy: -1)])
-		return (self.type.isEmpty ? self.type :
-			(last == "s" ? self.type + "es" :
-			(last == "y") ? lastStripped + "ies" : self.type + "s"))
-	}
-	
+
 	/**
 	The URI of this object. For example: /users/123.
 	- returns: the URI string
 	*/
 	open func getObjectURI() -> String {
-		let def = "/" + getPlural()
-		return !self.id.isEmpty ? def + "/" + self.id : def
+		let def = "/" + Signer.encodeURIComponent(self.type)
+		return !self.id.isEmpty ? def + "/" + Signer.encodeURIComponent(self.id) : def
 	}
-	
+
 	open func setObjectURI(_: String) { }
-	
+
 	subscript(name: String) -> Any {
 		get {
 			return self.properties[name] ?? self.value(forKey: name) as Any
@@ -123,11 +105,11 @@ open class ParaObject : NSObject {
 			}
 		}
 	}
-	
+
 	open override func value(forUndefinedKey key: String) -> Any? {
 		return nil
 	}
-	
+
 	/**
 	Populates this object with data from a Dictionary.
 	- parameter map: a dictionary of data
@@ -137,35 +119,35 @@ open class ParaObject : NSObject {
 			self[key] = val
 		}
 	}
-	
+
     /**
      Returns a dictionary of fields and values.
      - returns: a dictionary of data
      */
     open func getFields() -> [String: Any] {
         if self.plural.isEmpty {
-            self.plural = getPlural()
+            self.plural = self.type
         }
         var props = [String: Any]()
         let mirror = Mirror(reflecting: self)
-        
-        
+
+
         var allChidren: [Mirror.Child] = []
-        
+
         // childrens of superclass:
         if let superMirror = mirror.superclassMirror {
             for child in superMirror.children {
                 allChidren.append(child)
             }
         }
-        
+
         // childrens of this instance:
         for child in mirror.children {
             allChidren.append(child)
         }
-        
+
         // now process them
-        
+
         for child in allChidren {
             if let key = child.label {
                 if key != "properties" {
@@ -191,7 +173,7 @@ open class ParaObject : NSObject {
         }
         return props
     }
-	
+
 	fileprivate static func getCoreFields() -> [String: Any] {
 		if ParaObject._coreFields == nil {
 			ParaObject._coreFields = [String: Any]()
@@ -210,7 +192,7 @@ open class ParaObject : NSObject {
 	open func toJSON() -> JSON {
 		return JSON(getFields())
 	}
-	
+
 	/// Returns the JSON string of this object.
 	open override var description: String {
 		return self.toJSON().rawString() ?? "{}"

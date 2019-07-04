@@ -292,9 +292,9 @@ open class ParaClient {
 	*/
 	open func create(_ obj: ParaObject, callback: @escaping (ParaObject?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		if obj.id.isEmpty || (obj.type ).isEmpty {
-			invokePost(obj.type, entity: JSON(obj.getFields()), rawResult: false, callback: callback, error: error)
+			invokePost(Signer.encodeURIComponent(obj.type), entity: JSON(obj.getFields()), rawResult: false, callback: callback, error: error)
 		} else {
-			invokePut("\(obj.type)/\(obj.id)", entity: JSON(obj.getFields()), rawResult: false,
+			invokePut(obj.getObjectURI(), entity: JSON(obj.getFields()), rawResult: false,
 			          callback: callback, error: error)
 		}
 	}
@@ -308,9 +308,9 @@ open class ParaClient {
 	open func read(_ type: String? = nil, id: String, callback: @escaping (ParaObject?) -> Void,
 	               error: ((NSError) -> Void)? = { _ in }) {
 		if (type ?? "").isEmpty {
-			invokeGet("_id/\(id)", rawResult: false, callback: callback, error: error)
+			invokeGet("_id/\(Signer.encodeURIComponent(id))", rawResult: false, callback: callback, error: error)
 		} else {
-			invokeGet("\(type!)/\(id)", rawResult: false, callback: callback, error: error)
+			invokeGet("\(Signer.encodeURIComponent(type!))/\(Signer.encodeURIComponent(id))", rawResult: false, callback: callback, error: error)
 		}
 	}
 
@@ -415,7 +415,7 @@ open class ParaClient {
 			callback([])
 			return
 		}
-		invokeGet(type, params: (pagerToParams(pager) as NSDictionary) as? [String: AnyObject], callback: { res in
+		invokeGet(Signer.encodeURIComponent(type), params: (pagerToParams(pager) as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
 		} as (JSON?) -> Void, error: error)
 	}
@@ -726,7 +726,7 @@ open class ParaClient {
 			return
 		}
 		let params = ["count": "true"]
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params as [String : AnyObject]?, callback: { res in
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params: params as [String : AnyObject]?, callback: { res in
 			callback(self.getTotalHits(res?.dictionaryValue))
 		} as (JSON?) -> Void, error: error)
 	}
@@ -744,7 +744,7 @@ open class ParaClient {
 			callback([])
 			return
 		}
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params:
 			(pagerToParams(pager) as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
 		} as (JSON?) -> Void, error: error)
@@ -768,7 +768,7 @@ open class ParaClient {
 		let params = pagerToParams(pager)
 		params["field"] = field
 		params["q"] = query ?? "*"
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params:
 			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res?.dictionaryValue, pager: pager))
 		} as (JSON?) -> Void, error: error)
@@ -787,7 +787,7 @@ open class ParaClient {
 			callback(false)
 			return
 		}
-		invokeGet("\(obj.getObjectURI())/links/\(type2)/\(id2)", callback: { res in
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))/\(Signer.encodeURIComponent(id2))", callback: { res in
 			callback((res ?? "") == "true")
 		} as (String?) -> Void, error: error)
 	}
@@ -821,7 +821,7 @@ open class ParaClient {
 			callback(nil)
 			return
 		}
-		invokePost("\(obj.getObjectURI())/links/\(id2)", entity: nil, callback: callback, error: error)
+		invokePost("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(id2))", entity: nil, callback: callback, error: error)
 	}
 
 	/**
@@ -837,7 +837,7 @@ open class ParaClient {
 			callback(nil)
 			return
 		}
-		invokeDelete("\(obj.getObjectURI())/links/\(type2)/\(id2)", callback: callback, error: error)
+		invokeDelete("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))/\(Signer.encodeURIComponent(id2))", callback: callback, error: error)
 	}
 
 	/**
@@ -866,7 +866,7 @@ open class ParaClient {
 			return
 		}
 		let params = ["count": "true", "childrenonly": "true"]
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params: params as [String : AnyObject]?, callback: { res in
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params: params as [String : AnyObject]?, callback: { res in
 			callback(self.getTotalHits(res?.dictionaryValue))
 		} as (JSON?) -> Void, error: error)
 	}
@@ -886,7 +886,7 @@ open class ParaClient {
 		}
 		let params = pagerToParams(pager)
 		params["childrenonly"] = "true"
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params:
 			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
@@ -912,7 +912,7 @@ open class ParaClient {
 		params["childrenonly"] = "true"
 		params["field"] = field
 		params["term"] = term
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params:
 			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
@@ -936,7 +936,7 @@ open class ParaClient {
 		let params = pagerToParams(pager)
 		params["childrenonly"] = "true"
 		params["q"] = query ?? "*"
-		invokeGet("\(obj.getObjectURI())/links/\(type2)", params:
+		invokeGet("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params:
 			(params as NSDictionary) as? [String: AnyObject], callback: { res in
 			callback(self.getItems(res, pager: pager))
 		}, error: error)
@@ -954,7 +954,7 @@ open class ParaClient {
 			callback([])
 			return
 		}
-		invokeDelete("\(obj.getObjectURI())/links/\(type2)", params: ["childrenonly": "true" as AnyObject],
+		invokeDelete("\(obj.getObjectURI())/links/\(Signer.encodeURIComponent(type2))", params: ["childrenonly": "true" as AnyObject],
 		             callback: callback, error: error)
 	}
 
@@ -1095,7 +1095,7 @@ open class ParaClient {
 			callback(false)
 			return
 		}
-		invokePatch("\(obj.type)/\(obj.id)", entity: JSON(["_voteup": voterid]), callback: { res in
+		invokePatch(obj.getObjectURI(), entity: JSON(["_voteup": voterid]), callback: { res in
 			callback((res ?? "") == "true")
 		} as (String?) -> Void, error: error)
 	}
@@ -1111,11 +1111,11 @@ open class ParaClient {
 			callback(false)
 			return
 		}
-		invokePatch("\(obj.type)/\(obj.id)", entity: JSON(["_votedown": voterid]), callback: { res in
+		invokePatch(obj.getObjectURI(), entity: JSON(["_votedown": voterid]), callback: { res in
 			callback((res ?? "") == "true")
 		} as (String?) -> Void, error: error)
 	}
-	
+
 	/**
 	Rebuilds the entire search index.
 	*/
@@ -1124,7 +1124,7 @@ open class ParaClient {
 			callback(res?.dictionaryObject as [String: AnyObject]?)
 			} as (JSON?) -> Void, error: error)
 	}
-	
+
 	/**
 	Rebuilds the entire search index.
 	- parameter destinationIndex: an existing index as destination
@@ -1159,7 +1159,7 @@ open class ParaClient {
 	*/
 	open func validationConstraints(_ type: String, callback: @escaping ([String: AnyObject]?) -> Void,
 	                                  error: ((NSError) -> Void)? = { _ in }) {
-		invokeGet("_constraints/\(type)", callback: { res in
+		invokeGet("_constraints/\(Signer.encodeURIComponent(type))", callback: { res in
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
@@ -1178,7 +1178,7 @@ open class ParaClient {
 			callback([:])
 			return
 		}
-		invokePut("_constraints/\(type)/\(field)/\(constraint.name)", entity: JSON(constraint.payload), callback: { res in
+		invokePut("_constraints/\(Signer.encodeURIComponent(type))/\(field)/\(constraint.name)", entity: JSON(constraint.payload), callback: { res in
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
@@ -1196,7 +1196,7 @@ open class ParaClient {
 			callback([:])
 			return
 		}
-		invokeDelete("_constraints/\(type)/\(field)/\(constraintName)", callback: callback, error: error)
+		invokeDelete("_constraints/\(Signer.encodeURIComponent(type))/\(field)/\(constraintName)", callback: callback, error: error)
 	}
 
 	/////////////////////////////////////////////
@@ -1221,7 +1221,7 @@ open class ParaClient {
 	*/
 	open func resourcePermissions(_ subjectid: String, callback: @escaping ([String: AnyObject]?) -> Void,
 	                                error: ((NSError) -> Void)? = { _ in }) {
-		invokeGet("_permissions/\(subjectid)", callback: { res in
+		invokeGet("_permissions/\(Signer.encodeURIComponent(subjectid))", callback: { res in
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
@@ -1246,7 +1246,7 @@ open class ParaClient {
 			permit.append("?")
 		}
 		let resPath = Signer.encodeURIComponent(resourcePath)
-		invokePut("_permissions/\(subjectid)/\(resPath)", entity: JSON(permit), callback: { res in
+		invokePut("_permissions/\(Signer.encodeURIComponent(subjectid))/\(resPath)", entity: JSON(permit), callback: { res in
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
@@ -1264,7 +1264,7 @@ open class ParaClient {
 			return
 		}
 		let resPath = Signer.encodeURIComponent(resourcePath)
-		invokeDelete("_permissions/\(subjectid)/\(resPath)", callback: { res in
+		invokeDelete("_permissions/\(Signer.encodeURIComponent(subjectid))/\(resPath)", callback: { res in
 			callback(res?.dictionaryObject)
 		} as (JSON?) -> Void, error: error)
 	}
@@ -1280,7 +1280,7 @@ open class ParaClient {
 			callback([:])
 			return
 		}
-		invokeDelete("_permissions/\(subjectid)", callback: { res in
+		invokeDelete("_permissions/\(Signer.encodeURIComponent(subjectid))", callback: { res in
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
 	}
@@ -1299,7 +1299,7 @@ open class ParaClient {
 			return
 		}
 		let resPath = Signer.encodeURIComponent(resourcePath)
-		invokeGet("_permissions/\(subjectid)/\(resPath)/\(httpMethod)",
+		invokeGet("_permissions/\(Signer.encodeURIComponent(subjectid))/\(resPath)/\(httpMethod)",
 		          callback: { res in callback((res ?? "") == "true") } as (String?) -> Void,
 		          error: { _ in callback(false) })
 	}
