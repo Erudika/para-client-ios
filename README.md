@@ -18,6 +18,8 @@ This is the Swift client for Para for iOS, tvOS, macOS and watchOS.
 
 ## Quick start
 
+**NOTE:** This XCode project is broken when used with CocoaPods! I gave up fixing it since the release of XCode 10. Feel free to fix it and submit a pull request. Thanks!
+
 ### CocoaPods
 
 For the latest release in CocoaPods add the following to your `Podfile`:

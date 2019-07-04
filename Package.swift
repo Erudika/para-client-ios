@@ -19,8 +19,24 @@ import PackageDescription
 let package = Package(
     name: "ParaClient",
     dependencies: [
-    	.Package(url: "https://github.com/Alamofire/Alamofire.git", versions: Version(4, 7, 3)..<Version(5, 0, 0)),
-		.Package(url: "https://github.com/SwiftyJSON/SwiftyJSON", versions: Version(4, 1, 0)..<Version(5, 0, 0)),
-		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift",  versions: Version(0, 7, 0)..<Version(1, 0, 0))
+    	.Package(url: "https://github.com/Alamofire/Alamofire.git", majorVersion: 5),
+		.Package(url: "https://github.com/SwiftyJSON/SwiftyJSON", versions: Version(5, 0, 0)),
+		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift",  versions: Version(1, 0, 0))
+    ],
+    platforms: [
+        .macOS(.v10_12),
+        .iOS(.v10),
+        .tvOS(.v10),
+        .watchOS(.v3)
+    ],
+    products: [
+        .library(
+            name: "ParaClient",
+            targets: ["ParaClient"])
+    ],
+    targets: [
+        .target(
+            name: "ParaClient",
+            path: "Source")
     ]
 )
