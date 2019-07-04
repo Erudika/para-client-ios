@@ -3,7 +3,7 @@
 //  ParaClientTests
 //
 //  Created by Alex on 5.04.16 г..
-//  Copyright © 2017 г. Erudika. All rights reserved.
+//  Copyright © 2019 г. Erudika. All rights reserved.
 //
 
 import XCTest
@@ -13,14 +13,14 @@ import Alamofire
 @testable import ParaClient
 
 class ParaClientTests: XCTestCase {
-	
+
 	private static var c1: ParaClient?
 	private static var c2: ParaClient?
 	private let catsType = "cat"
 	private let dogsType = "dog"
 	private let APP_ID = "app:para"
 	private let ALLOW_ALL = "*"
-	
+
 	private var _u: ParaObject?
 	private var _u1: ParaObject?
 	private var _u2: ParaObject?
@@ -29,9 +29,9 @@ class ParaClientTests: XCTestCase {
 	private var _s2: ParaObject?
 	private var _a1: ParaObject?
 	private var _a2: ParaObject?
-	
+
 	private static var ranOnce = false
-	
+
 	private func pc() -> ParaClient {
 		if (ParaClientTests.c1 == nil) {
 			ParaClientTests.c1 = ParaClient(accessKey: "app:para",
@@ -41,7 +41,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return ParaClientTests.c1!
 	}
-	
+
 	private func pc2() -> ParaClient {
 		if (ParaClientTests.c2 == nil) {
 			ParaClientTests.c2 = ParaClient(accessKey: "app:para", secretKey: nil)
@@ -49,7 +49,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return ParaClientTests.c2!
 	}
-	
+
 	private func u() -> ParaObject {
 		if (_u == nil) {
 			_u = ParaObject(id: "111")
@@ -59,7 +59,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return _u!
 	}
-	
+
 	private func u1() -> ParaObject {
 		if (_u1 == nil) {
 			_u1 = ParaObject(id: "222")
@@ -69,7 +69,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return _u1!
 	}
-	
+
 	private func u2() -> ParaObject {
 		if (_u2 == nil) {
 			_u2 = ParaObject(id: "333")
@@ -79,7 +79,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return _u2!
 	}
-	
+
 	private func t() -> ParaObject {
 		if (_t == nil) {
 			_t = ParaObject(id: "tag:test")
@@ -90,7 +90,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return _t!
 	}
-	
+
 	private func a1() -> ParaObject {
 		if (_a1 == nil) {
 			_a1 = ParaObject(id: "adr1")
@@ -104,7 +104,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return _a1!
 	}
-	
+
 	private func a2() -> ParaObject {
 		if (_a2 == nil) {
 			_a2 = ParaObject(id: "adr2")
@@ -118,7 +118,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return _a2!
 	}
-	
+
 	private func s1() -> ParaObject {
 		if (_s1 == nil) {
 			_s1 = ParaObject(id: "s1")
@@ -127,7 +127,7 @@ class ParaClientTests: XCTestCase {
 		}
 		return _s1!
 	}
-	
+
 	private func s2() -> ParaObject {
 		if (_s2 == nil) {
 			_s2 = ParaObject(id: "s2")
@@ -136,17 +136,17 @@ class ParaClientTests: XCTestCase {
 		}
 		return _s2!
 	}
-	
+
 	private func currentTimeMillis() -> NSNumber {
 		return NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
 	}
-	
+
 	override func setUp() {
 		super.setUp()
 		if (!ParaClientTests.ranOnce) {
 			ParaClientTests.ranOnce = true
 			let _1 = self.expectation(description: "")
-			
+
 			pc().me(nil, { res in
 				assert(res != nil, "Para server must be running before testing!")
 				self.pc().createAll([self.u(), self.u1(), self.u2(), self.t(),
@@ -161,12 +161,12 @@ class ParaClientTests: XCTestCase {
 			sleep(1)
 		}
 	}
-	
+
 	override func tearDown() {
 		// Put teardown code here. This method is called after the invocation of each test method in the class.
 		super.tearDown()
 	}
-	
+
 	func testExample() {
 		let _1 = expectation(description: "1")
 		pc().getTimestamp({ response in
@@ -193,7 +193,7 @@ class ParaClientTests: XCTestCase {
 		let _11 = self.expectation(description: "11")
 		let _12 = self.expectation(description: "12")
 		let _13 = self.expectation(description: "13")
-		
+
 		pc().read("", id: "", callback: { _ in
 			assert(false)
 		}, error: { _ in
@@ -206,12 +206,12 @@ class ParaClientTests: XCTestCase {
 			assert(true)
 			_2.fulfill()
 		})
-		
+
 		let t1 = ParaObject(id: "test1")
 		t1.type = "tag"
 		let ux = ParaObject(id: "u1")
 		ux.type = "user"
-		
+
 		pc().create(t1, callback: { t1 in
 			assert(t1 != nil)
 			self.pc().read(id: t1!.id, callback: { trID in
@@ -224,15 +224,15 @@ class ParaClientTests: XCTestCase {
 				assert(tr != nil)
 				XCTAssertNotNil(tr!.timestamp)
 				XCTAssertEqual(t1!.id, tr!.id)
-				
+
 				tr!.properties["count"] = 15
-				
+
 				self.pc().update(tr!, callback: { tu in
 					assert(tu != nil)
 					XCTAssertEqual((tu!.properties["count"] as! Int), (tr!.properties["count"] as! Int))
 					XCTAssertNotNil(tu!.updated)
 					_6.fulfill()
-					
+
 					self.pc().delete(t1!, callback: { res in
 						XCTAssertNil(res)
 						self.pc().read(id: t1!.id, callback: { rez in
@@ -250,7 +250,7 @@ class ParaClientTests: XCTestCase {
 			})
 			_4.fulfill()
 		})
-		
+
 		pc().create(ux, callback: { user in
 			assert(false, "user should not be created")
 			_9.fulfill()
@@ -258,7 +258,7 @@ class ParaClientTests: XCTestCase {
 			assert(true)
 			_9.fulfill()
 		})
-				
+
 		let s =  ParaObject()
 		s.type = dogsType
 		s.properties["foo"] = "bark!"
@@ -270,14 +270,14 @@ class ParaClientTests: XCTestCase {
 				self.pc().delete(dog!)
 				_11.fulfill()
 			})
-			
+
 			self.pc().delete(s!, callback: { res in
 				XCTAssertNil(res)
 				_12.fulfill()
 			})
 			_10.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
@@ -291,7 +291,7 @@ class ParaClientTests: XCTestCase {
 			s.properties["foo"] = "bark!"
 			dogs.append(s)
 		}
-		
+
 		let _1 = self.expectation(description: "1")
 		let _2 = self.expectation(description: "2")
 		let _3 = self.expectation(description: "3")
@@ -301,16 +301,16 @@ class ParaClientTests: XCTestCase {
 		let _7 = self.expectation(description: "7")
 		let _8 = self.expectation(description: "8")
 		let _9 = self.expectation(description: "9")
-		
+
 		pc().createAll([], callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_1.fulfill()
 		})
-		
+
 		pc().createAll(dogs, callback: { l1 in
 			assert(l1?.count == 3)
 			assert(l1?[0].id != nil)
-			
+
 			let nl = [l1![0].id, l1![1].id, l1![2].id]
 			self.pc().readAll(nl, callback: { l2 in
 				assert(l2?.count == 3)
@@ -320,36 +320,36 @@ class ParaClientTests: XCTestCase {
 				XCTAssertEqual("bark!", (l2?[0].properties["foo"])! as? String)
 				_2.fulfill()
 			})
-		
+
 			let part1 = ParaObject(id: l1![0].id)
 			let part2 = ParaObject(id: l1![1].id)
 			let part3 = ParaObject(id: l1![2].id)
 			part1.type = self.dogsType
 			part2.type = self.dogsType
 			part3.type = self.dogsType
-			
+
 			part1.properties["custom"] = "prop"
 			part1.name = "NewName1"
 			part2.name = "NewName2"
 			part3.name = "NewName3"
-			
+
 			self.pc().updateAll([part1, part2, part3], callback: { l3 in
 				XCTAssertTrue(l3![0].properties.keys.contains("custom"))
 				XCTAssertEqual(self.dogsType, l3![0].type)
 				XCTAssertEqual(self.dogsType, l3![1].type)
 				XCTAssertEqual(self.dogsType, l3![2].type)
-				
+
 				XCTAssertEqual(part1.name, l3![0].name)
 				XCTAssertEqual(part2.name, l3![1].name)
 				XCTAssertEqual(part3.name, l3![2].name)
-				
+
 				self.pc().deleteAll(nl, callback: { _ in
 					sleep(1)
 					self.pc().list(self.dogsType, callback: { res in
 						XCTAssertTrue(res!.count == 0)
 						_3.fulfill()
 					})
-					
+
 					self.pc().me(nil, { res in
 						let datatypes = res!.properties["datatypes"] as? [String: String]
 						XCTAssertTrue(datatypes!.values.contains(self.dogsType))
@@ -361,17 +361,17 @@ class ParaClientTests: XCTestCase {
 			})
 			_7.fulfill()
 		})
-		
+
 		pc().readAll([], callback: { res in
 			XCTAssertTrue(res!.count == 0)
 			_8.fulfill()
 		})
-		
+
 		pc().updateAll([], callback: { res in
 			XCTAssertTrue(res!.count == 0)
 			_9.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
@@ -384,35 +384,35 @@ class ParaClientTests: XCTestCase {
 			s.type = catsType
 			cats.append(s)
 		}
-		
+
 		let _1 = self.expectation(description: "1")
 		let _2 = self.expectation(description: "2")
 		let _3 = self.expectation(description: "3")
 		let _4 = self.expectation(description: "4")
 		let _5 = self.expectation(description: "5")
 		let _6 = self.expectation(description: "6")
-		
+
 		pc().list("", callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_1.fulfill()
 		})
-		
+
 		pc().createAll(cats, callback: { list in
 			sleep(1)
-			
+
 			self.pc().list(self.catsType, callback: { list1 in
 				XCTAssertFalse(list1?.count == 0)
 				XCTAssertEqual(3, list1?.count)
 				XCTAssertEqual(self.catsType, list1?[0].type)
 				_2.fulfill()
 			})
-			
+
 			self.pc().list(self.catsType, pager: Pager(limit: 2), callback: { list2 in
 				XCTAssertFalse(list2?.count == 0)
 				XCTAssertEqual(2, list2?.count)
-				
+
 				let nl = [cats[0].id, cats[1].id, cats[2].id]
-				
+
 				self.pc().deleteAll(nl, callback: { _ in
 					self.pc().me(nil, { res in
 						let datatypes = res!.properties["datatypes"] as? [String: String]
@@ -425,7 +425,7 @@ class ParaClientTests: XCTestCase {
 			})
 			_6.fulfill()
 		})
-			
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
@@ -495,7 +495,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertNotNil(res)
 			_3.fulfill()
 		})
-		
+
 		pc().findByIds([], callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_4.fulfill()
@@ -516,22 +516,22 @@ class ParaClientTests: XCTestCase {
 			XCTAssertFalse((res?.count)! == 0)
 			_8.fulfill()
 		})
-		
+
 		pc().findPrefix("", field: "", prefix: "", callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_9.fulfill()
 		})
-		
+
 		pc().findPrefix("", field: "nil", prefix: "xx", callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_10.fulfill()
 		})
-		
+
 		pc().findPrefix(u().type, field: "name", prefix: "Ann", callback: { res in
 			XCTAssertFalse((res?.count)! == 0)
 			_11.fulfill()
 		})
-		
+
 		pc().findQuery("", query: "", callback: { res in
 			XCTAssertFalse((res?.count)! > 0)
 			_12.fulfill()
@@ -556,7 +556,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! > 4)
 			_17.fulfill()
 		})
-		
+
 		let p =  Pager()
 		XCTAssertEqual(0, p.count)
 		pc().findQuery(u().type, query: "*", pager: p, callback: { res in
@@ -564,7 +564,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue(p.count > 0)
 			_18.fulfill()
 		})
-		
+
 		pc().findSimilar(t().type, filterKey: "", fields: nil, liketext: "", callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_19.fulfill()
@@ -579,7 +579,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertEqual(self.s2().name, res![0].name)
 			_21.fulfill()
 		})
-		
+
 		pc().findTagged(u().type, callback: { res in
 			XCTAssertEqual(0, (res?.count)!)
 			_22.fulfill()
@@ -608,7 +608,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertEqual(0, (res?.count)!)
 			_28.fulfill()
 		})
-		
+
 		pc().findTags(callback: { res in
 			XCTAssertFalse((res?.count)! == 0)
 			_29.fulfill()
@@ -625,17 +625,17 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! >= 1)
 			_32.fulfill()
 		})
-		
+
 		pc().findTermInList(u().type, field: "id", terms: [u().id, u1().id, u2().id, "xxx", "yyy"], callback: { res in
 			XCTAssertEqual(3, (res?.count)!)
 			_33.fulfill()
 		})
-		
+
 		// many terms
 		let terms = ["id": u().id]
 		let terms1 = ["type": "", "id": " "]
 		let terms2 = [" ": "bad", "": ""]
-		
+
 		pc().findTerms(u().type, terms: terms as [String : AnyObject], matchAll: true, callback: { res in
 			XCTAssertEqual(1, (res?.count)!)
 			_34.fulfill()
@@ -648,7 +648,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! == 0)
 			_36.fulfill()
 		})
-		
+
 		// single term
 		pc().findTerms("", terms: [:], matchAll: true, callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
@@ -666,7 +666,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! >= 2)
 			_40.fulfill()
 		})
-		
+
 		pc().findWildcard(u().type, field: "", wildcard: "", callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_41.fulfill()
@@ -675,7 +675,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertFalse((res?.count)! == 0)
 			_42.fulfill()
 		})
-		
+
 		pc().getCount("", callback: { res in
 			XCTAssertTrue(res > 4)
 			_43.fulfill()
@@ -692,7 +692,7 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue(res >= 3)
 			_46.fulfill()
 		})
-		
+
 		pc().getCount("", terms: [:], callback: { res in
 			XCTAssertEqual(0, res)
 			_47.fulfill()
@@ -709,12 +709,12 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue(res > 1)
 			_50.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testLinks() {
 		let _1 = self.expectation(description: "1")
 		let _2 = self.expectation(description: "2")
@@ -735,9 +735,9 @@ class ParaClientTests: XCTestCase {
 			XCTAssertNotNil(res)
 			self.pc().link(self.u(), id2: self.u2().id, callback: { res in
 				XCTAssertNotNil(res)
-				
+
 				sleep(1)
-				
+
 				self.pc().isLinked(self.u(), toObj: ParaObject(), callback: { res in
 					XCTAssertFalse(res)
 					_1.fulfill()
@@ -750,7 +750,7 @@ class ParaClientTests: XCTestCase {
 					XCTAssertTrue(res)
 					_3.fulfill()
 				})
-				
+
 				self.pc().getLinkedObjects(self.u(), type2: "tag", callback: { res in
 					XCTAssertEqual(1, res.count)
 					_4.fulfill()
@@ -759,7 +759,7 @@ class ParaClientTests: XCTestCase {
 					XCTAssertEqual(1, res.count)
 					_5.fulfill()
 				})
-				
+
 				self.pc().countLinks(self.u(), type2: "", callback: { res in
 					XCTAssertEqual(0, res)
 					_6.fulfill()
@@ -772,12 +772,12 @@ class ParaClientTests: XCTestCase {
 					XCTAssertEqual(1, res)
 					_8.fulfill()
 				})
-				
+
 				self.pc().countChildren(self.u(), type2: "address", callback: { res in
 					XCTAssertEqual(2, res)
 					_14.fulfill()
 				})
-				
+
 				self.pc().unlinkAll(self.u(), callback: { res in
 					self.pc().isLinked(self.u(), toObj: self.t(), callback: { res in
 						XCTAssertFalse(res)
@@ -795,12 +795,12 @@ class ParaClientTests: XCTestCase {
 		}, error: { err in
 			assert(false, "Link test failed.")
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testUtils() {
 		let _1 = self.expectation(description: "1")
 		let _2 = self.expectation(description: "2")
@@ -810,7 +810,7 @@ class ParaClientTests: XCTestCase {
 		let _6 = self.expectation(description: "6")
 		let _7 = self.expectation(description: "7")
 		let _8 = self.expectation(description: "8")
-		
+
 		pc().newId({ id1 in
 			self.pc().newId({ id2 in
 				XCTAssertNotNil(id1)
@@ -820,13 +820,13 @@ class ParaClientTests: XCTestCase {
 			})
 			_2.fulfill()
 		})
-			
+
 		pc().getTimestamp({ ts in
 			XCTAssertNotNil(ts)
 			XCTAssertNotEqual(0, ts)
 			_3.fulfill()
 		})
-			
+
 		pc().formatDate("MM dd yyyy", locale: "US", callback: { date1 in
 			let dateFormatter = DateFormatter()
 			dateFormatter.dateFormat = "MM dd yyyy"
@@ -834,31 +834,31 @@ class ParaClientTests: XCTestCase {
 			XCTAssertEqual(date1, date2)
 			_4.fulfill()
 		})
-		
+
 		pc().noSpaces(" test  123         test ", replaceWith: "", callback: { ns1 in
 			let ns2 = "test123test"
 			XCTAssertEqual(ns1, ns2)
 			_5.fulfill()
 		})
-		
+
 		pc().stripAndTrim(" %^&*( cool )      @!", callback: { st1 in
 			let st2 = "cool"
 			XCTAssertEqual(st1, st2)
 			_6.fulfill()
 		})
-		
+
 		pc().markdownToHtml("### hello **test**", callback: { md1 in
 			let md2 = "<h3>hello <strong>test</strong></h3>"
 			XCTAssertEqual(md1?.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines), md2)
 			_7.fulfill()
 		})
-		
+
 		pc().approximately(UInt(15000), callback: { ht1 in
 			let ht2 = "15s"
 			XCTAssertEqual(ht1, ht2)
 			_8.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
@@ -872,17 +872,17 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue(types!.keys.contains("users"))
 			_1.fulfill()
 		})
-		
+
 		pc().me(nil, { app in
 			XCTAssertEqual(self.APP_ID, app?.id)
 			_2.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testValidationConstraints() {
 		let _1 = self.expectation(description: "1")
 		let _2 = self.expectation(description: "2")
@@ -902,20 +902,20 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue(constraints!.keys.contains("user"))
 			_1.fulfill()
 		})
-		
+
 		pc().validationConstraints("app", callback: { constraint in
 			XCTAssertFalse(constraint!.isEmpty)
 			XCTAssertTrue(constraint!.keys.contains("app"))
 			XCTAssertEqual(1, constraint!.count)
 			_2.fulfill()
 		})
-		
+
 		pc().addValidationConstraint(kittenType, field: "paws", constraint: Constraint.required(), callback: { _ in
 			self.pc().validationConstraints(kittenType, callback: { constraint in
 				assert(!constraint!.isEmpty)
-				
+
 				XCTAssertTrue((constraint![kittenType] as! [String: AnyObject]).keys.contains("paws"))
-				
+
 				let ct = ParaObject(id: "felix")
 				ct.type = kittenType
 				// validation fails
@@ -927,9 +927,9 @@ class ParaClientTests: XCTestCase {
 					ct.properties["paws"] = "4"
 					self.pc().create(ct, callback: { res in
 						XCTAssertNotNil(res)
-						
+
 						self.pc().delete(res!)
-						
+
 						self.pc().removeValidationConstraint(kittenType, field: "paws", constraintName: "required", callback: { _ in
 							self.pc().validationConstraints(kittenType, callback: { constraint in
 								XCTAssertFalse(constraint!.keys.contains(kittenType))
@@ -945,12 +945,12 @@ class ParaClientTests: XCTestCase {
 			})
 			_8.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testResourcePermissions() {
 		let _1 = self.expectation(description: "1")
 		let _2 = self.expectation(description: "2")
@@ -996,7 +996,7 @@ class ParaClientTests: XCTestCase {
 		let _42 = self.expectation(description: "42")
 		let _43 = self.expectation(description: "43")
 		let _44 = self.expectation(description: "44")
-		
+
 		// Permissions
 		pc().resourcePermissions({ res in
 			XCTAssertNotNil(res)
@@ -1010,12 +1010,12 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! == 0)
 			_3.fulfill()
 		})
-		
+
 		pc().grantResourcePermission(u1().id, resourcePath: dogsType, permission: ["GET"], callback: { _ in
 			self.pc().resourcePermissions(self.u1().id, callback: { permits in
 				XCTAssertTrue(permits!.keys.contains(self.u1().id))
 				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
-				
+
 				self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "POST", callback: { res in
 					XCTAssertFalse(res)
 					self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
@@ -1031,7 +1031,7 @@ class ParaClientTests: XCTestCase {
 			self.pc().isAllowedTo(self.ALLOW_ALL, resourcePath: "utils/timestamp", httpMethod: "GET", callback: { res in
 				XCTAssertFalse(res)
 				_7.fulfill()
-				
+
 				self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: "utils/timestamp", permission: ["GET"],
 					allowGuestAccess: true, callback: { res in
 					XCTAssertNotNil(res)
@@ -1039,17 +1039,17 @@ class ParaClientTests: XCTestCase {
 						XCTAssertTrue(res > 0)
 						_8.fulfill()
 					})
-					
+
 					self.pc().isAllowedTo(self.ALLOW_ALL, resourcePath: "utils/timestamp", httpMethod: "DELETE",
 						callback: { res in
 						XCTAssertFalse(res)
 						sleep(1)
-							
+
 						self.pc().revokeResourcePermission(self.u1().id, resourcePath: self.dogsType, callback: { res in
 							sleep(1)
 							self.pc().resourcePermissions(self.u1().id, callback: { permits in
 								XCTAssertFalse((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
-								
+
 								self.pc().isAllowedTo(self.u1().id, resourcePath: self.dogsType, httpMethod: "GET", callback: { res in
 									XCTAssertTrue(res)
 									_12.fulfill()
@@ -1062,16 +1062,16 @@ class ParaClientTests: XCTestCase {
 							})
 							_15.fulfill()
 						})
-							
+
 						self.pc().revokeResourcePermission(self.ALLOW_ALL, resourcePath: "utils/timestamp",
 							callback: { _ in _44.fulfill() })
-							
+
 						_9.fulfill()
 					})
 					_10.fulfill()
 				})
 			})
-			
+
 //			self.pc().resourcePermissions({ permits in
 //				XCTAssertTrue(permits!.keys.contains(self.u1().id))
 //				XCTAssertTrue((permits![self.u1().id] as! [String: AnyObject]).keys.contains(self.dogsType))
@@ -1081,7 +1081,7 @@ class ParaClientTests: XCTestCase {
 		})
 
 		let WRITE = ["POST", "PUT", "PATCH", "DELETE"]
-		
+
 		pc().grantResourcePermission(self.u2().id, resourcePath: self.ALLOW_ALL, permission: WRITE, callback: { res in
 			sleep(1)
 			self.pc().isAllowedTo(self.u2().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
@@ -1092,7 +1092,7 @@ class ParaClientTests: XCTestCase {
 				XCTAssertTrue(res)
 				_18.fulfill()
 			})
-		
+
 			self.pc().revokeAllResourcePermissions(self.u2().id, callback: { permits in
 				sleep(1)
 				self.pc().resourcePermissions({ res in
@@ -1107,7 +1107,7 @@ class ParaClientTests: XCTestCase {
 			})
 			_22.fulfill()
 		})
-		
+
 		pc().grantResourcePermission(u().id, resourcePath: dogsType, permission: WRITE, callback: { res in
 			self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.catsType, permission: WRITE, callback: { res in
 				self.pc().grantResourcePermission(self.ALLOW_ALL, resourcePath: self.ALLOW_ALL, permission: ["GET"], callback: { res in
@@ -1128,7 +1128,7 @@ class ParaClientTests: XCTestCase {
 						XCTAssertTrue(res)
 						_26.fulfill()
 					})
-							
+
 					self.pc().revokeAllResourcePermissions(self.u().id, callback: { res in
 						// user-specific permissions not found so check wildcard
 						self.pc().isAllowedTo(self.u().id, resourcePath: self.dogsType, httpMethod: "PUT", callback: { res in
@@ -1185,12 +1185,12 @@ class ParaClientTests: XCTestCase {
 			})
 			_43.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testAppSettings() {
 		let _1 = self.expectation(description: "1")
 		let _2 = self.expectation(description: "2")
@@ -1206,45 +1206,45 @@ class ParaClientTests: XCTestCase {
 		let _12 = self.expectation(description: "12")
 		let _13 = self.expectation(description: "13")
 		let _14 = self.expectation(description: "14")
-		
+
 		pc().appSettings(callback: { res in
 			XCTAssertNotNil(res)
 			XCTAssertTrue((res?.count)! == 0)
-			
+
 			self.pc().appSettings(" ", callback: { res in
 				XCTAssertNotNil(res)
 				XCTAssertTrue((res?.count)! == 0)
 				_1.fulfill()
 			})
-			
+
 			self.pc().appSettings(nil, callback: { res in
 				XCTAssertNotNil(res)
 				XCTAssertTrue((res?.count)! == 0)
 				_2.fulfill()
 			})
-			
+
 			self.pc().addAppSetting("prop1", value: 1 as AnyObject, callback: { res in
 				self.pc().addAppSetting("prop2", value: true as AnyObject, callback: { res in
 					self.pc().addAppSetting("prop3", value: "string" as AnyObject, callback: { res in
 						self.pc().appSettings(callback: { res in
 							XCTAssertNotNil(res)
 							XCTAssertTrue((res?.count)! == 3)
-							
+
 							self.pc().appSettings("prop1", callback: { res in
 								XCTAssertTrue((res?["value"])! as! NSNumber == 1)
 								_3.fulfill()
 							})
-							
+
 							self.pc().appSettings("prop2", callback: { res in
 								XCTAssertNotNil(res)
 								XCTAssertTrue((res?["value"])! as! Bool)
 								_4.fulfill()
 							})
-							
+
 							self.pc().appSettings("prop3", callback: { res in
 								XCTAssertNotNil(res)
 								XCTAssertTrue(((res?["value"])! as! NSObject) as! String == "string")
-								
+
 								self.pc().removeAppSetting("prop3", callback: { res in
 									self.pc().removeAppSetting("prop2", callback: { res in
 										self.pc().removeAppSetting("prop1", callback: { res in
@@ -1270,12 +1270,12 @@ class ParaClientTests: XCTestCase {
 			})
 			_14.fulfill()
 		})
-		
+
 		self.waitForExpectations(timeout: 10) { error in
 			XCTAssertNil(error, "Test failed.")
 		}
 	}
-	
+
 	func testAccessTokens() {
 		XCTAssertNil(pc().getAccessToken())
 		pc().signIn("facebook", providerToken: "test_token", callback: { res in
@@ -1286,6 +1286,6 @@ class ParaClientTests: XCTestCase {
 			XCTAssertFalse(res)
 		})
 	}
-	
+
 }
 
