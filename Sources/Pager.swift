@@ -1,4 +1,4 @@
-// Copyright 2013-2019 Erudika. https://erudika.com
+// Copyright 2013-2021 Erudika. https://erudika.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,23 +29,23 @@ open class Pager {
 	open var limit: UInt = 30
 	open var name: String?
 	open var lastKey: String?
-	
+
 	public convenience init () {
 		self.init(limit: 30)
 	}
-	
+
 	public convenience init (limit: UInt) {
 		self.init(page: 1, limit: limit)
 	}
-	
+
 	public convenience init (page: UInt, limit: UInt) {
 		self.init(page: page, sortby: "timestamp", desc: true, limit: limit)
 	}
-	
+
 	public init (page: UInt, sortby: String, desc: Bool, limit: UInt) {
 		self.page = page
 		self.sortby = sortby
 		self.desc = desc
 		self.limit = limit
-	}	
+	}
 }

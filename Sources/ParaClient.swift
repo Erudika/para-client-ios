@@ -1,4 +1,4 @@
-// Copyright 2013-2019 Erudika. https://erudika.com
+// Copyright 2013-2021 Erudika. https://erudika.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1059,6 +1059,17 @@ open class ParaClient {
 	*/
 	open func types(_ callback: @escaping ([String: String]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("_types", callback: { res in
+			callback(res?.dictionaryObject as? [String: String])
+		} as (JSON?) -> Void, error: error)
+	}
+
+    /**
+	Returns the number of objects for each existing type in this App.
+	- parameter callback: called with response object when the request is completed
+	*/
+	open func typesCount(_ callback: @escaping ([String: String]?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
+        let params = ["count": "true"]
+		invokeGet("_types", params: params as [String : AnyObject]?, callback: { res in
 			callback(res?.dictionaryObject as? [String: String])
 		} as (JSON?) -> Void, error: error)
 	}

@@ -1,4 +1,4 @@
-// Copyright 2013-2019 Erudika. https://erudika.com
+// Copyright 2013-2021 Erudika. https://erudika.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import Foundation
 Represents a validation constraint.
 */
 open class Constraint {
-	
+
 	/**
 	The constraint name.
 	*/
@@ -29,12 +29,12 @@ open class Constraint {
 	The payload (a map)
 	*/
 	open var payload: [String: AnyObject]
-	
+
 	public init (name: String, payload: [String: AnyObject]) {
 		self.name = name
 		self.payload = payload
 	}
-	
+
 	/**
 	The 'required' constraint - marks a field as required.
 	- returns: constraint
@@ -42,7 +42,7 @@ open class Constraint {
 	open static func required() -> Constraint {
 		return Constraint(name: "required", payload: ["message": "messages.required" as AnyObject])
 	}
-	
+
 	/**
 	The 'min' constraint - field must contain a number larger than or equal to min.
 	- parameter min: the minimum value
@@ -55,7 +55,7 @@ open class Constraint {
 			]
 		)
 	}
-	
+
 	/**
 	The 'max' constraint - field must contain a number smaller than or equal to max.
 	- parameter max: the maximum value
@@ -68,9 +68,9 @@ open class Constraint {
 			]
 		)
 	}
-	
+
 	/**
-	The 'size' constraint - field must be a String, Object or Array 
+	The 'size' constraint - field must be a String, Object or Array
 	with a given minimum and maximum length.
 	- parameter min: the minimum value
 	- parameter max: the maximum value
@@ -84,7 +84,7 @@ open class Constraint {
 			]
 		)
 	}
-	
+
 	/**
 	The 'digits' constraint - field must be a Number or String containing digits where:
 	- parameter i: is the number of digits in the integral part is limited by 'integer', and the
@@ -99,7 +99,7 @@ open class Constraint {
 			]
 		)
 	}
-	
+
 	/**
 	The 'pattern' constraint - field must contain a value matching a regular expression.
 	- parameter regex: a regular expression
@@ -112,7 +112,7 @@ open class Constraint {
 			]
 		)
 	}
-	
+
 	/**
 	The 'email' constraint - field must contain a valid email.
 	- returns: constraint
@@ -120,7 +120,7 @@ open class Constraint {
 	open static func email() -> Constraint {
 		return Constraint(name: "email", payload: ["message": "messages.email" as AnyObject])
 	}
-	
+
 	/**
 	The 'falsy' constraint - field value must not be equal to 'true'.
 	- returns: constraint
@@ -128,7 +128,7 @@ open class Constraint {
 	open static func falsy() -> Constraint {
 		return Constraint(name: "false", payload: ["message": "messages.false" as AnyObject])
 	}
-	
+
 	/**
 	The 'truthy' constraint - field value must be equal to 'true'.
 	- returns: constraint
@@ -136,7 +136,7 @@ open class Constraint {
 	open static func truthy() -> Constraint {
 		return Constraint(name: "true", payload: ["message": "messages.true" as AnyObject])
 	}
-	
+
 	/**
 	The 'future' constraint - field value must be a Date or a timestamp in the future.
 	- returns: constraint
@@ -144,7 +144,7 @@ open class Constraint {
 	open static func future() -> Constraint {
 		return Constraint(name: "future", payload: ["message": "messages.future" as AnyObject])
 	}
-	
+
 	/**
 	The 'past' constraint - field value must be a Date or a timestamp in the past.
 	- returns: constraint
@@ -152,7 +152,7 @@ open class Constraint {
 	open static func past() -> Constraint {
 		return Constraint(name: "past", payload: ["message": "messages.past" as AnyObject])
 	}
-	
+
 	/**
 	The 'url' constraint - field value must be a valid URL.
 	- returns: constraint
