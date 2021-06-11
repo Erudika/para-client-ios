@@ -29,6 +29,7 @@ open class Pager {
 	open var limit: UInt = 30
 	open var name: String?
 	open var lastKey: String?
+    open var select: [String]?
 
 	public convenience init () {
 		self.init(limit: 30)
