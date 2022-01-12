@@ -39,7 +39,7 @@ open class Constraint {
 	The 'required' constraint - marks a field as required.
 	- returns: constraint
 	*/
-	open static func required() -> Constraint {
+    public static func required() -> Constraint {
 		return Constraint(name: "required", payload: ["message": "messages.required" as AnyObject])
 	}
 
@@ -48,7 +48,7 @@ open class Constraint {
 	- parameter min: the minimum value
 	- returns: constraint
 	*/
-	open static func min(_ min: Int) -> Constraint {
+    public static func min(_ min: Int) -> Constraint {
 		return Constraint(name: "min", payload: [
 			"value": min as AnyObject,
 			"message": "messages.min" as AnyObject
@@ -61,7 +61,7 @@ open class Constraint {
 	- parameter max: the maximum value
 	- returns: constraint
 	*/
-	open static func max(_ max: Int) -> Constraint {
+    public static func max(_ max: Int) -> Constraint {
 		return Constraint(name: "max", payload: [
 			"value": max as AnyObject,
 			"message": "messages.max" as AnyObject
@@ -76,7 +76,7 @@ open class Constraint {
 	- parameter max: the maximum value
 	- returns: constraint
 	*/
-	open static func size(_ min: Int, max: Int) -> Constraint {
+    public static func size(_ min: Int, max: Int) -> Constraint {
 		return Constraint(name: "size", payload: [
 			"min": min as AnyObject,
 			"max": max as AnyObject,
@@ -91,7 +91,7 @@ open class Constraint {
 	- parameter f: is the number of digits for the fractional part is limited
 	- returns: constraint
 	*/
-	open static func digits(_ i: Int, f: Int) -> Constraint {
+    public static func digits(_ i: Int, f: Int) -> Constraint {
 		return Constraint(name: "digits", payload: [
 			"integer": i as AnyObject,
 			"fraction": f as AnyObject,
@@ -105,7 +105,7 @@ open class Constraint {
 	- parameter regex: a regular expression
 	- returns: constraint
 	*/
-	open static func pattern(_ regex: String) -> Constraint {
+    public static func pattern(_ regex: String) -> Constraint {
 		return Constraint(name: "pattern", payload: [
 			"value": regex as AnyObject,
 			"message": "messages.pattern" as AnyObject
@@ -117,7 +117,7 @@ open class Constraint {
 	The 'email' constraint - field must contain a valid email.
 	- returns: constraint
 	*/
-	open static func email() -> Constraint {
+    public static func email() -> Constraint {
 		return Constraint(name: "email", payload: ["message": "messages.email" as AnyObject])
 	}
 
@@ -125,7 +125,7 @@ open class Constraint {
 	The 'falsy' constraint - field value must not be equal to 'true'.
 	- returns: constraint
 	*/
-	open static func falsy() -> Constraint {
+    public static func falsy() -> Constraint {
 		return Constraint(name: "false", payload: ["message": "messages.false" as AnyObject])
 	}
 
@@ -133,7 +133,7 @@ open class Constraint {
 	The 'truthy' constraint - field value must be equal to 'true'.
 	- returns: constraint
 	*/
-	open static func truthy() -> Constraint {
+    public static func truthy() -> Constraint {
 		return Constraint(name: "true", payload: ["message": "messages.true" as AnyObject])
 	}
 
@@ -141,7 +141,7 @@ open class Constraint {
 	The 'future' constraint - field value must be a Date or a timestamp in the future.
 	- returns: constraint
 	*/
-	open static func future() -> Constraint {
+    public static func future() -> Constraint {
 		return Constraint(name: "future", payload: ["message": "messages.future" as AnyObject])
 	}
 
@@ -149,7 +149,7 @@ open class Constraint {
 	The 'past' constraint - field value must be a Date or a timestamp in the past.
 	- returns: constraint
 	*/
-	open static func past() -> Constraint {
+    public static func past() -> Constraint {
 		return Constraint(name: "past", payload: ["message": "messages.past" as AnyObject])
 	}
 
@@ -157,7 +157,7 @@ open class Constraint {
 	The 'url' constraint - field value must be a valid URL.
 	- returns: constraint
 	*/
-	open static func url() -> Constraint {
+    public static func url() -> Constraint {
 		return Constraint(name: "url", payload: ["message": "messages.url" as AnyObject])
 	}
 }

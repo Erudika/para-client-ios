@@ -247,10 +247,10 @@ open class Signer {
 			request.setValue(v as? String, forHTTPHeaderField: k as! String)
 		}
 		
-		Alamofire.request(request).validate().responseData { response in
+		AF.request(request).validate().responseData { response in
 			switch response.result {
 				case .success:
-					if let value = response.result.value {
+                    if let value = response.value {
 						if value.count > 0 {
 							do {
 								let json = try JSON(data: value)
@@ -287,7 +287,7 @@ open class Signer {
 		
 	}
 
-	open static func encodeURIComponent(_ s: String) -> String {
+    public static func encodeURIComponent(_ s: String) -> String {
 		let allowed = NSMutableCharacterSet.alphanumeric()
 		allowed.addCharacters(in: "-_.~")
 		//allowed.addCharactersInString("-_.!~*'()")

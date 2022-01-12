@@ -1,3 +1,4 @@
+// swift-tools-version:5.3
 // Copyright 2013-2021 Erudika. https://erudika.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +19,6 @@ import PackageDescription
 
 let package = Package(
     name: "ParaClient",
-    dependencies: [
-    	.Package(url: "https://github.com/Alamofire/Alamofire.git", majorVersion: 5),
-		.Package(url: "https://github.com/SwiftyJSON/SwiftyJSON", versions: Version(5, 0, 0)),
-		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift",  versions: Version(1, 0, 0))
-    ],
     platforms: [
         .macOS(.v10_12),
         .iOS(.v10),
@@ -30,13 +26,14 @@ let package = Package(
         .watchOS(.v3)
     ],
     products: [
-        .library(
-            name: "ParaClient",
-            targets: ["ParaClient"])
+        .library(name: "ParaClient", targets: ["ParaClient"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: Version(5, 0, 0)),
+        .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", from: Version(5, 0, 0)),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift",  from: Version(1, 0, 0))
     ],
     targets: [
-        .target(
-            name: "ParaClient",
-            path: "Source")
+        .target(name: "ParaClient", dependencies: ["Alamofire", "SwiftyJSON", "CryptoSwift"], path: "Sources")
     ]
 )

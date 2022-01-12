@@ -222,7 +222,7 @@ open class ParaClient {
 			if let sortby = pager?.sortby {
 				map["sort"] = sortby
 			}
-            if let select = pager?.select && !select.isEmpty {
+            if let select = pager?.select {
 				map["select"] = select
 			}
 		}
