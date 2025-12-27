@@ -2,9 +2,7 @@
 
 # iOS Client for Para
 
-[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/ParaClient.svg)](https://img.shields.io/cocoapods/v/ParaClient.svg)
-[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![Platform](https://img.shields.io/cocoapods/p/ParaClient.svg?style=flat)](http://cocoadocs.org/docsets/ParaClient)
+[![Join the chat at https://gitter.im/Erudika/para](https://badges.gitter.im/Erudika/para.svg)](https://gitter.im/Erudika/para?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Join the chat at https://gitter.im/Erudika/para](https://badges.gitter.im/Erudika/para.svg)](https://gitter.im/Erudika/para?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## What is this?
@@ -17,20 +15,6 @@ by a search engine and finally, cached.
 This is the Swift client for Para for iOS, tvOS, macOS and watchOS.
 
 ## Quick start
-
-### CocoaPods
-
-For the latest release in CocoaPods add the following to your `Podfile`:
-
-```ruby
-use_frameworks!
-
-pod 'ParaClient'
-```
-And install it with:
-```sh
-$ pod install
-```
 
 ### Swift Package Manager
 Add ParaClient as a dependency to your `Package.swift`. For example:
@@ -69,7 +53,11 @@ For granting resource permissions to your client users go to [console.paraio.org
 ## Requirements
 
 - iOS 15+ / macOS 14+ / tvOS 17+ / watchOS 8+
-- Xcode 15+, Swift 6+, CocoaPods 1.13+
+- Xcode 15+, Swift 6+
+
+## Running Tests
+
+The XCTest suite talks to a live Para instance. Start a Para server locally (the tests expect `http://localhost:8080`) before running `swift test`, otherwise every test will fail because the backend isn’t reachable.
 
 ## Thanks
 
