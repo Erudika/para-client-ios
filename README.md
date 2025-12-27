@@ -59,6 +59,11 @@ For granting resource permissions to your client users go to [console.paraio.org
 
 The XCTest suite talks to a live Para instance. Start a Para server locally (the tests expect `http://localhost:8080`) before running `swift test`, otherwise every test will fail because the backend isn’t reachable.
 
+## TODO
+- Declare all the main `ParaClient` methods as `async`.
+- Migrate tests to Swift Testing
+- Test on an physical iOS device
+
 ## Thanks
 
 Special thanks to [Christopher Sexton](https://github.com/csexton) for porting the 
