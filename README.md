@@ -18,8 +18,6 @@ This is the Swift client for Para for iOS, tvOS, macOS and watchOS.
 
 ## Quick start
 
-**NOTE:** This XCode project is broken when used with CocoaPods! I gave up fixing it since the release of XCode 10. Feel free to fix it and submit a pull request. Thanks!
-
 ### CocoaPods
 
 For the latest release in CocoaPods add the following to your `Podfile`:
@@ -41,7 +39,10 @@ Add ParaClient as a dependency to your `Package.swift`. For example:
 let package = Package(
     name: "YourPackageName",
     dependencies: [
-        .Package(url: "https://github.com/Erudika/para-client-ios.git", majorVersion: 1)
+        .package(url: "https://github.com/Erudika/para-client-ios.git", from: "1.33.0")
+    ],
+    targets: [
+        .target(name: "YourPackageName", dependencies: ["ParaClient"])
     ]
 )
 ```
@@ -67,8 +68,8 @@ For granting resource permissions to your client users go to [console.paraio.org
 
 ## Requirements
 
-- iOS 9.2+ / macOS 10.10+ / tvOS 9.2+ / watchOS 2.2+
-- Xcode 7.3+, Swift 2.2+, CocoaPods 1.0+
+- iOS 15+ / macOS 14+ / tvOS 17+ / watchOS 8+
+- Xcode 15+, Swift 6+, CocoaPods 1.13+
 
 ## Thanks
 

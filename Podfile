@@ -1,13 +1,13 @@
-platform :ios, '10.0'
+platform :ios, '15.0'
 source 'https://github.com/CocoaPods/Specs.git'
 project 'ParaClient.xcodeproj'
-use_frameworks!
+use_frameworks! :linkage => :static
+inhibit_all_warnings!
 
 
 def para_pods
-    pod 'CryptoSwift', '1.0.0'
-    pod 'SwiftyJSON', '5.0.0'
-    pod 'Alamofire', '~> 5.0.0-beta.6'
+    pod 'CryptoSwift', '~> 1.9'
+    pod 'Alamofire', '~> 5.11'
 end
 
 target "ParaClient" do

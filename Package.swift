@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:6.0
 // Copyright 2013-2021 Erudika. https://erudika.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,20 +20,29 @@ import PackageDescription
 let package = Package(
     name: "ParaClient",
     platforms: [
-        .macOS(.v10_12),
-        .iOS(.v10),
-        .tvOS(.v10),
-        .watchOS(.v3)
+        .iOS(.v15),
+        .macOS(.v14),
+        .tvOS(.v17),
+        .watchOS(.v8)
     ],
     products: [
         .library(name: "ParaClient", targets: ["ParaClient"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Alamofire/Alamofire.git", from: Version(5, 0, 0)),
-        .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", from: Version(5, 0, 0)),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift",  from: Version(1, 0, 0))
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.11.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift",  from: "1.9.0")
     ],
     targets: [
-        .target(name: "ParaClient", dependencies: ["Alamofire", "SwiftyJSON", "CryptoSwift"], path: "Sources")
+        .target(
+            name: "ParaClient",
+            dependencies: ["Alamofire", "CryptoSwift"],
+            path: "Sources"
+        ),
+        .testTarget(
+            name: "ParaClientTests",
+            dependencies: ["ParaClient", "Alamofire", "CryptoSwift"],
+            path: "Tests/ParaClientTests",
+            exclude: ["Info.plist"]
+        )
     ]
 )

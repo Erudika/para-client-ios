@@ -8,158 +8,147 @@
 
 import XCTest
 import ParaClient
-import SwiftyJSON
 import Alamofire
 @testable import ParaClient
 
 class ParaClientTests: XCTestCase {
 
-	private static var c1: ParaClient?
-	private static var c2: ParaClient?
+	nonisolated(unsafe) private var c1: ParaClient
+	nonisolated(unsafe) private var c2: ParaClient
 	private let catsType = "cat"
 	private let dogsType = "dog"
 	private let APP_ID = "app:para"
 	private let ALLOW_ALL = "*"
 
-	private var _u: ParaObject?
-	private var _u1: ParaObject?
-	private var _u2: ParaObject?
-	private var _t: ParaObject?
-	private var _s1: ParaObject?
-	private var _s2: ParaObject?
-	private var _a1: ParaObject?
-	private var _a2: ParaObject?
+	private var _u: ParaObject
+	private var _u1: ParaObject
+	private var _u2: ParaObject
+	private var _t: ParaObject
+	private var _s1: ParaObject
+	private var _s2: ParaObject
+	private var _a1: ParaObject
+	private var _a2: ParaObject
 
-	private static var ranOnce = false
-
-	private func pc() -> ParaClient {
-		if (ParaClientTests.c1 == nil) {
-			ParaClientTests.c1 = ParaClient(accessKey: "app:para",
+	required init(name: String, testClosure: @escaping XCTestCaseClosure) {
+		c1 = ParaClient(accessKey: "app:para",
 			                                secretKey: "JperV7KrcqPK9PAWzZZz7YVDTRex19sQbFdeamsJifqXP+8EyvgPtA==")
 			//c1!.setEndpoint("http://192.168.0.114:8080")
-			ParaClientTests.c1!.setEndpoint("http://localhost:8080")
-		}
-		return ParaClientTests.c1!
+			c1.setEndpoint("http://localhost:8080")
+
+			c1.me(nil, { res in
+				assert(res != nil, "Para server must be running before testing!")
+				self.c1.createAll([self._u, self._u1, self._u2, self._t,
+					self._s1, self._s2, self._a1, self._a2], callback: { res in
+					print("\((res?.count)!) Objects created!")
+				})
+			})
+
+			c2 = ParaClient(accessKey: "app:para", secretKey: nil)
+			c2.setEndpoint(c1.endpoint)
+
+			_u = ParaObject(id: "111")
+			_u.name = "John Doe"
+			_u.timestamp = NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
+			_u.tags = ["one", "two", "three"]
+
+			_u1 = ParaObject(id: "222")
+			_u1.name = "Joe Black"
+			_u1.timestamp = NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
+			_u1.tags = ["two", "four", "three"]
+
+			_u2 = ParaObject(id: "333")
+			_u2.name = "Ann Smith"
+			_u2.timestamp = NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
+			_u2.tags = ["four", "five", "three"]
+
+
+			_t = ParaObject(id: "tag:test")
+			_t.type = "tag"
+			_t.properties["tag"] = "test"
+			_t.properties["count"] = 3
+			_t.timestamp = NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
+
+			_a1 = ParaObject(id: "adr1")
+			_a1.type = "address"
+			_a1.name = "Place 1"
+			_a1.properties["address"] = "NYC"
+			_a1.properties["country"] = "US"
+			_a1.properties["latlng"] = "40.67,-73.94"
+			_a1.parentid = _u.id
+			_a1.creatorid = _u.id
+
+
+			_a2 = ParaObject(id: "adr2")
+			_a2.type = "address"
+			_a2.name = "Place 2"
+			_a2.properties["address"] = "NYC"
+			_a2.properties["country"] = "US"
+			_a2.properties["latlng"] = "40.69,-73.95"
+			_a2.parentid = _t.id
+			_a2.creatorid = _t.id
+
+			_s1 = ParaObject(id: "s1")
+			_s1.properties["text"] = "This is a little test sentence. Testing, one, two, three."
+			_s1.timestamp = NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
+
+			_s2 = ParaObject(id: "s2")
+			_s2.properties["text"] = "We are testing this thing. This sentence is a test. One, two."
+			_s2.timestamp = NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
+		super.init(name: name, testClosure: testClosure)
+	}
+	
+    
+    // You may also need to implement the standard init() if you were using it before
+    // This allows you to initialize properties or perform setup.
+    // Ensure all properties are initialized before calling super.init()
+    // override init() {
+    //     // Initialize your properties here if needed
+    //     super.init()
+    // }
+
+	private func pc() -> ParaClient {
+		return self.c1
 	}
 
 	private func pc2() -> ParaClient {
-		if (ParaClientTests.c2 == nil) {
-			ParaClientTests.c2 = ParaClient(accessKey: "app:para", secretKey: nil)
-			ParaClientTests.c2!.setEndpoint(pc().endpoint)
-		}
-		return ParaClientTests.c2!
+		return self.c2
 	}
 
 	private func u() -> ParaObject {
-		if (_u == nil) {
-			_u = ParaObject(id: "111")
-			_u!.name = "John Doe"
-			_u!.timestamp = currentTimeMillis()
-			_u!.tags = ["one", "two", "three"]
-		}
-		return _u!
+		return _u
 	}
 
 	private func u1() -> ParaObject {
-		if (_u1 == nil) {
-			_u1 = ParaObject(id: "222")
-			_u1!.name = "Joe Black"
-			_u1!.timestamp = currentTimeMillis()
-			_u1!.tags = ["two", "four", "three"]
-		}
-		return _u1!
+		return _u1
 	}
 
 	private func u2() -> ParaObject {
-		if (_u2 == nil) {
-			_u2 = ParaObject(id: "333")
-			_u2!.name = "Ann Smith"
-			_u2!.timestamp = currentTimeMillis()
-			_u2!.tags = ["four", "five", "three"]
-		}
-		return _u2!
+		return _u2
 	}
 
 	private func t() -> ParaObject {
-		if (_t == nil) {
-			_t = ParaObject(id: "tag:test")
-			_t!.type = "tag"
-			_t!.properties["tag"] = "test"
-			_t!.properties["count"] = 3
-			_t!.timestamp = currentTimeMillis()
-		}
-		return _t!
+		return _t
 	}
 
 	private func a1() -> ParaObject {
-		if (_a1 == nil) {
-			_a1 = ParaObject(id: "adr1")
-			_a1!.type = "address"
-			_a1!.name = "Place 1"
-			_a1!.properties["address"] = "NYC"
-			_a1!.properties["country"] = "US"
-			_a1!.properties["latlng"] = "40.67,-73.94"
-			_a1!.parentid = u().id
-			_a1!.creatorid = u().id
-		}
-		return _a1!
+		return _a1
 	}
 
 	private func a2() -> ParaObject {
-		if (_a2 == nil) {
-			_a2 = ParaObject(id: "adr2")
-			_a2!.type = "address"
-			_a2!.name = "Place 2"
-			_a2!.properties["address"] = "NYC"
-			_a2!.properties["country"] = "US"
-			_a2!.properties["latlng"] = "40.69,-73.95"
-			_a2!.parentid = t().id
-			_a2!.creatorid = t().id
-		}
-		return _a2!
+		return _a2
 	}
 
 	private func s1() -> ParaObject {
-		if (_s1 == nil) {
-			_s1 = ParaObject(id: "s1")
-			_s1!.properties["text"] = "This is a little test sentence. Testing, one, two, three."
-			_s1!.timestamp = currentTimeMillis()
-		}
-		return _s1!
+		return _s1
 	}
 
 	private func s2() -> ParaObject {
-		if (_s2 == nil) {
-			_s2 = ParaObject(id: "s2")
-			_s2!.properties["text"] = "We are testing this thing. This sentence is a test. One, two."
-			_s2!.timestamp = currentTimeMillis()
-		}
-		return _s2!
-	}
-
-	private func currentTimeMillis() -> NSNumber {
-		return NSNumber(value: UInt64(NSDate().timeIntervalSince1970 * 1000))
+		return _s2
 	}
 
 	override func setUp() {
 		super.setUp()
-		if (!ParaClientTests.ranOnce) {
-			ParaClientTests.ranOnce = true
-			let _1 = self.expectation(description: "")
-
-			pc().me(nil, { res in
-				assert(res != nil, "Para server must be running before testing!")
-				self.pc().createAll([self.u(), self.u1(), self.u2(), self.t(),
-					self.s1(), self.s2(), self.a1(), self.a2()], callback: { res in
-					print("\((res?.count)!) Objects created!")
-					_1.fulfill()
-				})
-			})
-			self.waitForExpectations(timeout: 10) { error in
-				XCTAssertNil(error, "Test failed.")
-			}
-			sleep(1)
-		}
+		
 	}
 
 	override func tearDown() {
@@ -636,15 +625,15 @@ class ParaClientTests: XCTestCase {
 		let terms1 = ["type": "", "id": " "]
 		let terms2 = [" ": "bad", "": ""]
 
-		pc().findTerms(u().type, terms: terms as [String : AnyObject], matchAll: true, callback: { res in
+		pc().findTerms(u().type, terms: terms, matchAll: true, callback: { res in
 			XCTAssertEqual(1, (res?.count)!)
 			_34.fulfill()
 		})
-		pc().findTerms(u().type, terms: terms1 as [String : AnyObject], matchAll: true, callback: { res in
+		pc().findTerms(u().type, terms: terms1, matchAll: true, callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_35.fulfill()
 		})
-		pc().findTerms(u().type, terms: terms2 as [String : AnyObject], matchAll: true, callback: { res in
+		pc().findTerms(u().type, terms: terms2, matchAll: true, callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_36.fulfill()
 		})
@@ -654,15 +643,15 @@ class ParaClientTests: XCTestCase {
 			XCTAssertTrue((res?.count)! == 0)
 			_37.fulfill()
 		})
-		pc().findTerms(u().type, terms: ["": "" as AnyObject], matchAll: true,  callback: { res in
+		pc().findTerms(u().type, terms: ["": ""], matchAll: true,  callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_38.fulfill()
 		})
-		pc().findTerms(u().type, terms: ["term": "" as AnyObject], matchAll: true, callback: { res in
+		pc().findTerms(u().type, terms: ["term": ""], matchAll: true, callback: { res in
 			XCTAssertTrue((res?.count)! == 0)
 			_39.fulfill()
 		})
-		pc().findTerms(u().type, terms: ["type": u().type as AnyObject], matchAll: true, callback: { res in
+		pc().findTerms(u().type, terms: ["type": u().type], matchAll: true, callback: { res in
 			XCTAssertTrue((res?.count)! >= 2)
 			_40.fulfill()
 		})
@@ -697,15 +686,15 @@ class ParaClientTests: XCTestCase {
 			XCTAssertEqual(0, res)
 			_47.fulfill()
 		})
-		pc().getCount(u().type, terms: ["id": " " as AnyObject], callback: { res in
+		pc().getCount(u().type, terms: ["id": " "], callback: { res in
 			XCTAssertEqual(0, res)
 			_48.fulfill()
 		})
-		pc().getCount(u().type, terms: ["id": u().id as AnyObject], callback: { res in
+		pc().getCount(u().type, terms: ["id": u().id], callback: { res in
 			XCTAssertEqual(1, res)
 			_49.fulfill()
 		})
-		pc().getCount("", terms: ["type": u().type as AnyObject], callback: { res in
+		pc().getCount("", terms: ["type": u().type], callback: { res in
 			XCTAssertTrue(res > 1)
 			_50.fulfill()
 		})
@@ -1288,4 +1277,3 @@ class ParaClientTests: XCTestCase {
 	}
 
 }
-

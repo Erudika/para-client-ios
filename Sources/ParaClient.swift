@@ -15,7 +15,6 @@
 // For issues and patches go to: https://github.com/erudika
 
 import Foundation
-import SwiftyJSON
 import Alamofire
 
 /**
@@ -75,7 +74,7 @@ open class ParaClient {
 
 	/// Returns the API request path
 	open func getApiPath() -> String {
-		if (self.tokenKey ?? "").isEmpty {
+		if self.path .isEmpty {
 			return DEFAULT_PATH
 		} else {
 			if !self.path.hasSuffix("/") {
@@ -88,7 +87,7 @@ open class ParaClient {
 	/// Returns the version of Para server
 	open func getServerVersion(_ callback: @escaping (String?) -> Void, error: ((NSError) -> Void)? = { _ in }) {
 		invokeGet("", rawResult: true, callback: { res in
-			var ver = res?.dictionaryObject ?? [:]
+			let ver = res?.dictionaryObject ?? [:]
 			if ver.isEmpty || !ver.keys.contains("version") {
 				callback("unknown")
 			} else {
@@ -100,7 +99,7 @@ open class ParaClient {
 	/// Sets the JWT access token.
 	open func setAccessToken(_ token: String) {
 		if !token.isEmpty {
-			var parts = token.components(separatedBy: ".")
+			let parts = token.components(separatedBy: ".")
 			do {
 				let decoded:JSON = try JSON(data: NSData(base64Encoded: parts[1],
 														 options: NSData.Base64DecodingOptions(rawValue: 0))! as Data)
@@ -268,7 +267,7 @@ open class ParaClient {
 
 	fileprivate func savePref(_ key: String, value: String?) {
 		let defaults = UserDefaults.standard
-		defaults.setValue(value, forKey: key)
+		defaults.set(value, forKey: key)
 		defaults.synchronize()
 	}
 
@@ -280,6 +279,15 @@ open class ParaClient {
 	fileprivate func clearPref(_ key: String) {
 		let defaults = UserDefaults.standard
 		defaults.removeObject(forKey: key)
+	}
+
+	fileprivate func base64URLEncode(_ value: String) -> String {
+		let data = value.data(using: .utf8) ?? Data()
+		let encoded = data.base64EncodedString()
+			.replacingOccurrences(of: "+", with: "-")
+			.replacingOccurrences(of: "/", with: "_")
+			.replacingOccurrences(of: "=", with: "")
+		return encoded
 	}
 
 	/////////////////////////////////////////////
@@ -612,7 +620,7 @@ open class ParaClient {
 	- parameter pager: a Pager
 	- parameter callback: called with response object when the request is completed
 	*/
-	open func findTerms(_ type: String, terms: [String: AnyObject], matchAll: Bool,
+	open func findTerms(_ type: String, terms: [String: String], matchAll: Bool,
 	                      pager: Pager? = nil, callback: @escaping ([ParaObject]?) -> Void,
 	                      error: ((NSError) -> Void)? = { _ in }) {
 		if terms.isEmpty {
@@ -623,8 +631,8 @@ open class ParaClient {
 		var list = [String]()
 		params["matchall"] = String(matchAll)
 		for (key, value) in terms {
-			if value.description != nil {
-				list.append("\(key):\(value.description!)")
+			if !value.isEmpty {
+				list.append("\(key):\(value)")
 			}
 		}
 		if !terms.isEmpty {
@@ -673,7 +681,7 @@ open class ParaClient {
 	- parameter terms: a list of terms (property values)
 	- parameter callback: called with response object when the request is completed
 	*/
-	open func getCount(_ type: String, terms: [String: AnyObject], callback: @escaping (UInt) -> Void,
+	open func getCount(_ type: String, terms: [String: String], callback: @escaping (UInt) -> Void,
 	                     error: ((NSError) -> Void)? = { _ in }) {
 		if terms.isEmpty {
 			callback(0)
@@ -682,8 +690,8 @@ open class ParaClient {
 		let params = NSMutableDictionary()
 		var list = [String]()
 		for (key, value) in terms {
-			if value.description != nil {
-				list.append("\(key):\(value.description!)")
+			if !value.isEmpty {
+				list.append("\(key):\(value)")
 			}
 		}
 		if !terms.isEmpty {
@@ -709,7 +717,7 @@ open class ParaClient {
 			}
 			return
 		}
-		callback(["items": [:], "totalHits": 0])
+		callback(["items": JSON([]), "totalHits": JSON(0)])
 	}
 
 	/////////////////////////////////////////////
@@ -1259,7 +1267,7 @@ open class ParaClient {
 		if allowGuestAccess && subjectid == "*" {
 			permit.append("?")
 		}
-		let resPath = Signer.encodeURIComponent(resourcePath)
+		let resPath = base64URLEncode(resourcePath)
 		invokePut("_permissions/\(Signer.encodeURIComponent(subjectid))/\(resPath)", entity: JSON(permit), callback: { res in
 			callback(res?.dictionaryObject as [String : AnyObject]?)
 		} as (JSON?) -> Void, error: error)
@@ -1277,7 +1285,7 @@ open class ParaClient {
 			callback([:])
 			return
 		}
-		let resPath = Signer.encodeURIComponent(resourcePath)
+		let resPath = base64URLEncode(resourcePath)
 		invokeDelete("_permissions/\(Signer.encodeURIComponent(subjectid))/\(resPath)", callback: { res in
 			callback(res?.dictionaryObject)
 		} as (JSON?) -> Void, error: error)
@@ -1312,7 +1320,7 @@ open class ParaClient {
 			callback(false)
 			return
 		}
-		let resPath = Signer.encodeURIComponent(resourcePath)
+		let resPath = base64URLEncode(resourcePath)
 		invokeGet("_permissions/\(Signer.encodeURIComponent(subjectid))/\(resPath)/\(httpMethod)",
 		          callback: { res in callback((res ?? "") == "true") } as (String?) -> Void,
 		          error: { _ in callback(false) })
@@ -1475,4 +1483,3 @@ open class ParaClient {
 	}
 
 }
-

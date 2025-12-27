@@ -18,7 +18,6 @@
 import Foundation
 import CryptoSwift
 import Alamofire
-import SwiftyJSON
 
 /**
 Signs HTTP requests using the AWS V4 algorithm
@@ -64,8 +63,8 @@ open class Signer {
 			for part in rawPath.components(separatedBy: "/") {
 				if !part.isEmpty {
 					encodedPartsArray.append(Signer.encodeURIComponent(part))
-				}
-			}
+	}
+}
 			path = "/" + encodedPartsArray.joined(separator: "/")
 		}
 		return path
@@ -77,9 +76,9 @@ open class Signer {
 	}
 	
 	fileprivate func hmac(_ string: NSString, key: Data) -> Data {
-		let msg = string.data(using: String.Encoding.utf8.rawValue)!.bytes
-		let hmac:[UInt8] = try! HMAC(key: key.bytes, variant: .sha256).authenticate(msg)
-		return Data(bytes: hmac)
+		let msg = Array(string.data(using: String.Encoding.utf8.rawValue)!)
+		let hmac = try! HMAC(key: Array(key), variant: .sha2(.sha256)).authenticate(msg)
+		return Data(hmac)
 	}
 	
 	fileprivate func timestamp(_ date: Date) -> String {
@@ -112,7 +111,7 @@ open class Signer {
 	
 	fileprivate func signedHeaders(_ headers: [String:String]) -> String {
 		var list = Array(headers.keys).map { $0.lowercased() }.sorted()
-		if let itemIndex = list.index(of: "authorization") {
+		if let itemIndex = list.firstIndex(of: "authorization") {
 			list.remove(at: itemIndex)
 		}
 		return list.joined(separator: ";")
@@ -178,7 +177,8 @@ open class Signer {
 	open func invokeSignedRequest<T>(_ accessKey: String, secretKey: String, httpMethod: String, endpointURL: String,
 	                                reqPath: String, headers: NSMutableDictionary? = [:],
 	                                params: [String: AnyObject]? = [:], body: JSON? = nil, rawResult: Bool? = true,
-	                                callback: @escaping (T?) -> Void, error: ((NSError) -> Void)? = { _ in })	{
+	                                callback: @escaping (T?) -> Void,
+	                                error: ((NSError) -> Void)? = { _ in })	{
 		
 		if accessKey.isEmpty {
 			print("Blank access key: \(httpMethod) \(reqPath)")
@@ -217,8 +217,9 @@ open class Signer {
 						}
 					}
 				} else {
-					paramArrayForSigning.append("\(k)=\(Signer.encodeURIComponent(params![k]!.description))")
-					paramArray.append("\(k)=\(Signer.encodeURIComponent(params![k]!.description))")
+					let description = String(describing: params![k]!)
+					paramArrayForSigning.append("\(k)=\(Signer.encodeURIComponent(description))")
+					paramArray.append("\(k)=\(Signer.encodeURIComponent(description))")
 				}
 				
 			}
@@ -301,3 +302,5 @@ open class Signer {
 //		return s.stringByAddingPercentEncodingWithAllowedCharacters(allowed) ?? ""
 //	}
 }
+
+extension Signer: @unchecked Sendable {}

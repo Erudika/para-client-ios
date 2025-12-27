@@ -1,34 +1,24 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "Alamofire",
-        "repositoryURL": "https://github.com/Alamofire/Alamofire.git",
-        "state": {
-          "branch": null,
-          "revision": "f82c23a8a7ef8dc1a49a8bfc6a96883e79121864",
-          "version": "5.5.0"
-        }
-      },
-      {
-        "package": "CryptoSwift",
-        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift",
-        "state": {
-          "branch": null,
-          "revision": "4b0565384d3c4c588af09e660535b2c7c9bf5b39",
-          "version": "1.4.2"
-        }
-      },
-      {
-        "package": "SwiftyJSON",
-        "repositoryURL": "https://github.com/SwiftyJSON/SwiftyJSON",
-        "state": {
-          "branch": null,
-          "revision": "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
-          "version": "5.0.1"
-        }
+  "originHash" : "0e577d1a4c02c7b1a29b906b1583a92e6991c9b62e4a888ce57dd497e6f7dec1",
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire.git",
+      "state" : {
+        "revision" : "7be73f6c2b5cd90e40798b06ebd5da8f9f79cf88",
+        "version" : "5.11.0"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "cryptoswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/CryptoSwift",
+      "state" : {
+        "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
+        "version" : "1.9.0"
+      }
+    }
+  ],
+  "version" : 3
 }

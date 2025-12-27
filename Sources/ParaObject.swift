@@ -15,7 +15,6 @@
 // For issues and patches go to: https://github.com/erudika
 
 import Foundation
-import SwiftyJSON
 
 /**
 The core domain class. All Para objects extend it.
@@ -56,7 +55,6 @@ open class ParaObject : NSObject {
 
 	open var properties: [String: Any] = [:]
 
-	fileprivate static var _coreFields: [String: Any]?
 
 	public convenience override init () {
 		self.init(id: "")
@@ -95,19 +93,16 @@ open class ParaObject : NSObject {
 
 	subscript(name: String) -> Any {
 		get {
-			return self.properties[name] ?? self.value(forKey: name) as Any
+			if let prop = self.properties[name] {
+				return prop
+			}
+			return coreFieldValue(named: name) ?? NSNull()
 		}
 		set {
-			if self.value(forKey: name) == nil && !ParaObject.getCoreFields().keys.contains(name) {
+			if !assignCoreField(named: name, value: newValue) {
 				self.properties[name] = newValue
-			} else {
-				self.setValue(newValue, forKey: name)
 			}
 		}
-	}
-
-	open override func value(forUndefinedKey key: String) -> Any? {
-		return nil
 	}
 
 	/**
@@ -174,18 +169,154 @@ open class ParaObject : NSObject {
         return props
     }
 
-	fileprivate static func getCoreFields() -> [String: Any] {
-		if ParaObject._coreFields == nil {
-			ParaObject._coreFields = [String: Any]()
-			for child in Mirror(reflecting: ParaObject()).children {
-				if let key = child.label {
-					if key != "properties" {
-						ParaObject._coreFields![key] = child.value
-					}
-				}
+	private func coreFieldValue(named name: String) -> Any? {
+		switch name {
+			case "id": return self.id
+			case "timestamp": return self.timestamp
+			case "type": return self.type
+			case "plural": return self.plural
+			case "appid": return self.appid
+			case "parentid": return self.parentid
+			case "creatorid": return self.creatorid
+			case "updated": return self.updated
+			case "name": return self.name
+			case "tags": return self.tags
+			case "votes": return self.votes
+			case "version": return self.version
+			case "stored": return self.stored
+			case "indexed": return self.indexed
+			case "cached": return self.cached
+			default: return nil
+		}
+	}
+
+	@discardableResult
+	private func assignCoreField(named name: String, value: Any) -> Bool {
+		if value is NSNull {
+			switch name {
+				case "timestamp":
+					self.timestamp = nil
+					return true
+				case "updated":
+					self.updated = nil
+					return true
+				case "tags":
+					self.tags = []
+					return true
+				default:
+					return false
 			}
 		}
-		return ParaObject._coreFields!
+		switch name {
+			case "id":
+				if let string = asString(value) { self.id = string; return true }
+			case "timestamp":
+				if let number = asNumber(value) { self.timestamp = number; return true }
+			case "type":
+				if let string = asString(value) { self.type = string; return true }
+			case "plural":
+				if let string = asString(value) { self.plural = string; return true }
+			case "appid":
+				if let string = asString(value) { self.appid = string; return true }
+			case "parentid":
+				if let string = asString(value) { self.parentid = string; return true }
+			case "creatorid":
+				if let string = asString(value) { self.creatorid = string; return true }
+			case "updated":
+				if let number = asNumber(value) { self.updated = number; return true }
+			case "name":
+				if let string = asString(value) { self.name = string; return true }
+			case "tags":
+				if let list = asStringArray(value) { self.tags = list; return true }
+			case "votes":
+				if let intValue = asInt(value) { self.votes = intValue; return true }
+			case "version":
+				if let intValue = asInt(value) { self.version = intValue; return true }
+			case "stored":
+				if let boolValue = asBool(value) { self.stored = boolValue; return true }
+			case "indexed":
+				if let boolValue = asBool(value) { self.indexed = boolValue; return true }
+			case "cached":
+				if let boolValue = asBool(value) { self.cached = boolValue; return true }
+			default:
+				break
+		}
+		return false
+	}
+
+	private func asString(_ value: Any) -> String? {
+		if let string = value as? String {
+			return string
+		}
+		if let number = value as? NSNumber {
+			return number.stringValue
+		}
+		return nil
+	}
+
+	private func asNumber(_ value: Any) -> NSNumber? {
+		if let number = value as? NSNumber {
+			return number
+		}
+		if let intValue = value as? Int {
+			return NSNumber(value: intValue)
+		}
+		if let doubleValue = value as? Double {
+			return NSNumber(value: doubleValue)
+		}
+		if let string = value as? String {
+			if let intValue = Int(string) {
+				return NSNumber(value: intValue)
+			}
+			if let doubleValue = Double(string) {
+				return NSNumber(value: doubleValue)
+			}
+		}
+		return nil
+	}
+
+	private func asInt(_ value: Any) -> Int? {
+		if let intValue = value as? Int {
+			return intValue
+		}
+		if let number = value as? NSNumber {
+			return number.intValue
+		}
+		if let string = value as? String {
+			return Int(string)
+		}
+		return nil
+	}
+
+	private func asBool(_ value: Any) -> Bool? {
+		if let boolValue = value as? Bool {
+			return boolValue
+		}
+		if let number = value as? NSNumber {
+			return number.boolValue
+		}
+		if let string = value as? String {
+			switch string.lowercased() {
+				case "true", "1", "yes": return true
+				case "false", "0", "no": return false
+				default: return nil
+			}
+		}
+		return nil
+	}
+
+	private func asStringArray(_ value: Any) -> [String]? {
+		if let list = value as? [String] {
+			return list
+		}
+		if let list = value as? [Any] {
+			let strings = list.compactMap { $0 as? String }
+			return strings.isEmpty ? nil : strings
+		}
+		if let string = value as? String {
+			return [string]
+		}
+		return nil
 	}
 
 	/// Returns the JSON serialization of this object.
